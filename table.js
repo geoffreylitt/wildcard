@@ -4,6 +4,13 @@
   // These might change...
   const rowContainerClass = "_fhph4u"
   const rowClass = "_8ssblpx"
+  const imageClass = "_1i2fr3fi"
+  const titleClass = "_1ebt2xej"
+  const priceClass = "_1p7iugi"
+  const ratingClass = "_ky9opu0"
+  const listingLinkClass = "_i24ijs"
+  const likeListClass = "_v44ajx"
+  const closeModalClass = "_1rp5252"
 
   function htmlToElement(html) {
     var template = document.createElement('template');
@@ -12,16 +19,56 @@
     return template.content.firstChild;
   }
 
+  function openTab(url) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+  
+  function likeRow(row, rest) {
+    console.log("liking row ", row)
+    let likeButton = row.div.querySelectorAll("button")[2] // so brittle...
+    console.log("like button: ", likeButton)
+    likeButton.click()
+    setTimeout(() => {
+      let list = document.querySelector("." + likeListClass)
+      list.click()
+
+      setTimeout(() => {
+        let closeButton = document.querySelector("." + closeModalClass)
+        closeButton.click()
+
+        if (rest.length !== 0) {
+          setTimeout(() => {
+            likeRow(rest[0], rest.slice(1))
+          }, 1000)
+        }
+      }, 1000)
+    }, 1000)
+
+  }
+
   const setupTable = () => {
     let rowContainer = document.querySelector("." + rowContainerClass)
 
     let rows = [...rowContainer.children].map(row => {
       return {
+        div: row,
         id: row.querySelectorAll("meta[itemprop=position]")[0].getAttribute("content"),
-        div: row
+        imgUrl: row.querySelector("." + imageClass).getAttribute("style").match(/url\(\"(.*)\"\)/)[1],
+        title: row.querySelector("." + titleClass) && row.querySelector("." + titleClass).textContent,
+        price: row.querySelector("." + priceClass) && row.querySelector("." + priceClass).textContent.match(/\$([\d]*)/)[1],
+        rating: row.querySelector("." + ratingClass) && row.querySelector("._ky9opu0").textContent,
+        href: row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
         // todo: add scraped data here
       }
     })
+
+    window.guinea = rows[0]
+    console.log("rows", rows)
 
     // takes string IDs and shows only those rows
     let showRows = function (ids) {
@@ -41,50 +88,15 @@
     link.href = 'https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css';
     document.getElementsByTagName("head")[0].appendChild(link);
 
-    var data = [
-      {
-        id: "1",
-        img: '<img style="max-height: 50px;" src="https://a0.muscache.com/im/pictures/865d3131-6c60-465f-bb0d-6176f17334d1.jpg?aki_policy=large" />',
-        name: "Sunny South Beach 1min + FREE Parking",
-        price: 437,
-        rating: 4.88
-      },
-      {
-        id: "2",
-        img: '<img style="max-height: 50px;" src="https://a0.muscache.com/im/pictures/5152b9b0-3961-4f5d-a89c-2fb250e0e5eb.jpg?aki_policy=large" />',
-        name: "Miami Brickell Downtown",
-        price: 469,
-        rating: 4.92
-      },
-      {
-        id: "3",
-        img: '<img style="max-height: 50px;" src="https://a0.muscache.com/im/pictures/865d3131-6c60-465f-bb0d-6176f17334d1.jpg?aki_policy=large" />',
-        name: "Sunny South Beach 1min + FREE Parking",
-        price: 437,
-        rating: 4.88
-      },
-      {
-        id: "4",
-        img: '<img style="max-height: 50px;" src="https://a0.muscache.com/im/pictures/5152b9b0-3961-4f5d-a89c-2fb250e0e5eb.jpg?aki_policy=large" />',
-        name: "Miami Brickell Downtown",
-        price: 469,
-        rating: 4.92
-      },
-      {
-        id: "5",
-        img: '<img style="max-height: 50px;" src="https://a0.muscache.com/im/pictures/865d3131-6c60-465f-bb0d-6176f17334d1.jpg?aki_policy=large" />',
-        name: "Sunny South Beach 1min + FREE Parking",
-        price: 437,
-        rating: 4.88
-      },
-      {
-        id: "6",
-        img: '<img style="max-height: 50px;" src="https://a0.muscache.com/im/pictures/5152b9b0-3961-4f5d-a89c-2fb250e0e5eb.jpg?aki_policy=large" />',
-        name: "Miami Brickell Downtown",
-        price: 469,
-        rating: 4.92
-      },
-    ];
+    var data = rows.map(r => {
+      return {
+        id: r.id,
+        img: '<img style="max-height: 50px;" src="' + r.imgUrl + '"/>', 
+        name: r.title,
+        price: r.price,
+        rating: r.rating
+      }
+    })
 
     var container = document.getElementById('open-apps-table');
 
@@ -106,16 +118,25 @@
             name: "Favorite",
             hidden: false,
             callback: function (key, selection, clickEvent) { // Callback for specific option
-              let ids = hot.getData(selection[0].start.row, 0, selection[0].end.row, 10);
-              console.log("favorited", ids);
+              let ids = hot.getData(selection[0].start.row, 0, selection[0].end.row, 0).map(r => r[0]);
+              let rowsToLike = ids.map(id => { return rows.find(r => r.id === id) })
+              console.log("favorited", "ids", ids, "rows", rows, "rowstolike", rowsToLike);
+
+              likeRow(rowsToLike[0], rowsToLike.slice(1))
+
             }
           },
           "openlink": { // Own custom option
             name: "Open link",
             hidden: false,
             callback: function (key, selection, clickEvent) { // Callback for specific option
-              let ids = hot.getData(selection[0].start.row, 0, selection[0].end.row, 10);
-              console.log("open link", ids);
+              let ids = hot.getData(selection[0].start.row, 0, selection[0].end.row, 0).map(r => r[0]);
+              let rowsToLike = ids.map(id => { rows.find(r => r.id === id) })
+
+              rowsToOpen.forEach(row => {
+                console.log("opening ", row.href)
+                openTab(row.href)
+              })
             }
           },
         }
@@ -132,10 +153,13 @@
       ]
     });
 
-    Handsontable.hooks.add('afterColumnSort', (c, d) => { 
-      let ids = hot.getDataAtCol(0)
-      showRows(ids)
-    }, hot)
+    // register hooks to re-sort the list
+    ['afterColumnSort', 'afterFilter'].forEach(hook => {
+      Handsontable.hooks.add(hook, (c, d) => { 
+        let ids = hot.getDataAtCol(0)
+        showRows(ids)
+      }, hot)
+    })
   };
 
 
