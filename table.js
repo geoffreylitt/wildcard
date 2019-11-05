@@ -53,6 +53,10 @@
   function findRows() {
     return [...findRowContainer().children]
   }
+
+  function selectRowInApp(id) {
+
+  }
   
   // perform a like action on a row
   function likeRow(row, rest) {
@@ -96,12 +100,15 @@
 
   const setupTable = () => {
     let rowContainer = findRowContainer()
+    let rawRows = findRows()
 
-    let rows = findRows().map(row => {
+    let rows = rawRows.map(row => {
       let id = row.querySelectorAll("meta[itemprop=position]")[0].getAttribute("content")
       let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
       let url = `https://airbnb.com${path}`
       let key = userdataKey(id, "notes")
+
+
 
       return {
         div: row,
@@ -114,8 +121,6 @@
         userdata: GM_getValue(key) || ""
       }
     })
-
-    console.log("the rows are: ", rows)
 
     // takes string IDs and shows only those rows
     let showRows = function (ids) {
@@ -193,8 +198,6 @@
       columns: columns
     });
 
-    console.log("hot", hot)
-
     // register hooks to re-sort the list
     ['afterColumnSort', 'afterFilter'].forEach(hook => {
       Handsontable.hooks.add(hook, (c, d) => { 
@@ -222,7 +225,23 @@
         let newRowData = hot.getDataAtRow(i)
         renderRow(newRowData, rows)
       })
+    }, hot)
+
+    // sync UI state to table
+    rows.forEach(r => {
+      r.div.addEventListener("mouseover", (e) => {
+        let indexInTable = hot.getDataAtCol(colIndex("id")).indexOf(r.id)
+        hot.scrollViewportTo(Math.max(0, indexInTable - 1), 0)
+      })
     })
+
+    // sync table state to UI
+    Handsontable.hooks.add('afterSelection', (row, col) => {
+      let rowId = hot.getDataAtRow(row)[colIndex("id")]
+      let div = rows.find(r => r.id === rowId).div
+
+      div.scrollIntoView({ behavior: "smooth", block: "center" })
+    }, hot)
   };
 
   if (document.readyState === "complete") {
