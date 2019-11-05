@@ -11,12 +11,34 @@
   const listingLinkClass = "_i24ijs"
   const likeListClass = "_v44ajx"
   const closeModalClass = "_1rp5252"
+  const notesClass = "_1s7voim"
 
+  const columns = [
+    { data: "id" },
+    { data: "img", renderer: "html" },
+    { data: "name" },
+    { data: "price" },
+    { data: "rating" },
+    { data: "userdata" }
+  ]
+
+  // get numerical index for a given prop in our HOT
+  // (should be a better way to deal with objects rather than tables)
+  function colIndex(prop) {
+    return columns.findIndex(e => e.data === prop)
+  }
+
+  // convert HTML to a dom element
   function htmlToElement(html) {
     var template = document.createElement('template');
     html = html.trim(); // Never return a text node of whitespace as the result
     template.innerHTML = html;
     return template.content.firstChild;
+  }
+
+  // helper function: insert a DOM node after a given node
+  function insertAfter(el, referenceNode) {
+    referenceNode.parentNode.insertBefore(el, referenceNode.nextSibling);
   }
 
   function openTab(url) {
@@ -27,7 +49,16 @@
     link.click();
     link.remove();
   }
+
+  function findRowContainer() {
+    return document.querySelector("." + rowContainerClass)
+  }
+
+  function findRows() {
+    return [...findRowContainer().children]
+  }
   
+  // perform a like action on a row
   function likeRow(row, rest) {
     console.log("liking row ", row)
     let likeButton = row.div.querySelectorAll("button")[2] // so brittle...
@@ -48,13 +79,31 @@
         }
       }, 1000)
     }, 1000)
+  }
 
+  // Given an array of row data, re-render it
+  // todo: this should really take in an object, not an array...
+  // the interface to the site should deal in objects, not tables
+  function renderRow(rowToChange, rows) {
+    let rowId = rowToChange[colIndex("id")]
+    let userData = rowToChange[colIndex("userdata")]
+    let divToChange = rows.find(r => r.id === rowId).div
+    let userDataDiv = divToChange.querySelector(".oa-user-data")
+
+    // if the user data div doesn't exist yet, make one
+    if (!userDataDiv) {
+      userDataDiv = htmlToElement(`<div class="${notesClass} oa-user-data" style="margin-top: 4px; font-weight: bold !important; color: #ff5722 !important;"></div>`)
+      let lastNotesRow = [...divToChange.querySelectorAll("." + notesClass)].slice(-1)[0]
+      insertAfter(userDataDiv, lastNotesRow)
+    }
+
+    userDataDiv.innerHTML = userData
   }
 
   const setupTable = () => {
-    let rowContainer = document.querySelector("." + rowContainerClass)
+    let rowContainer = findRowContainer()
 
-    let rows = [...rowContainer.children].map(row => {
+    let rows = findRows().map(row => {
       return {
         div: row,
         id: row.querySelectorAll("meta[itemprop=position]")[0].getAttribute("content"),
@@ -103,13 +152,14 @@
     var hot = new Handsontable(container, {
       data: data,
       rowHeaders: true,
-      colHeaders: ['', 'Image', 'Name', 'Price', 'Rating', 'Custom'],
+      colHeaders: ['', 'Image', 'Name', 'Price', 'Rating', 'User data'],
       filters: true,
+      formulas: true,
       stretchH: 'all',
       hiddenColumns: {
         copyPasteEnabled: true,
         indicators: true,
-        columns: [0]
+        columns: [colIndex("id")]
       },
       contextMenu: {
         items: {
@@ -143,14 +193,7 @@
       },
       dropdownMenu: true,
       columnSorting: true,
-      columns: [
-        { data: "id" },
-        { data: "img", renderer: "html" },
-        { data: "name" },
-        { data: "price" },
-        { data: "rating" },
-        { data: "other" }
-      ]
+      columns: columns
     });
 
     // register hooks to re-sort the list
@@ -160,6 +203,17 @@
         showRows(ids)
       }, hot)
     })
+
+    Handsontable.hooks.add('afterChange', (changes) => { 
+      changes.forEach(change => {
+        let [changedRow, prop, _, val] = change
+        if (prop === "userdata") {
+          let newRowData = hot.getDataAtRow(changedRow)
+          console.log("new row data: ", newRowData)
+          renderRow(newRowData, rows)
+        }
+      })
+    }, hot)
   };
 
 
