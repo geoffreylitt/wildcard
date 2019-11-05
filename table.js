@@ -28,6 +28,11 @@
     return columns.findIndex(e => e.data === prop)
   }
 
+  // key for a given userdata val in storage
+  function userdataKey(id, prop) {
+    return `userdata_${id}_${prop}`
+  }
+
   // convert HTML to a dom element
   function htmlToElement(html) {
     var template = document.createElement('template');
@@ -41,15 +46,6 @@
     referenceNode.parentNode.insertBefore(el, referenceNode.nextSibling);
   }
 
-  function openTab(url) {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  }
-
   function findRowContainer() {
     return document.querySelector("." + rowContainerClass)
   }
@@ -60,9 +56,7 @@
   
   // perform a like action on a row
   function likeRow(row, rest) {
-    console.log("liking row ", row)
     let likeButton = row.div.querySelectorAll("button")[2] // so brittle...
-    console.log("like button: ", likeButton)
     likeButton.click()
     setTimeout(() => {
       let list = document.querySelector("." + likeListClass)
@@ -104,20 +98,24 @@
     let rowContainer = findRowContainer()
 
     let rows = findRows().map(row => {
+      let id = row.querySelectorAll("meta[itemprop=position]")[0].getAttribute("content")
+      let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
+      let url = `https://airbnb.com${path}`
+      let key = userdataKey(id, "notes")
+
       return {
         div: row,
-        id: row.querySelectorAll("meta[itemprop=position]")[0].getAttribute("content"),
+        id: id,
         imgUrl: row.querySelector("." + imageClass).getAttribute("style").match(/url\(\"(.*)\"\)/)[1],
         title: row.querySelector("." + titleClass) && row.querySelector("." + titleClass).textContent,
         price: row.querySelector("." + priceClass) && row.querySelector("." + priceClass).textContent.match(/\$([\d]*)/)[1],
         rating: row.querySelector("." + ratingClass) && row.querySelector("._ky9opu0").textContent,
-        href: row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
-        // todo: add scraped data here
+        href: url,
+        userdata: GM_getValue(key) || ""
       }
     })
 
-    window.guinea = rows[0]
-    console.log("rows", rows)
+    console.log("the rows are: ", rows)
 
     // takes string IDs and shows only those rows
     let showRows = function (ids) {
@@ -143,7 +141,8 @@
         img: '<img style="max-height: 50px;" src="' + r.imgUrl + '"/>', 
         name: r.title,
         price: r.price,
-        rating: r.rating
+        rating: r.rating,
+        userdata: r.userdata
       }
     })
 
@@ -170,7 +169,6 @@
             callback: function (key, selection, clickEvent) { // Callback for specific option
               let ids = hot.getData(selection[0].start.row, 0, selection[0].end.row, 0).map(r => r[0]);
               let rowsToLike = ids.map(id => { return rows.find(r => r.id === id) })
-              console.log("favorited", "ids", ids, "rows", rows, "rowstolike", rowsToLike);
 
               likeRow(rowsToLike[0], rowsToLike.slice(1))
 
@@ -181,11 +179,10 @@
             hidden: false,
             callback: function (key, selection, clickEvent) { // Callback for specific option
               let ids = hot.getData(selection[0].start.row, 0, selection[0].end.row, 0).map(r => r[0]);
-              let rowsToLike = ids.map(id => { rows.find(r => r.id === id) })
+              let rowsToOpen = ids.map(id => { return rows.find(r => r.id === id) })
 
               rowsToOpen.forEach(row => {
-                console.log("opening ", row.href)
-                openTab(row.href)
+                GM_openInTab(row.href)
               })
             }
           },
@@ -195,6 +192,8 @@
       columnSorting: true,
       columns: columns
     });
+
+    console.log("hot", hot)
 
     // register hooks to re-sort the list
     ['afterColumnSort', 'afterFilter'].forEach(hook => {
@@ -209,13 +208,22 @@
         let [changedRow, prop, _, val] = change
         if (prop === "userdata") {
           let newRowData = hot.getDataAtRow(changedRow)
-          console.log("new row data: ", newRowData)
           renderRow(newRowData, rows)
+
+          let key = userdataKey(newRowData[colIndex("id")], "notes")
+          GM_setValue(key, val)
         }
       })
     }, hot)
-  };
 
+    Handsontable.hooks.once('afterRender', () => {
+      console.log("re-rendering rows")
+      rows.forEach((r, i) => {
+        let newRowData = hot.getDataAtRow(i)
+        renderRow(newRowData, rows)
+      })
+    })
+  };
 
   if (document.readyState === "complete") {
     setupTable();
