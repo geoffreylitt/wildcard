@@ -244,7 +244,18 @@
     }, hot)
 
       // set up button to open the table
-      let toggleBtn = htmlToElement('<button style="font-weight: bold; border-radius: 10px; z-index: 100000; padding: 10px; position: fixed; top: 200px; right: 80px; background-color: white; box-shadow: 3px 3px 5px 6px #ccc; " class="open-apps-trigger">💡Table View</button>')
+      let toggleBtn = htmlToElement(`<button style="
+      font-weight: bold;
+      border-radius: 10px;
+      z-index: 100000;
+      padding: 10px;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      background-color: white;
+      box-shadow: 0px 0px 10px -1px #d5d5d5;
+      border: none;
+      " class="open-apps-trigger">💡Table View</button>'`)
       toggleBtn.addEventListener('click', () => { newDiv.style.visibility = (newDiv.style.visibility === "visible") ? "hidden" : "visible" })
       document.body.appendChild(toggleBtn)
   };
