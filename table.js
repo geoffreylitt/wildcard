@@ -99,6 +99,8 @@
   }
 
   const setupTable = () => {
+
+    // set up the table
     let rowContainer = findRowContainer()
     let rawRows = findRows()
 
@@ -107,8 +109,6 @@
       let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
       let url = `https://airbnb.com${path}`
       let key = userdataKey(id, "notes")
-
-
 
       return {
         div: row,
@@ -131,7 +131,7 @@
       })
     }
 
-    let newDiv = htmlToElement("<div id=\"open-apps\" class=\"mydiv\" style=\"border-top: solid thin #ddd; position: fixed; overflow: hidden; background-color: white; height: 250px; width: 100%; z-index: 1000; bottom: 0;\"><div id=\"open-apps-table\"></div></div>")
+    let newDiv = htmlToElement("<div id=\"open-apps\" class=\"mydiv\" style=\"visibility: hidden; border-top: solid thin #ddd; position: fixed; overflow: hidden; background-color: white; height: 250px; width: 100%; z-index: 1000; bottom: 0;\"><div id=\"open-apps-table\"></div></div>")
     document.body.appendChild(newDiv);
 
     var link = window.document.createElement('link');
@@ -242,6 +242,11 @@
 
       div.scrollIntoView({ behavior: "smooth", block: "center" })
     }, hot)
+
+      // set up button to open the table
+      let toggleBtn = htmlToElement('<button style="font-weight: bold; border-radius: 10px; z-index: 100000; padding: 10px; position: fixed; top: 200px; right: 80px; background-color: white; box-shadow: 3px 3px 5px 6px #ccc; " class="open-apps-trigger">💡Table View</button>')
+      toggleBtn.addEventListener('click', () => { newDiv.style.visibility = (newDiv.style.visibility === "visible") ? "hidden" : "visible" })
+      document.body.appendChild(toggleBtn)
   };
 
   if (document.readyState === "complete") {
