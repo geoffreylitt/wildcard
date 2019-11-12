@@ -25,6 +25,8 @@
       }
     },
     { data: "rating", type: "numeric", numericFormat: { pattern: '0,0.0' } },
+    { data: "latitude", type: "numeric" },
+    { data: "longitude", type: "numeric" },
     { data: "userdata" }
   ]
 
@@ -102,10 +104,6 @@
 
   const setupTable = () => {
 
-    unsafeWindow.updateListings = (listings) => {
-      console.log("got some fresh listings!", listings)
-    }
-
     // set up the table
     let rowContainer = findRowContainer()
     let rawRows = findRows()
@@ -153,7 +151,9 @@
         name: r.title,
         price: r.price,
         rating: r.rating,
-        userdata: r.userdata
+        userdata: r.userdata,
+        latitude: 0,
+        longitude: 0
       }
     })
 
@@ -162,7 +162,7 @@
     var hot = new Handsontable(container, {
       data: data,
       rowHeaders: true,
-      colHeaders: ['', 'Image', 'Name', 'Price', 'Rating', 'User data'],
+      colHeaders: columns.map(c => c.data),
       filters: true,
       formulas: true,
       stretchH: 'all',
@@ -255,23 +255,40 @@
       otherDivs.forEach( d => d.style.outline = "none" )
     }, hot)
 
+    unsafeWindow.updateListings = (rawListings) => {
+      let listings = rawListings.map(rl => {
+        return {
+          id: rl.listing.id,
+          img: '<img style="max-height: 50px;" src="' + rl.listing.picture_url + '"/>', 
+          name: rl.listing.name,
+          price: rl.pricing_quote.rate.amount,
+          rating: rl.listing.avg_rating,
+          userdata: "",
+          latitude: rl.listing.lat,
+          longitude: rl.listing.lng
+        }
+      })
 
+      console.log("got some fresh listings!", listings)
 
-      // set up button to open the table
-      let toggleBtn = htmlToElement(`<button style="
-      font-weight: bold;
-      border-radius: 10px;
-      z-index: 100000;
-      padding: 10px;
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      background-color: white;
-      box-shadow: 0px 0px 10px -1px #d5d5d5;
-      border: none;
-      " class="open-apps-trigger">💡Table View</button>'`)
-      toggleBtn.addEventListener('click', () => { newDiv.style.visibility = (newDiv.style.visibility === "visible") ? "hidden" : "visible" })
-      document.body.appendChild(toggleBtn)
+      hot.loadData(listings)
+    }
+
+    // set up button to open the table
+    let toggleBtn = htmlToElement(`<button style="
+    font-weight: bold;
+    border-radius: 10px;
+    z-index: 100000;
+    padding: 10px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    background-color: white;
+    box-shadow: 0px 0px 10px -1px #d5d5d5;
+    border: none;
+    " class="open-apps-trigger">💡Table View</button>'`)
+    toggleBtn.addEventListener('click', () => { newDiv.style.visibility = (newDiv.style.visibility === "visible") ? "hidden" : "visible" })
+    document.body.appendChild(toggleBtn)
   };
 
   if (document.readyState === "complete") {
