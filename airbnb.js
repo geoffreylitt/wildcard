@@ -102,6 +102,10 @@
 
   const setupTable = () => {
 
+    unsafeWindow.updateListings = (listings) => {
+      console.log("got some fresh listings!", listings)
+    }
+
     // set up the table
     let rowContainer = findRowContainer()
     let rawRows = findRows()
