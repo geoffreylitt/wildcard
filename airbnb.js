@@ -109,8 +109,8 @@
     let rawRows = findRows()
 
     let rows = rawRows.map(row => {
-      let id = row.querySelectorAll("meta[itemprop=position]")[0].getAttribute("content")
       let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
+      let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
       let url = `https://airbnb.com${path}`
       let key = userdataKey(id, "notes")
 
@@ -244,6 +244,7 @@
     // sync table state to UI
     Handsontable.hooks.add('afterSelection', (row, col) => {
       let rowId = hot.getDataAtRow(row)[colIndex("id")]
+      console.log("row finding", rowId, rows.map(r => r.id))
       let div = rows.find(r => r.id === rowId).div
 
       // Add a border and scroll selected div into view
@@ -258,7 +259,7 @@
     unsafeWindow.updateListings = (rawListings) => {
       let listings = rawListings.map(rl => {
         return {
-          id: rl.listing.id,
+          id: String(rl.listing.id),
           img: '<img style="max-height: 50px;" src="' + rl.listing.picture_url + '"/>', 
           name: rl.listing.name,
           price: rl.pricing_quote.rate.amount,
