@@ -147,6 +147,7 @@
 
     // takes string IDs and shows only those rows
     let showRows = function (ids) {
+      // console.log("showing rows", ids, "rows ids", rows.map(r => r.id), "rows", rows)
       rowContainer.innerHTML = ""
       ids.forEach (id => {
         let row = rows.find(r => r.id === id)
@@ -225,11 +226,37 @@
         changes.forEach(change => {
           let [changedRow, prop, _, val] = change
           if (prop === "userdata") {
-            let newRowData = hot.getDataAtRow(changedRow)
-            renderRow(newRowData)
-  
-            let key = userdataKey(newRowData[colIndex("id")], "notes")
-            GM_setValue(key, val)
+            // hacky formula evaluation
+            let formulaMatch = val && val.match(/=walkscore\((.*), (.*)\)/)
+            if(formulaMatch) {
+              let lat = hot.getDataAtCell(changedRow, colIndex(formulaMatch[1]))
+              let long = hot.getDataAtCell(changedRow, colIndex(formulaMatch[2]))
+              const apikey = "75bb7422674ae495291290bf8a4ad7fd"
+
+              // hot.setDataAtCell(changedRow, colIndex("userdata"), `${lat}, ${long}`)
+              hot.setDataAtCell(changedRow, colIndex("userdata"), `loading...`)
+
+              let url = `http://api.walkscore.com/score?format=json&lat=${lat}&lon=${long}&transit=1&bike=1&wsapikey=${apikey}`
+
+              GM_xmlhttpRequest({
+                method: "GET",
+                url: url,
+                onload: (response) => {
+                  if (response.status === 200) {
+                    let responseObj = JSON.parse(response.response)
+                    hot.setDataAtCell(changedRow, colIndex("userdata"), `${responseObj.walkscore} (${responseObj.description})`)
+                  } else {
+                    hot.setDataAtCell(changedRow, colIndex("userdata"), "error")
+                  }
+                }
+              });
+            } else {
+              let newRowData = hot.getDataAtRow(changedRow)
+              renderRow(newRowData)
+    
+              let key = userdataKey(newRowData[colIndex("id")], "notes")
+              GM_setValue(key, val)
+            }
           }
         })
       }
@@ -254,7 +281,6 @@
     // sync table state to UI
     Handsontable.hooks.add('afterSelection', (row, col) => {
       let rowId = hot.getDataAtRow(row)[colIndex("id")]
-      console.log("row finding", rowId, rows)
       let div = rows.find(r => r.id === rowId).div
 
       // Add a border and scroll selected div into view
@@ -275,13 +301,11 @@
       // console.log("new divs by id", newDivsById)
 
       setTimeout(() => {
-        console.log("running here")
         let newRows = _.keyBy(document.querySelector("." + rowContainerClass).children, (row) => {
           let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
           let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
           return id
         })
-        console.log("new rows by id", newRows)
 
         rows = rawListings.filter(rl => {
           return newRows.hasOwnProperty(String(rl.listing.id))
@@ -302,11 +326,9 @@
           }
         })
 
-        console.log("fresh listings!", rows);
         let newData = hotDataFromRows(rows)
-        console.log("new hot data", newData)
         hot.loadData(newData)
-      }, 1000)
+      }, 1000) // yuck, hacky but it works....
     }
 
     // set up button to open the table
