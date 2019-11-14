@@ -1,6 +1,8 @@
 (function () {
   'use strict';
 
+  var rows;
+
   // These might change...
   const rowContainerClass = "_fhph4u"
   const rowClass = "_8ssblpx"
@@ -86,7 +88,7 @@
   // Given an array of row data, re-render it
   // todo: this should really take in an object, not an array...
   // the interface to the site should deal in objects, not tables
-  function renderRow(rowToChange, rows) {
+  function renderRow(rowToChange) {
     let rowId = rowToChange[colIndex("id")]
     let userData = rowToChange[colIndex("userdata")]
     let divToChange = rows.find(r => r.id === rowId).div
@@ -102,13 +104,28 @@
     userDataDiv.innerHTML = userData
   }
 
-  const setupTable = () => {
+  // given rows data, formats for handsontable
+  function hotDataFromRows(rowsData) {
+    return rowsData.map(r => {
+      return {
+        id: r.id,
+        img: '<img style="max-height: 50px;" src="' + r.imgUrl + '"/>', 
+        name: r.title,
+        price: r.price,
+        rating: r.rating,
+        userdata: r.userdata,
+        latitude: r.latitude,
+        longitude: r.longitude
+      }
+    })
+  }
 
+  const setupTable = () => {
     // set up the table
     let rowContainer = findRowContainer()
-    let rawRows = findRows()
 
-    let rows = rawRows.map(row => {
+    let rawRows = findRows()
+    rows = rawRows.map(row => {
       let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
       let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
       let url = `https://airbnb.com${path}`
@@ -122,7 +139,9 @@
         price: row.querySelector("." + priceClass) && row.querySelector("." + priceClass).textContent.match(/\$([\d]*)/)[1],
         rating: row.querySelector("." + ratingClass) && row.querySelector("._ky9opu0").textContent,
         href: url,
-        userdata: GM_getValue(key) || ""
+        userdata: GM_getValue(key) || "",
+        latitude: 0,
+        longitude: 0
       }
     })
 
@@ -144,18 +163,7 @@
     link.href = 'https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css';
     document.getElementsByTagName("head")[0].appendChild(link);
 
-    var data = rows.map(r => {
-      return {
-        id: r.id,
-        img: '<img style="max-height: 50px;" src="' + r.imgUrl + '"/>', 
-        name: r.title,
-        price: r.price,
-        rating: r.rating,
-        userdata: r.userdata,
-        latitude: 0,
-        longitude: 0
-      }
-    })
+    var data = hotDataFromRows(rows)
 
     var container = document.getElementById('open-apps-table');
 
@@ -213,23 +221,25 @@
     })
 
     Handsontable.hooks.add('afterChange', (changes) => { 
-      changes.forEach(change => {
-        let [changedRow, prop, _, val] = change
-        if (prop === "userdata") {
-          let newRowData = hot.getDataAtRow(changedRow)
-          renderRow(newRowData, rows)
-
-          let key = userdataKey(newRowData[colIndex("id")], "notes")
-          GM_setValue(key, val)
-        }
-      })
+      if (changes) {
+        changes.forEach(change => {
+          let [changedRow, prop, _, val] = change
+          if (prop === "userdata") {
+            let newRowData = hot.getDataAtRow(changedRow)
+            renderRow(newRowData)
+  
+            let key = userdataKey(newRowData[colIndex("id")], "notes")
+            GM_setValue(key, val)
+          }
+        })
+      }
     }, hot)
 
     Handsontable.hooks.once('afterRender', () => {
       console.log("re-rendering rows")
       rows.forEach((r, i) => {
         let newRowData = hot.getDataAtRow(i)
-        renderRow(newRowData, rows)
+        renderRow(newRowData)
       })
     }, hot)
 
@@ -244,7 +254,7 @@
     // sync table state to UI
     Handsontable.hooks.add('afterSelection', (row, col) => {
       let rowId = hot.getDataAtRow(row)[colIndex("id")]
-      console.log("row finding", rowId, rows.map(r => r.id))
+      console.log("row finding", rowId, rows)
       let div = rows.find(r => r.id === rowId).div
 
       // Add a border and scroll selected div into view
@@ -257,22 +267,46 @@
     }, hot)
 
     unsafeWindow.updateListings = (rawListings) => {
-      let listings = rawListings.map(rl => {
-        return {
-          id: String(rl.listing.id),
-          img: '<img style="max-height: 50px;" src="' + rl.listing.picture_url + '"/>', 
-          name: rl.listing.name,
-          price: rl.pricing_quote.rate.amount,
-          rating: rl.listing.avg_rating,
-          userdata: "",
-          latitude: rl.listing.lat,
-          longitude: rl.listing.lng
-        }
-      })
+      // let newDivsById = _.keyBy(findRows(), (row) => {
+      //   let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
+      //   return path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
+      // })
 
-      console.log("got some fresh listings!", listings)
+      // console.log("new divs by id", newDivsById)
 
-      hot.loadData(listings)
+      setTimeout(() => {
+        console.log("running here")
+        let newRows = _.keyBy(document.querySelector("." + rowContainerClass).children, (row) => {
+          let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
+          let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
+          return id
+        })
+        console.log("new rows by id", newRows)
+
+        rows = rawListings.filter(rl => {
+          return newRows.hasOwnProperty(String(rl.listing.id))
+        }).map(rl => {
+          let id = String(rl.listing.id)
+          let key = userdataKey(id, "notes")
+
+          return {
+            id: String(rl.listing.id),
+            imgUrl: rl.listing.picture_url,
+            title: rl.listing.name,
+            price: rl.pricing_quote.rate.amount,
+            rating: rl.listing.avg_rating,
+            userdata: GM_getValue(key) || "",
+            latitude: rl.listing.lat,
+            longitude: rl.listing.lng,
+            div: newRows[id] // todo: link up to div
+          }
+        })
+
+        console.log("fresh listings!", rows);
+        let newData = hotDataFromRows(rows)
+        console.log("new hot data", newData)
+        hot.loadData(newData)
+      }, 1000)
     }
 
     // set up button to open the table
