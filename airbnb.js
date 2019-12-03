@@ -120,6 +120,16 @@
     })
   }
 
+  // takes string IDs and shows only those rows
+  function showRows(ids) {
+    let rowContainer = findRowContainer()
+    rowContainer.innerHTML = ""
+    ids.forEach (id => {
+      let row = rows.find(r => r.id === id)
+      rowContainer.appendChild(row.div)
+    })
+  }
+
   const setupTable = () => {
     // set up the table
     let rowContainer = findRowContainer()
@@ -144,16 +154,6 @@
         longitude: 0
       }
     })
-
-    // takes string IDs and shows only those rows
-    let showRows = function (ids) {
-      // console.log("showing rows", ids, "rows ids", rows.map(r => r.id), "rows", rows)
-      rowContainer.innerHTML = ""
-      ids.forEach (id => {
-        let row = rows.find(r => r.id === id)
-        rowContainer.appendChild(row.div)
-      })
-    }
 
     let newDiv = htmlToElement("<div id=\"open-apps\" class=\"mydiv\" style=\"visibility: hidden; border-top: solid thin #ddd; position: fixed; overflow: hidden; background-color: white; height: 300px; width: 100%; z-index: 1000; bottom: 0;\"><div id=\"open-apps-table\"></div></div>")
     document.body.appendChild(newDiv);
@@ -182,7 +182,7 @@
       },
       contextMenu: {
         items: {
-          "row_above": {}, "row_below": {}, "col_left": {}, "col_right": {}, "---------": {},
+          // "row_above": {}, "row_below": {}, "col_left": {}, "col_right": {}, "---------": {},
           "favorite": { // Own custom option
             name: "Favorite",
             hidden: false,
@@ -263,7 +263,6 @@
     }, hot)
 
     Handsontable.hooks.once('afterRender', () => {
-      console.log("re-rendering rows")
       rows.forEach((r, i) => {
         let newRowData = hot.getDataAtRow(i)
         renderRow(newRowData)
@@ -293,13 +292,6 @@
     }, hot)
 
     unsafeWindow.updateListings = (rawListings) => {
-      // let newDivsById = _.keyBy(findRows(), (row) => {
-      //   let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
-      //   return path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
-      // })
-
-      // console.log("new divs by id", newDivsById)
-
       setTimeout(() => {
         let newRows = _.keyBy(document.querySelector("." + rowContainerClass).children, (row) => {
           let path = row.querySelector("." + listingLinkClass) && row.querySelector("." + listingLinkClass).getAttribute('href')
@@ -322,7 +314,8 @@
             userdata: GM_getValue(key) || "",
             latitude: rl.listing.lat,
             longitude: rl.listing.lng,
-            div: newRows[id] // todo: link up to div
+            div: newRows[id],
+            href: "https://www.airbnb.com/rooms/" + id
           }
         })
 
