@@ -73,6 +73,18 @@
         type: col.type,
         dateFormat: col.dateFormat
       })),
+      afterChange: (changes) => {
+        if (changes) {
+          changes.forEach(([row, prop, oldValue, newValue]) => {
+            let colSpec = colSpecs.find(spec => spec.fieldName == prop)
+            if (colSpec.readOnly) { return; }
+
+            let rowEl = rows[row]
+            let el = colSpec.el(rowEl)
+            el.value = newValue
+          });
+        }
+      },
       licenseKey: 'non-commercial-and-evaluation'
     });
 
