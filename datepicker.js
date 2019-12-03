@@ -1,5 +1,5 @@
 // Return all the "item" divs in a list
-const dataRows = () => {
+const getDataRows = () => {
   return [
     document.getElementById("gcw-packages-form-hp-package")
   ]
