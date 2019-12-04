@@ -1,0 +1,20 @@
+{
+  "name": "open-apps",
+  "version": "1.0.0",
+  "description": "open apps extension maker",
+  "main": "index.js",
+  "repository": "git@github.com:geoffreylitt/open-web-apps.git",
+  "author": "Geoffrey Litt <gklitt@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "handsontable": "^7.2.2",
+    "moment": "^2.24.0",
+    "pikaday": "^1.8.0",
+    "rollup": "^1.27.8",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "scripts": {
+    "rollup": "rollup -c -w"
+  }
+}
