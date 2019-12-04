@@ -17,7 +17,7 @@
     document.getElementsByTagName("head")[0].appendChild(link);
   }
 
-  function createToggleButton() {
+  function createToggleButton(container) {
     // set up button to open the table
     let toggleBtn = htmlToElement(`<button style="
       font-weight: bold;
@@ -31,14 +31,29 @@
       box-shadow: 0px 0px 10px -1px #d5d5d5;
       border: none;
       " class="open-apps-trigger">💡Table View</button>'`)
-    toggleBtn.addEventListener('click', () => { newDiv.style.visibility = (newDiv.style.visibility === "visible") ? "hidden" : "visible" })
+    toggleBtn.addEventListener('click', () => { container.style.visibility = (container.style.visibility === "visible") ? "hidden" : "visible" })
     document.body.appendChild(toggleBtn)
+  }
+
+  function getDataFromPage() {
+    let rows = getDataRows();
+    return rows.map(rowEl => {
+      let row = {}
+      colSpecs.forEach(spec => {
+        row[spec.fieldName] = spec.el(rowEl).value;
+      })
+      return row
+    })
+  }
+
+  function colSpecFromProp(prop) {
+    return colSpecs.find(spec => spec.fieldName == prop)
   }
   
 
   // given column names and data array...
   // render a handsontable
-  const createTable = (colSpecs) => {
+  const createTable = () => {
     setupStyles();
 
     // add wrapper div
@@ -46,17 +61,9 @@
     document.body.appendChild(newDiv);
     var container = document.getElementById('open-apps-table');
 
-    let rows = getDataRows();
-
     // set up data for table
-    let data = rows.map(rowEl => {
-      let row = {}
-      colSpecs.forEach(spec => {
-        row[spec.fieldName] = spec.el(rowEl).value;
-      })
-
-      return row
-    })
+    let rows = getDataRows()
+    let data = getDataFromPage()
 
     var hot = new Handsontable(container, {
       data: data,
@@ -71,15 +78,20 @@
         data: col.fieldName,
         readOnly: col.readOnly,
         type: col.type,
-        dateFormat: col.dateFormat
+        dateFormat: "MM/DD/YYYY",
+        datePickerConfig: {
+          events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'],
+          firstDay: 1,
+          numberOfMonths: 3
+        }
       })),
       afterChange: (changes) => {
         if (changes) {
           changes.forEach(([row, prop, oldValue, newValue]) => {
-            let colSpec = colSpecs.find(spec => spec.fieldName == prop)
+            let colSpec = colSpecFromProp(prop)
             if (colSpec.readOnly) { return; }
 
-            let rowEl = rows[row]
+            let rowEl = rows[row] // this won't work with re-sorting; change to ID
             let el = colSpec.el(rowEl)
             el.value = newValue
           });
@@ -88,27 +100,43 @@
       licenseKey: 'non-commercial-and-evaluation'
     });
 
-    createToggleButton();
+    createToggleButton(newDiv);
 
     // set up handlers to react to div changes
     // todo: this is inefficient; can we make fewer handlers?
     rows.forEach((row, idx) => {
       colSpecs.forEach(col => {
         let el = col.el(row)
-        el.addEventListener("change", e => {
+        el.addEventListener("input", e => {
           hot.setDataAtRowProp(idx, col.fieldName, e.target.value)
         })
       })
     })
+
+    // set up page-specific reload triggers
+    setupReloadTriggers(() => {
+      let data = getDataFromPage()
+      hot.loadData(data)
+    })
+
+    Handsontable.hooks.add('afterSelectionByProp', (row, prop) => {
+      let rowEl = rows[row] // this won't work with re-sorting; change to ID
+      let colSpec = colSpecFromProp(prop)
+      let colEl = colSpec.el(rowEl)
+
+      // Add a border and scroll selected div into view
+      colEl.style["background-color"] = "#c9ebff"
+      colEl.scrollIntoView({ behavior: "smooth", block: "center" })
+
+      // Clear border on other divs
+      let otherDivs = colSpecs.filter(spec => spec !== colSpecFromProp(prop)).map(spec => spec.el(rowEl))
+      otherDivs.forEach( d => d.style["background-color"] = "#fff" )
+    }, hot)
   }
 
-  const runExtension = () => {
-    createTable(colSpecs);
-  };
-
   if (document.readyState === "complete") {
-    runExtension();
+    createTable();
   } else {
-    window.addEventListener("load", runExtension);
+    window.addEventListener("load", createTable);
   }
 })();

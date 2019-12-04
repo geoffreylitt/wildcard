@@ -23,14 +23,22 @@ const colSpecs = [
     fieldName: "departDate",
     el: (row) => row.querySelector("#package-departing-hp-package"),
     readOnly: false,
-    type: "date",
-    dateFormat: "MM/DD/YYYY"
+    type: "date"
   },
   {
     fieldName: "returnDate",
     el: (row) => row.querySelector("#package-returning-hp-package"),
     readOnly: false,
-    type: "date",
-    dateFormat: "MM/DD/YYYY"
+    type: "date"
   }
 ];
+
+// set up triggers for when the data should reload
+// todo: this is a weird API... simplify?
+const setupReloadTriggers = (reload) => {
+  document.addEventListener("click", (e) => {
+    if (e.target.matches("button.datepicker-cal-date")) {
+      reload()
+    }
+  })
+}
