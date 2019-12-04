@@ -1,3 +1,22 @@
+class PasswordEditor extends Handsontable.editors.TextEditor {
+  createElements() {
+    console.log("in heeere")
+    super.createElements();
+    
+    this.TEXTAREA = this.hot.rootDocument.createElement('input');
+    this.TEXTAREA.setAttribute('type', 'password');
+    this.TEXTAREA.className = 'handsontableInput';
+    this.textareaStyle = this.TEXTAREA.style;
+    this.textareaStyle.width = 0;
+    this.textareaStyle.height = 0;
+    
+    Handsontable.dom.empty(this.TEXTAREA_PARENT);
+    this.TEXTAREA_PARENT.appendChild(this.TEXTAREA);
+  }
+}
+
+Handsontable.editors.registerEditor('password', PasswordEditor);
+
 // Return all the "item" divs in a list
 const getDataRows = () => {
   return [
@@ -23,13 +42,14 @@ const colSpecs = [
     fieldName: "departDate",
     el: (row) => row.querySelector("#package-departing-hp-package"),
     readOnly: false,
-    type: "date"
+    type: "text",
+    editor: "password"
   },
   {
     fieldName: "returnDate",
     el: (row) => row.querySelector("#package-returning-hp-package"),
     readOnly: false,
-    type: "date"
+    type: "text"
   }
 ];
 
@@ -42,3 +62,4 @@ const setupReloadTriggers = (reload) => {
     }
   })
 }
+

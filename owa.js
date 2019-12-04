@@ -65,6 +65,19 @@
     let rows = getDataRows()
     let data = getDataFromPage()
 
+    let columns = colSpecs.map(col => ({
+      data: col.fieldName,
+      readOnly: col.readOnly,
+      type: col.type,
+      dateFormat: "MM/DD/YYYY",
+      datePickerConfig: {
+        events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'],
+        firstDay: 1,
+        numberOfMonths: 3
+      },
+      editor: col.editor
+    }))
+
     var hot = new Handsontable(container, {
       data: data,
       rowHeaders: true,
@@ -74,17 +87,7 @@
       stretchH: 'none',
       dropdownMenu: true,
       columnSorting: true,
-      columns: colSpecs.map(col => ({
-        data: col.fieldName,
-        readOnly: col.readOnly,
-        type: col.type,
-        dateFormat: "MM/DD/YYYY",
-        datePickerConfig: {
-          events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'],
-          firstDay: 1,
-          numberOfMonths: 3
-        }
-      })),
+      columns: columns,
       afterChange: (changes) => {
         if (changes) {
           changes.forEach(([row, prop, oldValue, newValue]) => {
