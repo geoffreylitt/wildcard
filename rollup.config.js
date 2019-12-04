@@ -1,6 +1,7 @@
 // rollup.config.js
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
+import postcss from 'rollup-plugin-postcss';
 
 export default [
   {
@@ -15,7 +16,10 @@ export default [
         // non-CommonJS modules will be ignored, but you can also
         // specifically include/exclude files
         include: 'node_modules/**',  // Default: undefined
-      })
+      }),
+      postcss({
+        extensions: ['.css'],
+      }),
     ]
   },
   // add airbnb

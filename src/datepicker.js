@@ -1,5 +1,7 @@
 import { createTable } from './owa.js';
 
+import { FullCalendarEditor } from './fullCalendarEditor.js'
+
 // Return all the "item" divs in a list
 const getDataRows = () => {
   return [
@@ -56,4 +58,8 @@ if (document.readyState === "complete") {
   createTable(options);
 } else {
   window.addEventListener("load", createTable(options));
+  window.addEventListener("load", () => {
+    let editor = new FullCalendarEditor();
+    editor.makeCalendar();
+  })
 }
