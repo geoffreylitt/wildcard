@@ -121382,7 +121382,7 @@
 	var css$1 = "/* DayGridView\n--------------------------------------------------------------------------------------------------*/\n/* day row structure */\n.fc-dayGridWeek-view .fc-content-skeleton,\n.fc-dayGridDay-view .fc-content-skeleton {\n  /* there may be week numbers in these views, so no padding-top */\n  padding-bottom: 1em;\n  /* ensure a space at bottom of cell for user selecting/clicking */\n}\n\n.fc-dayGrid-view .fc-body .fc-row {\n  min-height: 4em;\n  /* ensure that all rows are at least this tall */\n}\n\n/* a \"rigid\" row will take up a constant amount of height because content-skeleton is absolute */\n.fc-row.fc-rigid {\n  overflow: hidden;\n}\n\n.fc-row.fc-rigid .fc-content-skeleton {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n}\n\n/* week and day number styling */\n.fc-day-top.fc-other-month {\n  opacity: 0.3;\n}\n\n.fc-dayGrid-view .fc-week-number,\n.fc-dayGrid-view .fc-day-number {\n  padding: 2px;\n}\n\n.fc-dayGrid-view th.fc-week-number,\n.fc-dayGrid-view th.fc-day-number {\n  padding: 0 2px;\n  /* column headers can't have as much v space */\n}\n\n.fc-ltr .fc-dayGrid-view .fc-day-top .fc-day-number {\n  float: right;\n}\n\n.fc-rtl .fc-dayGrid-view .fc-day-top .fc-day-number {\n  float: left;\n}\n\n.fc-ltr .fc-dayGrid-view .fc-day-top .fc-week-number {\n  float: left;\n  border-radius: 0 0 3px 0;\n}\n\n.fc-rtl .fc-dayGrid-view .fc-day-top .fc-week-number {\n  float: right;\n  border-radius: 0 0 0 3px;\n}\n\n.fc-dayGrid-view .fc-day-top .fc-week-number {\n  min-width: 1.5em;\n  text-align: center;\n  background-color: #f2f2f2;\n  color: #808080;\n}\n\n/* when week/day number have own column */\n.fc-dayGrid-view td.fc-week-number {\n  text-align: center;\n}\n\n.fc-dayGrid-view td.fc-week-number > * {\n  /* work around the way we do column resizing and ensure a minimum width */\n  display: inline-block;\n  min-width: 1.25em;\n}\n";
 	styleInject(css$1);
 
-	var css$2 = "#open-apps-calendar-container {\n  position: fixed;\n  height: 300px;\n  width: 500px;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n}";
+	var css$2 = "#open-apps-calendar-container {\n  background-color: white;\n  padding: 20px; \n  position: fixed;\n  height: 400px;\n  width: 600px;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n}";
 	styleInject(css$2);
 
 	// convert HTML to a dom element
@@ -121401,52 +121401,62 @@
 	  init () {
 	    this.selectedDate = new Date();
 
-	    let newDiv = htmlToElement$2(`<div id="open-apps-calendar-container"><div id="open-apps-calendar"></div></div>`);
-	    document.body.appendChild(newDiv);
+	    this.calendarDiv = htmlToElement$2(`<div id="open-apps-calendar-container"><div id="open-apps-calendar"></div></div>`);
+	    document.body.appendChild(this.calendarDiv);
 
-	    this.calendarDiv = document.getElementById('open-apps-calendar');
-
-	    this.calendar = new Calendar(this.calendarDiv, {
+	    this.calendar = new Calendar(document.getElementById('open-apps-calendar'), {
 	      plugins: [ main$1, main ],
 	      selectable: true,
 	      select: (info) => {
 	        console.log("selected ", info.start, info.end);
 	        this.selectedDate = info.start;
-	      }
+	      },
+	      events: [
+	        {
+	          title  : 'Last problem set due',
+	          start  : '2019-12-11'
+	        },
+	        {
+	          title  : 'Final project due',
+	          start  : '2019-12-13'
+	        },
+	        {
+	          title  : 'Fly to LA',
+	          start  : '2019-12-14',
+	        },
+	        {
+	          title  : 'Come back from LA',
+	          start  : '2019-12-19'
+	        }
+	      ]
 	    });
 
 	    this.calendar.render();
 	    this.calendarDiv.style.display = "none";
 
 	    this.calendarDiv.addEventListener('mousedown', e => {
-	      console.log("stoppin propagation");
 	      event.stopPropagation();
 	    });
 	  }
 
 	  getValue() {
-	    console.log("getValue");
 	    return moment$2(this.selectedDate).format("M/D/YYYY");
 	  }
 
 	  setValue(newValue) {
-	    console.log("setValue");
 	    let date = moment$2(newValue, "M/D/YYYY").toDate;
 	    this.calendar.select(date);
 	  }
 
 	  open() {
-	    console.log("open");
 	    this.calendarDiv.style.display = '';
 	  }
 
 	  close() {
-	    console.log("close");
 	    this.calendarDiv.style.display = 'none';
 	  }
 
 	  focus() {
-	    console.log("focus");
 	    this.calendarDiv.focus();
 	  }
 	}

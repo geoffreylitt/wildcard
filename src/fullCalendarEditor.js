@@ -26,52 +26,62 @@ class FullCalendarEditor extends Handsontable.editors.BaseEditor {
   init () {
     this.selectedDate = new Date()
 
-    let newDiv = htmlToElement(`<div id="open-apps-calendar-container"><div id="open-apps-calendar"></div></div>`)
-    document.body.appendChild(newDiv);
+    this.calendarDiv = htmlToElement(`<div id="open-apps-calendar-container"><div id="open-apps-calendar"></div></div>`)
+    document.body.appendChild(this.calendarDiv);
 
-    this.calendarDiv = document.getElementById('open-apps-calendar');
-
-    this.calendar = new Calendar(this.calendarDiv, {
+    this.calendar = new Calendar(document.getElementById('open-apps-calendar'), {
       plugins: [ interactionPlugin, dayGridPlugin ],
       selectable: true,
       select: (info) => {
         console.log("selected ", info.start, info.end)
         this.selectedDate = info.start
-      }
+      },
+      events: [
+        {
+          title  : 'Last problem set due',
+          start  : '2019-12-11'
+        },
+        {
+          title  : 'Final project due',
+          start  : '2019-12-13'
+        },
+        {
+          title  : 'Fly to LA',
+          start  : '2019-12-14',
+        },
+        {
+          title  : 'Come back from LA',
+          start  : '2019-12-19'
+        }
+      ]
     });
 
     this.calendar.render();
     this.calendarDiv.style.display = "none"
 
     this.calendarDiv.addEventListener('mousedown', e => {
-      console.log("stoppin propagation")
       event.stopPropagation()
     });
   }
 
   getValue() {
-    console.log("getValue")
     return moment(this.selectedDate).format("M/D/YYYY");
   }
 
   setValue(newValue) {
-    console.log("setValue")
     let date = moment(newValue, "M/D/YYYY").toDate;
     this.calendar.select(date);
   }
 
   open() {
-    console.log("open")
     this.calendarDiv.style.display = '';
   }
 
   close() {
-    console.log("close")
     this.calendarDiv.style.display = 'none';
   }
 
   focus() {
-    console.log("focus")
     this.calendarDiv.focus();
   }
 }

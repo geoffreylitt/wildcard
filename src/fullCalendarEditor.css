@@ -1,7 +1,9 @@
 #open-apps-calendar-container {
+  background-color: white;
+  padding: 20px; 
   position: fixed;
-  height: 300px;
-  width: 500px;
+  height: 400px;
+  width: 600px;
   bottom: 0;
   right: 0;
   z-index: 1000;
