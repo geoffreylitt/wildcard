@@ -27,14 +27,15 @@ const colSpecs = [
     fieldName: "departDate",
     el: (row) => row.querySelector("#package-departing-hp-package"),
     readOnly: false,
-    type: "date",
+    type: "text",
     editor: "fullcalendar"
   },
   {
     fieldName: "returnDate",
     el: (row) => row.querySelector("#package-returning-hp-package"),
     readOnly: false,
-    type: "date"
+    type: "text",
+    editor: "fullcalendar"
   }
 ];
 

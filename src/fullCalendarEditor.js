@@ -24,7 +24,6 @@ class FullCalendarEditor extends Handsontable.editors.BaseEditor {
   }
 
   init () {
-    console.log("hey there, init-ing")
     this.selectedDate = new Date()
 
     let newDiv = htmlToElement(`<div id="open-apps-calendar-container"><div id="open-apps-calendar"></div></div>`)
@@ -42,28 +41,37 @@ class FullCalendarEditor extends Handsontable.editors.BaseEditor {
     });
 
     this.calendar.render();
+    this.calendarDiv.style.display = "none"
+
+    this.calendarDiv.addEventListener('mousedown', e => {
+      console.log("stoppin propagation")
+      event.stopPropagation()
+    });
   }
 
   getValue() {
-    return this.selectedDate;
+    console.log("getValue")
+    return moment(this.selectedDate).format("M/D/YYYY");
   }
 
   setValue(newValue) {
-    if (newValue) {
-      console.log("setting new value", newValue)
-      this.calendar.select( newValue )
-    }
+    console.log("setValue")
+    let date = moment(newValue, "M/D/YYYY").toDate;
+    this.calendar.select(date);
   }
 
   open() {
+    console.log("open")
     this.calendarDiv.style.display = '';
   }
 
   close() {
+    console.log("close")
     this.calendarDiv.style.display = 'none';
   }
 
   focus() {
+    console.log("focus")
     this.calendarDiv.focus();
   }
 }
