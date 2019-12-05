@@ -2,6 +2,7 @@ import moment from 'moment';
 import Handsontable from 'handsontable';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
 
 import '@fullcalendar/core/main.css';
 import '@fullcalendar/daygrid/main.css';
@@ -17,27 +18,56 @@ function htmlToElement(html) {
   return template.content.firstChild;
 }
 
-/**
- * @private
- * @editor DateEditor
- * @class DateEditor
- * @dependencies TextEditor
- */
-class FullCalendarEditor {// extends Handsontable.editors.TextEditor {
-  makeCalendar() {
-    console.log("hey there")
+class FullCalendarEditor extends Handsontable.editors.BaseEditor {
+  constructor(hotInstance) {
+    super(hotInstance);
+  }
+
+  init () {
+    console.log("hey there, init-ing")
+    this.selectedDate = new Date()
 
     let newDiv = htmlToElement(`<div id="open-apps-calendar-container"><div id="open-apps-calendar"></div></div>`)
     document.body.appendChild(newDiv);
 
-    var calendarEl = document.getElementById('open-apps-calendar');
+    this.calendarDiv = document.getElementById('open-apps-calendar');
 
-    var calendar = new Calendar(calendarEl, {
-      plugins: [ dayGridPlugin ]
+    this.calendar = new Calendar(this.calendarDiv, {
+      plugins: [ interactionPlugin, dayGridPlugin ],
+      selectable: true,
+      select: (info) => {
+        console.log("selected ", info.start, info.end)
+        this.selectedDate = info.start
+      }
     });
 
-    calendar.render();
+    this.calendar.render();
+  }
+
+  getValue() {
+    return this.selectedDate;
+  }
+
+  setValue(newValue) {
+    if (newValue) {
+      console.log("setting new value", newValue)
+      this.calendar.select( newValue )
+    }
+  }
+
+  open() {
+    this.calendarDiv.style.display = '';
+  }
+
+  close() {
+    this.calendarDiv.style.display = 'none';
+  }
+
+  focus() {
+    this.calendarDiv.focus();
   }
 }
+
+Handsontable.editors.registerEditor('fullcalendar', FullCalendarEditor);
 
 export { FullCalendarEditor };

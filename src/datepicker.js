@@ -27,8 +27,8 @@ const colSpecs = [
     fieldName: "departDate",
     el: (row) => row.querySelector("#package-departing-hp-package"),
     readOnly: false,
-    type: "text",
-    editor: "date"
+    type: "date",
+    editor: "fullcalendar"
   },
   {
     fieldName: "returnDate",
@@ -58,8 +58,4 @@ if (document.readyState === "complete") {
   createTable(options);
 } else {
   window.addEventListener("load", createTable(options));
-  window.addEventListener("load", () => {
-    let editor = new FullCalendarEditor();
-    editor.makeCalendar();
-  })
 }
