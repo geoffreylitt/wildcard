@@ -2,6 +2,7 @@
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import postcss from 'rollup-plugin-postcss';
+import typescript from 'rollup-plugin-typescript2';
 
 export default [
   {
@@ -23,7 +24,7 @@ export default [
     ]
   },
   {
-    input: 'src/airbnb.js',
+    input: 'src/airbnb.ts',
     output: {
       file: 'dist/airbnb.js',
       format: 'iife'
@@ -38,6 +39,7 @@ export default [
       postcss({
         extensions: ['.css'],
       }),
+      typescript()
     ]
   },
   // add one rollup output per site for now.

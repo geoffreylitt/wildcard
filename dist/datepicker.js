@@ -104889,12 +104889,19 @@
 	  document.body.appendChild(toggleBtn);
 	}
 
+	// Given an HTMLElement for a cell, get the value to display in the table.
+	// Currently very crude: just gets the input value or text content.
+	let getValueFromElement = (cellElement) => {
+	  return cellElement.value || cellElement.textContent;
+	};
+
 	function getDataFromPage(options) {
 	  let rows = options.getDataRows();
 	  return rows.map(rowEl => {
 	    let row = {};
 	    options.colSpecs.forEach(spec => {
-	      row[spec.fieldName] = spec.el(rowEl).value;
+	      let cellElement = spec.el(rowEl);
+	      row[spec.fieldName] = getValueFromElement(cellElement);
 	    });
 	    return row
 	  })
@@ -104906,6 +104913,20 @@
 
 	// given column names and data array...
 	// render a handsontable
+
+	// options format:
+	// colSpecs: [{
+	//   fieldName: "returnDate",
+	//   el: (row) => row.querySelector("#package-returning-hp-package"),
+	//   readOnly: false,
+	//   type: "text",
+	//   editor: "fullcalendar"
+	// }]
+	// 
+	// getDataRows: function => [DomElement], return array of rows as DOM elements
+	// setupReloadTriggers: function(reload) => 
+	// attach DOM handlers to trigger data reloading at appropriate times.
+
 	const createTable = (options) => {
 	  console.log("wildcard is active...");
 	  setupStyles();
@@ -104925,11 +104946,12 @@
 	    type: col.type,
 	    dateFormat: "MM/DD/YYYY",
 	    datePickerConfig: {
-	      events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'],
+	      events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'], //todo: move this out of the core plugin
 	      firstDay: 1,
 	      numberOfMonths: 3
 	    },
-	    editor: col.editor
+	    editor: col.editor,
+	    renderer: col.renderer
 	  }));
 
 	  var hot = new Handsontable(container, {

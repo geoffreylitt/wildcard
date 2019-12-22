@@ -1,0 +1,47 @@
+'use strict';
+
+import { createTable, Handsontable } from './wildcard.js';
+
+declare function GM_getValue(key : string): any;
+declare function GM_setValue(key : string, value: string): any;
+declare function GM_xmlhttpRequest(options: any): any;
+declare function GM_openInTab(options: any): any;
+
+
+// These might change...
+const rowContainerClass = "_fhph4u"
+const rowClass = "_8ssblpx"
+const imageClass = "_1i2fr3fi"
+const titleClass = "_1ebt2xej"
+const priceClass = "_1p7iugi"
+const ratingClass = "_ky9opu0"
+const listingLinkClass = "_i24ijs"
+const likeListClass = "_v44ajx"
+const closeModalClass = "_1rp5252"
+const notesClass = "_1s7voim"
+
+const colSpecs = [
+  {
+    fieldName: "name",
+    el: (row) => row.querySelector(`.${titleClass}`),
+    readOnly: true,
+    type: "text"
+  }
+];
+
+const getDataRows = () => {
+  return Array.from(document.getElementsByClassName(rowClass))
+}
+
+const options = {
+  colSpecs: colSpecs,
+  getDataRows: getDataRows,
+  setupReloadTriggers: () => {}
+}
+
+if (document.readyState === "complete") {
+  // setupTable();
+  createTable(options);
+} else {
+  window.addEventListener("load", createTable(options));
+}
