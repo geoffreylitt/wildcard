@@ -26,7 +26,22 @@ const colSpecs = [
     el: (row) => row.querySelector(`.${titleClass}`),
     readOnly: true,
     type: "text"
-  }
+  },
+  {
+    fieldName: "price",
+    el: (row) => row.querySelector(`.${priceClass}`),
+    // We don't want to just extract the raw price text;
+    // we want to extract only the price number.
+    value: (cell) => cell.textContent.match(/\$([\d]*)/)[1],
+    readOnly: true,
+    type: "numeric"
+  },
+  {
+    fieldName: "rating",
+    el: (row) => row.querySelector(`.${ratingClass}`),
+    readOnly: true,
+    type: "numeric"
+  },
 ];
 
 const getDataRows = () => {

@@ -104912,9 +104912,13 @@
 	}
 
 	// Given an HTMLElement for a cell, get the value to display in the table.
-	// Currently very crude: just gets the input value or text content.
-	let getValueFromElement = (cellElement) => {
-	  return cellElement.value || cellElement.textContent;
+	// Currently default behavior is crude: just gets the input value or text content.
+	let getValueFromElement = (spec, cellElement) => {
+	  if (spec.hasOwnProperty("value")) {
+	    return spec.value(cellElement)
+	  } else {
+	    return cellElement.value || cellElement.textContent
+	  }
 	};
 
 	function getDataFromPage(options) {
@@ -104922,8 +104926,8 @@
 	  return rows.map(rowEl => {
 	    let row = {};
 	    options.colSpecs.forEach(spec => {
-	      let cellElement = spec.el(rowEl);
-	      row[spec.fieldName] = getValueFromElement(cellElement);
+	      let cellEl = spec.el(rowEl);
+	      row[spec.fieldName] = getValueFromElement(spec, cellEl);
 	    });
 	    return row
 	  })
@@ -104937,12 +104941,15 @@
 	// render a handsontable
 
 	// options format:
+	// todo: having both element and value here is kinda annoying...
+	// maybe value can be the primary, and el can be optional?
 	// colSpecs: [{
 	//   fieldName: "returnDate",
 	//   el: (row) => row.querySelector("#package-returning-hp-package"),
+	//   value? : (cell) => cell.textContent.match(/\$([\d]*)/)[1],
 	//   readOnly: false,
 	//   type: "text",
-	//   editor: "fullcalendar"
+	//   editor?: "fullcalendar"
 	// }]
 	// 
 	// getDataRows: function => [DomElement], return array of rows as DOM elements
@@ -105019,30 +105026,69 @@
 	    hot.loadData(data);
 	  });
 
+	  // Highlight the selected row or cell in the original page.
+	  // This is important for establishing a clear mapping between page and table.
+	  // Probably need to provide a lot more site-specific config, including:
+	  // * whether to highlight just cells or whole row
+	  // * colors
+	  // * borders vs background
 	  Handsontable.hooks.add('afterSelectionByProp', (row, prop) => {
+	    const highlightColor = "#c9ebff";
+	    const unhighlightColor = "#ffffff";
+
 	    let rowEl = rows[row]; // this won't work with re-sorting; change to ID
 	    let colSpec = colSpecFromProp(prop, options);
 	    let colEl = colSpec.el(rowEl);
 
-	    // Add a border and scroll selected div into view
-	    colEl.style["background-color"] = "#c9ebff";
-	    colEl.scrollIntoView({ behavior: "smooth", block: "center" });
+	    if (rows.length > 1) {
+	      // For multiple rows, we highlight the whole row
 
-	    // Clear border on other divs
-	    let otherDivs = options.colSpecs.filter(spec => spec !== colSpecFromProp(prop, options)).map(spec => spec.el(rowEl));
-	    otherDivs.forEach( d => d.style["background-color"] = "#fff" );
+	      rowEl.style["background-color"] = highlightColor;
+	      rowEl.scrollIntoView({ behavior: "smooth", block: "center" });
+
+	      // Clear border on other divs
+	      let otherDivs = rows.filter(r => r !== rowEl);
+	      otherDivs.forEach( d => d.style["background-color"] = unhighlightColor );
+	    } else {
+	      // For a single row, we highlight individual cells in the row
+
+	      // Add a border and scroll selected div into view
+	      colEl.style["background-color"] = highlightColor;
+	      colEl.scrollIntoView({ behavior: "smooth", block: "center" });
+
+	      // Clear border on other divs
+	      let otherDivs = options.colSpecs.filter(spec => spec !== colSpecFromProp(prop, options)).map(spec => spec.el(rowEl));
+	      otherDivs.forEach( d => d.style["background-color"] = unhighlightColor );
+	    }
 	  }, hot);
 	};
 
 	var rowClass = "_8ssblpx";
 	var titleClass = "_1ebt2xej";
+	var priceClass = "_1p7iugi";
+	var ratingClass = "_ky9opu0";
 	var colSpecs = [
 	    {
 	        fieldName: "name",
 	        el: function (row) { return row.querySelector("." + titleClass); },
 	        readOnly: true,
 	        type: "text"
-	    }
+	    },
+	    {
+	        fieldName: "price",
+	        el: function (row) { return row.querySelector("." + priceClass); },
+	        // We don't want to just extract the raw price text;
+	        // we want to extract only the price number.
+	        value: function (cell) { return cell.textContent.match(/\$([\d]*)/)[1]; },
+	        readOnly: true,
+	        type: "numeric"
+	    },
+	    {
+	        fieldName: "rating",
+	        el: function (row) { return row.querySelector("." + ratingClass); },
+	        readOnly: true,
+	        type: "numeric"
+	    },
 	];
 	var getDataRows = function () {
 	    return Array.from(document.getElementsByClassName(rowClass));
