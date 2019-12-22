@@ -1,4 +1,4 @@
-import { createTable } from './owa.js';
+import { createTable } from './wildcard.js';
 
 import { FullCalendarEditor } from './fullCalendarEditor.js'
 
