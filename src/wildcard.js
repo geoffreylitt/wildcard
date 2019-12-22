@@ -1,6 +1,7 @@
 'use strict';
 
 import Handsontable from "handsontable";
+import "handsontable/dist/handsontable.full.min.css";
 
 // convert HTML to a dom element
 function htmlToElement(html) {
@@ -8,14 +9,6 @@ function htmlToElement(html) {
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
   return template.content.firstChild;
-}
-
-function setupStyles() {
-  var link = window.document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.href = 'https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css';
-  document.getElementsByTagName("head")[0].appendChild(link);
 }
 
 function createToggleButton(container) {
@@ -76,7 +69,6 @@ function colSpecFromProp(prop, options) {
 
 const createTable = (options) => {
   console.log("wildcard is active...");
-  setupStyles();
 
   // add wrapper div
   let newDiv = htmlToElement("<div id=\"open-apps\" class=\"mydiv\" style=\"border-top: solid thin #ddd; position: fixed; overflow: hidden; background-color: white; height: 300px; width: 100%; z-index: 1000; bottom: 0;\"><div id=\"open-apps-table\"></div></div>")
