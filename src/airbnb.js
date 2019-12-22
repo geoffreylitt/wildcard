@@ -1,3 +1,5 @@
+import { createTable } from './wildcard.js';
+
 (function () {
   'use strict';
 
@@ -341,9 +343,16 @@
     document.body.appendChild(toggleBtn)
   };
 
+  const options = {
+    colSpecs: [],
+    getDataRows: () => { return [] },
+    setupReloadTriggers: () => {}
+  }
+
   if (document.readyState === "complete") {
-    setupTable();
+    // setupTable();
+    createTable(options);
   } else {
-    window.addEventListener("load", setupTable);
+    window.addEventListener("load", createTable(options));
   }
 })();

@@ -54,6 +54,7 @@ function colSpecFromProp(prop, options) {
 // given column names and data array...
 // render a handsontable
 const createTable = (options) => {
+  console.log("wildcard is active...");
   setupStyles();
 
   // add wrapper div
