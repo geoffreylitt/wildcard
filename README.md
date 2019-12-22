@@ -1,4 +1,4 @@
-# Open Web Apps extension
+# Wildcard
 
 A prototype that maps website data to a table, enabling end users to modify and reprogram the site.
 
@@ -10,4 +10,4 @@ Uses yarn and rollup for packages and bundling.
 
 `yarn run rollup` starts a rollup watcher that compiles files.
 
-Use Tampermonkey to load `src/dist/datepicker.js` into the browser.
+Use Tampermonkey to load `dist/datepicker.js` into the browser.
