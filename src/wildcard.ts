@@ -31,7 +31,7 @@ function createToggleButton(container) {
   document.body.appendChild(toggleBtn)
 }
 
-// Given an HTMLElement for a cell, get the value to display in the table.
+// Given an Element for a cell, get the value to display in the table.
 // Currently default behavior is crude: just gets the input value or text content.
 let getValueFromElement = (spec, cellElement) => {
   if (spec.hasOwnProperty("value")) {
@@ -57,26 +57,26 @@ function colSpecFromProp(prop, options) {
   return options.colSpecs.find(spec => spec.fieldName == prop)
 }
 
-// given column names and data array...
-// render a handsontable
+interface ColSpecs {
+  /** The name of this data column, to be displayed in the table */
+  fieldName: string;
+  el(row: HTMLElement): HTMLElement;
+  value?(cell:HTMLElement): string;
+  readOnly?: boolean;
+  type: Handsontable.CellType;
+  editor?: string,
+  renderer?: string,
+  hidden?: boolean
+}
 
-// options format:
-// todo: having both element and value here is kinda annoying...
-// maybe value can be the primary, and el can be optional?
-// colSpecs: [{
-//   fieldName: "returnDate",
-//   el: (row) => row.querySelector("#package-returning-hp-package"),
-//   value? : (cell) => cell.textContent.match(/\$([\d]*)/)[1],
-//   readOnly: false,
-//   type: "text",
-//   editor?: "fullcalendar"
-// }]
-// 
-// getDataRows: function => [DomElement], return array of rows as DOM elements
-// setupReloadTriggers: function(reload) => 
-// attach DOM handlers to trigger data reloading at appropriate times.
+interface TableOptions {
+  colSpecs: Array<ColSpecs>;
+  getDataRows(): Array<HTMLElement>;
+  setupReloadTriggers(setupFn: any): any;
+  getRowContainer(): HTMLElement;
+}
 
-const createTable = (options) => {
+const createTable = (options: TableOptions) => {
   console.log("Wildcard activated...");
 
   // add wrapper div
@@ -146,7 +146,7 @@ const createTable = (options) => {
     options.colSpecs.forEach(col => {
       let el = col.el(row)
       el.addEventListener("input", e => {
-        hot.setDataAtRowProp(idx, col.fieldName, e.target.value)
+        hot.setDataAtRowProp(idx, col.fieldName, (<HTMLInputElement>e.target).value)
       })
     })
   })
@@ -193,10 +193,9 @@ const createTable = (options) => {
     }
   }, hot)
 
-  // After a filter/sort, show rows in the new order
-  let hooks = ["afterColumnSort", "afterFilter"]
+  let hooks = ["afterColumnSort" as const, "afterFilter" as const]
   hooks.forEach(hook => {
-    Handsontable.hooks.add(hook, (row, prop) => {
+    Handsontable.hooks.add(hook, () => {
       let ids = hot.getDataAtCol(0)
       rowContainer.innerHTML = ""
       ids.forEach (id => { rowContainer.appendChild(rowsById[id]) })

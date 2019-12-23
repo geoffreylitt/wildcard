@@ -30,14 +30,14 @@ const colSpecs = [
       return id
     },
     readOnly: true,
-    type: "text",
+    type: "text" as const,
     hidden: true
   },
   {
     fieldName: "name",
     el: (row) => row.querySelector(`.${titleClass}`),
     readOnly: true,
-    type: "text"
+    type: "text" as const
   },
   {
     fieldName: "price",
@@ -46,22 +46,22 @@ const colSpecs = [
     // we want to extract only the price number.
     value: (cell) => cell.textContent.match(/\$([\d]*)/)[1],
     readOnly: true,
-    type: "numeric"
+    type: "numeric" as const
   },
   {
     fieldName: "rating",
     el: (row) => row.querySelector(`.${ratingClass}`),
     readOnly: true,
-    type: "numeric"
+    type: "numeric" as const
   },
 ];
 
 const getDataRows = () => {
-  return Array.from(document.getElementsByClassName(rowClass))
+  return Array.from(document.getElementsByClassName(rowClass)).map(e => e as HTMLElement)
 }
 
 const getRowContainer = () => {
-  return document.querySelector(`.${rowContainerClass}`)
+  return document.querySelector(`.${rowContainerClass}`) as HTMLElement
 }
 
 const options = {
@@ -71,9 +71,4 @@ const options = {
   setupReloadTriggers: () => {}
 }
 
-if (document.readyState === "complete") {
-  // setupTable();
-  createTable(options);
-} else {
-  window.addEventListener("load", createTable(options));
-}
+createTable(options);

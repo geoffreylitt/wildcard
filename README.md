@@ -8,6 +8,8 @@ Early demo video: https://www.loom.com/share/cab62c8172404c39bebc4c511a60a389
 
 Uses yarn and rollup for packages and bundling.
 
-`yarn run rollup` starts a rollup watcher that compiles files.
+To start a rollup watcher that builds the project: `yarn run rollup` 
 
-Use Tampermonkey to load `dist/datepicker.js` into the browser.
+To generate and open docs: `yarn run docs`
+
+Use Tampermonkey to load site-specific built files: `dist/datepicker.js`, `dist/airbnb.js`, etc.
