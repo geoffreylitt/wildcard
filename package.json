@@ -19,7 +19,7 @@
   },
   "scripts": {
     "rollup": "rollup -c -w",
-    "docs": "typedoc --out docs src --ignoreCompilerErrors && open docs/index.html"
+    "docs": "typedoc --out docs src/wildcard.ts --ignoreCompilerErrors && open docs/index.html"
   },
   "devDependencies": {
     "rollup-plugin-typescript2": "^0.25.3",
