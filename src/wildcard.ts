@@ -203,4 +203,4 @@ const createTable = (options: TableOptions) => {
   })
 }
 
-export { createTable, Handsontable }
+export { createTable }

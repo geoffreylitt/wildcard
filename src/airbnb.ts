@@ -1,6 +1,6 @@
 'use strict';
 
-import { createTable, Handsontable } from './wildcard.js';
+import { createTable } from './wildcard.js';
 
 declare function GM_getValue(key : string): any;
 declare function GM_setValue(key : string, value: string): any;
