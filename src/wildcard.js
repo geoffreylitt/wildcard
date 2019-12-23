@@ -3,6 +3,8 @@
 import Handsontable from "handsontable";
 import "handsontable/dist/handsontable.full.min.css";
 
+import _ from "lodash";
+
 // convert HTML to a dom element
 function htmlToElement(html) {
   var template = document.createElement('template');
@@ -75,7 +77,7 @@ function colSpecFromProp(prop, options) {
 // attach DOM handlers to trigger data reloading at appropriate times.
 
 const createTable = (options) => {
-  console.log("wildcard is active...");
+  console.log("Wildcard activated...");
 
   // add wrapper div
   let newDiv = htmlToElement("<div id=\"open-apps\" class=\"mydiv\" style=\"border-top: solid thin #ddd; position: fixed; overflow: hidden; background-color: white; height: 300px; width: 100%; z-index: 1000; bottom: 0;\"><div id=\"open-apps-table\"></div></div>")
@@ -83,8 +85,13 @@ const createTable = (options) => {
   var container = document.getElementById('open-apps-table');
 
   // set up data for table
+  let rowContainer = options.getRowContainer()
   let rows = options.getDataRows()
   let data = getDataFromPage(options)
+  let rowsById = _.keyBy(rows, row => {
+    return options.colSpecs.find(spec => spec.fieldName === "id").value(row)
+  })
+
 
   let columns = options.colSpecs.map(col => ({
     data: col.fieldName,
@@ -97,8 +104,11 @@ const createTable = (options) => {
       numberOfMonths: 3
     },
     editor: col.editor,
-    renderer: col.renderer
+    renderer: col.renderer,
+    hidden: col.hidden
   }))
+
+  let hiddenColIndexes = columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
 
   var hot = new Handsontable(container, {
     data: data,
@@ -110,6 +120,9 @@ const createTable = (options) => {
     dropdownMenu: true,
     columnSorting: true,
     columns: columns,
+    hiddenColumns: {
+      columns: hiddenColIndexes,
+    },
     afterChange: (changes) => {
       if (changes) {
         changes.forEach(([row, prop, oldValue, newValue]) => {
@@ -154,7 +167,7 @@ const createTable = (options) => {
     const highlightColor = "#c9ebff"
     const unhighlightColor = "#ffffff"
 
-    let rowEl = rows[row] // this won't work with re-sorting; change to ID
+    let rowEl = rowsById[hot.getDataAtCell(row, 0)]
     let colSpec = colSpecFromProp(prop, options)
     let colEl = colSpec.el(rowEl)
 
@@ -179,6 +192,16 @@ const createTable = (options) => {
       otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
     }
   }, hot)
+
+  // After a filter/sort, show rows in the new order
+  let hooks = ["afterColumnSort", "afterFilter"]
+  hooks.forEach(hook => {
+    Handsontable.hooks.add(hook, (row, prop) => {
+      let ids = hot.getDataAtCol(0)
+      rowContainer.innerHTML = ""
+      ids.forEach (id => { rowContainer.appendChild(rowsById[id]) })
+    })
+  })
 }
 
 export { createTable, Handsontable }

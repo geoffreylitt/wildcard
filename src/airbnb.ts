@@ -22,6 +22,18 @@ const notesClass = "_1s7voim"
 
 const colSpecs = [
   {
+    fieldName: "id",
+    el: (row) => { return row },
+    value: (cell) => {
+      let path = cell.querySelector("." + listingLinkClass) && cell.querySelector("." + listingLinkClass).getAttribute('href')
+      let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
+      return id
+    },
+    readOnly: true,
+    type: "text",
+    hidden: true
+  },
+  {
     fieldName: "name",
     el: (row) => row.querySelector(`.${titleClass}`),
     readOnly: true,
@@ -48,9 +60,14 @@ const getDataRows = () => {
   return Array.from(document.getElementsByClassName(rowClass))
 }
 
+const getRowContainer = () => {
+  return document.querySelector(`.${rowContainerClass}`)
+}
+
 const options = {
   colSpecs: colSpecs,
   getDataRows: getDataRows,
+  getRowContainer: getRowContainer,
   setupReloadTriggers: () => {}
 }
 
