@@ -122015,6 +122015,10 @@
 	function colSpecFromProp(prop, options) {
 	    return options.colSpecs.find(function (spec) { return spec.fieldName == prop; });
 	}
+	/** The main method for creating a Wildcard site adapter.
+	 *  In your adapter, call this with a valid [[TableOptions]] object
+	 *  to initialize your adapter.
+	 */
 	var createTable = function (options) {
 	    console.log("Wildcard activated...");
 	    // add wrapper div

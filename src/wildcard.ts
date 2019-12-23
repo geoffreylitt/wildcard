@@ -76,6 +76,10 @@ interface TableOptions {
   getRowContainer(): HTMLElement;
 }
 
+/** The main method for creating a Wildcard site adapter. 
+ *  In your adapter, call this with a valid [[TableOptions]] object
+ *  to initialize your adapter.
+ */
 const createTable = (options: TableOptions) => {
   console.log("Wildcard activated...");
 

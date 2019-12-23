@@ -12,4 +12,6 @@ To start a rollup watcher that builds the project: `yarn run rollup`
 
 To generate and open docs: `yarn run docs`
 
+Main docs for building a Wildcard plugin: [[createTable]]
+
 Use Tampermonkey to load site-specific built files: `dist/datepicker.js`, `dist/airbnb.js`, etc.
