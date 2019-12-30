@@ -210,7 +210,8 @@
       },
       dropdownMenu: true,
       columnSorting: true,
-      columns: columns
+      columns: columns,
+      licenseKey: 'non-commercial-and-evaluation'
     });
 
     // register hooks to re-sort the list

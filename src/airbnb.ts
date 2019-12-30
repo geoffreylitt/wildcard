@@ -1,29 +1,22 @@
 'use strict';
 
-import { createTable } from './wildcard.js';
+import { createTable } from './wildcard';
 
-declare function GM_getValue(key : string): any;
-declare function GM_setValue(key : string, value: string): any;
-declare function GM_xmlhttpRequest(options: any): any;
-declare function GM_openInTab(options: any): any;
-
-
-// These might change...
+// Obscure class names for various page elements.
+// They have remained stable for several months,
+// so actually seem unlikely to change regularly.
 const rowContainerClass = "_fhph4u"
 const rowClass = "_8ssblpx"
-const imageClass = "_1i2fr3fi"
 const titleClass = "_1ebt2xej"
 const priceClass = "_1p7iugi"
 const ratingClass = "_ky9opu0"
 const listingLinkClass = "_i24ijs"
-const likeListClass = "_v44ajx"
-const closeModalClass = "_1rp5252"
-const notesClass = "_1s7voim"
 
+// Specify the columns to extract
 const colSpecs = [
   {
     fieldName: "id",
-    el: (row) => { return row },
+    el: (row) => row,
     value: (cell) => {
       let path = cell.querySelector("." + listingLinkClass) && cell.querySelector("." + listingLinkClass).getAttribute('href')
       let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
@@ -64,11 +57,9 @@ const getRowContainer = () => {
   return document.querySelector(`.${rowContainerClass}`) as HTMLElement
 }
 
-const options = {
+createTable({
   colSpecs: colSpecs,
   getDataRows: getDataRows,
   getRowContainer: getRowContainer,
   setupReloadTriggers: () => {}
-}
-
-createTable(options);
+});

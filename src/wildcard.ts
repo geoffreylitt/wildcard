@@ -3,6 +3,8 @@
 import Handsontable from "handsontable";
 import "handsontable/dist/handsontable.full.min.css";
 
+import "./wildcard.css";
+
 import _ from "lodash";
 
 // convert HTML to a dom element
@@ -61,9 +63,9 @@ interface ColSpecs {
   /** The name of this data column, to be displayed in the table */
   fieldName: string;
   el(row: HTMLElement): HTMLElement;
-  value?(cell:HTMLElement): string;
+  value?(cell:HTMLElement): any;
   readOnly?: boolean;
-  type: Handsontable.CellType;
+  type: string;
   editor?: string,
   renderer?: string,
   hidden?: boolean
@@ -84,7 +86,7 @@ const createTable = (options: TableOptions) => {
   console.log("Wildcard activated...");
 
   // add wrapper div
-  let newDiv = htmlToElement("<div id=\"open-apps\" class=\"mydiv\" style=\"border-top: solid thin #ddd; position: fixed; overflow: hidden; background-color: white; height: 300px; width: 100%; z-index: 1000; bottom: 0;\"><div id=\"open-apps-table\"></div></div>")
+  let newDiv = htmlToElement("<div id=\"open-apps\" class=\"mydiv\" style=\"border-top: solid thin #ddd; position: fixed; overflow: hidden; background-color: white; font-size: 14px; height: 250px; width: 100%; z-index: 1000; bottom: 0;\"><div id=\"open-apps-table\"></div></div>")
   document.body.appendChild(newDiv);
   var container = document.getElementById('open-apps-table');
 
@@ -169,13 +171,14 @@ const createTable = (options: TableOptions) => {
   // * borders vs background
   Handsontable.hooks.add('afterSelectionByProp', (row, prop) => {
     const highlightColor = "#c9ebff"
-    const unhighlightColor = "#ffffff"
+    const unhighlightColor = "#c9ebff"
 
-    let rowEl = rowsById[hot.getDataAtCell(row, 0)]
+    let rowEl : HTMLElement = rowsById[hot.getDataAtCell(row, 0)]
     let colSpec = colSpecFromProp(prop, options)
-    let colEl = colSpec.el(rowEl)
+    let colEl : HTMLElement = colSpec.el(rowEl)
 
     if (rows.length > 1) {
+      console.log("more than one row", rows.length)
       // For multiple rows, we highlight the whole row
 
       rowEl.style["background-color"] = highlightColor
