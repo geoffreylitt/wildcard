@@ -86,6 +86,4 @@ class FullCalendarEditor extends Handsontable.editors.BaseEditor {
   }
 }
 
-Handsontable.editors.registerEditor('fullcalendar', FullCalendarEditor);
-
 export { FullCalendarEditor };

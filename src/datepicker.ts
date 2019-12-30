@@ -17,8 +17,10 @@ const getRowContainer = () => {
 const colSpecs = [
   {
     fieldName: "id",
-    value: () => 1,
-    el: (row) => row,
+    colValue: 1,
+    // a phantom element -- ugly. 
+    // can we change the API so that not all columns need this?
+    el: (row) => document.createElement("div"),
     type: "text",
     hidden: true,
     readOnly: true

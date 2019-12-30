@@ -121997,7 +121997,7 @@
 	// Given an Element for a cell, get the value to display in the table.
 	// Currently default behavior is crude: just gets the input value or text content.
 	var getValueFromElement = function (spec, cellElement) {
-	    if (spec.hasOwnProperty("value")) {
+	    if (spec.hasOwnProperty("getValue")) {
 	        return spec.value(cellElement);
 	    }
 	    else {
@@ -122009,8 +122009,16 @@
 	    return rows.map(function (rowEl) {
 	        var row = {};
 	        options.colSpecs.forEach(function (spec) {
-	            var cellEl = spec.el(rowEl);
-	            row[spec.fieldName] = getValueFromElement(spec, cellEl);
+	            var cellValue;
+	            // handle a hardcoded value for all rows in the column
+	            if (spec.hasOwnProperty("colValue")) {
+	                cellValue = spec.colValue;
+	            }
+	            else {
+	                var cellEl = spec.el(rowEl);
+	                cellValue = getValueFromElement(spec, cellEl);
+	            }
+	            row[spec.fieldName] = cellValue;
 	        });
 	        return row;
 	    });
@@ -122033,7 +122041,12 @@
 	    var rows = options.getDataRows();
 	    var data = getDataFromPage(options);
 	    var rowsById = lodash.keyBy(rows, function (row) {
-	        return options.colSpecs.find(function (spec) { return spec.fieldName === "id"; }).value(row);
+	        var idSpec = options.colSpecs.find(function (spec) { return spec.fieldName === "id"; });
+	        // TODO: This duplicates getDataFromPage, DRY it up
+	        if (idSpec.hasOwnProperty("colValue")) {
+	            return idSpec.colValue;
+	        }
+	        return idSpec.getValue(row);
 	    });
 	    var columns = options.colSpecs.map(function (col) { return ({
 	        data: col.fieldName,
@@ -122103,7 +122116,7 @@
 	    // * borders vs background
 	    Handsontable.hooks.add('afterSelectionByProp', function (row, prop) {
 	        var highlightColor = "#c9ebff";
-	        var unhighlightColor = "#c9ebff";
+	        var unhighlightColor = "#ffffff";
 	        var rowEl = rowsById[hot.getDataAtCell(row, 0)];
 	        var colSpec = colSpecFromProp(prop, options);
 	        var colEl = colSpec.el(rowEl);
@@ -122117,6 +122130,7 @@
 	            otherDivs.forEach(function (d) { return d.style["background-color"] = unhighlightColor; });
 	        }
 	        else {
+	            console.log("only one row", rows.length);
 	            // For a single row, we highlight individual cells in the row
 	            // Add a border and scroll selected div into view
 	            colEl.style["background-color"] = highlightColor;

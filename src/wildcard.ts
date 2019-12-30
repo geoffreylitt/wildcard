@@ -36,20 +36,26 @@ function createToggleButton(container) {
 // Given an Element for a cell, get the value to display in the table.
 // Currently default behavior is crude: just gets the input value or text content.
 let getValueFromElement = (spec, cellElement) => {
-  if (spec.hasOwnProperty("value")) {
+  if (spec.hasOwnProperty("getValue")) {
     return spec.value(cellElement)
   } else {
     return cellElement.value || cellElement.textContent
   }
 }
 
-function getDataFromPage(options) {
+function getDataFromPage(options : TableOptions) {
   let rows = options.getDataRows();
   return rows.map(rowEl => {
     let row = {}
     options.colSpecs.forEach(spec => {
-      let cellEl = spec.el(rowEl)
-      row[spec.fieldName] = getValueFromElement(spec, cellEl)
+      let cellValue;
+      // handle a hardcoded value for all rows in the column
+      if(spec.hasOwnProperty("colValue")) { cellValue = spec.colValue }
+      else {
+        let cellEl = spec.el(rowEl)
+        cellValue = getValueFromElement(spec, cellEl)
+      }
+      row[spec.fieldName] = cellValue
     })
     return row
   })
@@ -63,7 +69,8 @@ interface ColSpecs {
   /** The name of this data column, to be displayed in the table */
   fieldName: string;
   el(row: HTMLElement): HTMLElement;
-  value?(cell:HTMLElement): any;
+  getValue?(el: HTMLElement) : any;
+  colValue? : any; // hardcode the value for all rows
   readOnly?: boolean;
   type: string;
   editor?: string,
@@ -95,7 +102,11 @@ const createTable = (options: TableOptions) => {
   let rows = options.getDataRows()
   let data = getDataFromPage(options)
   let rowsById = _.keyBy(rows, row => {
-    return options.colSpecs.find(spec => spec.fieldName === "id").value(row)
+    let idSpec = options.colSpecs.find(spec => spec.fieldName === "id")
+
+    // TODO: This duplicates getDataFromPage, DRY it up
+    if (idSpec.hasOwnProperty("colValue")) { return idSpec.colValue }
+    return idSpec.getValue(row)
   })
 
 
@@ -171,7 +182,7 @@ const createTable = (options: TableOptions) => {
   // * borders vs background
   Handsontable.hooks.add('afterSelectionByProp', (row, prop) => {
     const highlightColor = "#c9ebff"
-    const unhighlightColor = "#c9ebff"
+    const unhighlightColor = "#ffffff"
 
     let rowEl : HTMLElement = rowsById[hot.getDataAtCell(row, 0)]
     let colSpec = colSpecFromProp(prop, options)
@@ -188,6 +199,7 @@ const createTable = (options: TableOptions) => {
       let otherDivs = rows.filter(r => r !== rowEl)
       otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
     } else {
+      console.log("only one row", rows.length)
       // For a single row, we highlight individual cells in the row
 
       // Add a border and scroll selected div into view
