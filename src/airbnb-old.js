@@ -79,10 +79,10 @@
         if (rest.length !== 0) {
           setTimeout(() => {
             likeRow(rest[0], rest.slice(1))
-          }, 1000)
+          }, 500)
         }
-      }, 1000)
-    }, 1000)
+      }, 500)
+    }, 500)
   }
 
   // Given an array of row data, re-render it

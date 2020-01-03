@@ -1,3 +1,19 @@
-#open-apps table.htCore {
+#wildcard-container table.htCore {
   font-size: 18px;
+}
+
+#wildcard-container {
+  border-top: solid thin #ddd;
+  position: fixed;
+  overflow: hidden;
+  background-color: white;
+  font-size: 14px;
+  height: 250px;
+  width: 100%;
+  z-index: 1000;
+  bottom: 0;
+}
+
+#wildcard-container.single-row {
+  height: 100px;
 }

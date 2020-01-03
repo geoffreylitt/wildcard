@@ -38,20 +38,12 @@ class FullCalendarEditor extends Handsontable.editors.BaseEditor {
       },
       events: [
         {
-          title  : 'Last problem set due',
-          start  : '2019-12-11'
+          title  : 'Fly to Miami',
+          start  : '2020-01-06',
         },
         {
-          title  : 'Final project due',
-          start  : '2019-12-13'
-        },
-        {
-          title  : 'Fly to LA',
-          start  : '2019-12-14',
-        },
-        {
-          title  : 'Come back from LA',
-          start  : '2019-12-19'
+          title  : 'Return from Miami',
+          start  : '2020-01-09'
         }
       ]
     });

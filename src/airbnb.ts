@@ -12,12 +12,11 @@ const priceClass = "_1p7iugi"
 const ratingClass = "_ky9opu0"
 const listingLinkClass = "_i24ijs"
 
-// Specify the columns to extract
-const colSpecs = [
-  {
+createTable({
+  colSpecs: [{
     fieldName: "id",
     el: (row) => row,
-    value: (cell) => {
+    getValue: (cell) => {
       let path = cell.querySelector("." + listingLinkClass) && cell.querySelector("." + listingLinkClass).getAttribute('href')
       let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
       return id
@@ -37,7 +36,7 @@ const colSpecs = [
     el: (row) => row.querySelector(`.${priceClass}`),
     // We don't want to just extract the raw price text;
     // we want to extract only the price number.
-    value: (cell) => cell.textContent.match(/\$([\d]*)/)[1],
+    getValue: (cell) => cell.textContent.match(/\$([\d]*)/)[1],
     readOnly: true,
     type: "numeric" as const
   },
@@ -46,20 +45,12 @@ const colSpecs = [
     el: (row) => row.querySelector(`.${ratingClass}`),
     readOnly: true,
     type: "numeric" as const
+  }],
+  getDataRows: () => {
+    return Array.from(document.getElementsByClassName(rowClass)).map(e => e as HTMLElement)
   },
-];
-
-const getDataRows = () => {
-  return Array.from(document.getElementsByClassName(rowClass)).map(e => e as HTMLElement)
-}
-
-const getRowContainer = () => {
-  return document.querySelector(`.${rowContainerClass}`) as HTMLElement
-}
-
-createTable({
-  colSpecs: colSpecs,
-  getDataRows: getDataRows,
-  getRowContainer: getRowContainer,
+  getRowContainer: () => {
+    return document.querySelector(`.${rowContainerClass}`) as HTMLElement
+  },
   setupReloadTriggers: () => {}
 });

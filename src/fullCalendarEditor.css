@@ -2,9 +2,9 @@
   background-color: white;
   padding: 20px; 
   position: fixed;
-  height: 400px;
-  width: 600px;
-  bottom: 0;
-  right: 0;
+  height: 500px;
+  width: 700px;
+  bottom: 100px;
+  right: 50px;
   z-index: 1000;
 }

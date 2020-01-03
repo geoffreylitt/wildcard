@@ -1,6 +1,5 @@
 chrome.devtools.network.onRequestFinished.addListener(
   (request) => {
-
     // if it's json, show the body
     if (request.response.status === 200 && request.response.content.mimeType === "application/json") {
       request.getContent((rawBody) => {

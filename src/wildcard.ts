@@ -90,13 +90,6 @@ interface TableOptions {
  *  to initialize your adapter.
  */
 const createTable = (options: TableOptions) => {
-  console.log("Wildcard activated...");
-
-  // add wrapper div
-  let newDiv = htmlToElement("<div id=\"open-apps\" class=\"mydiv\" style=\"border-top: solid thin #ddd; position: fixed; overflow: hidden; background-color: white; font-size: 14px; height: 250px; width: 100%; z-index: 1000; bottom: 0;\"><div id=\"open-apps-table\"></div></div>")
-  document.body.appendChild(newDiv);
-  var container = document.getElementById('open-apps-table');
-
   // set up data for table
   let rowContainer = options.getRowContainer()
   let rows = options.getDataRows()
@@ -108,7 +101,6 @@ const createTable = (options: TableOptions) => {
     if (idSpec.hasOwnProperty("colValue")) { return idSpec.colValue }
     return idSpec.getValue(row)
   })
-
 
   let columns = options.colSpecs.map(col => ({
     data: col.fieldName,
@@ -126,6 +118,12 @@ const createTable = (options: TableOptions) => {
   }))
 
   let hiddenColIndexes = columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
+
+  // create container div
+  let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
+  if (rows.length == 1) { newDiv.classList.add("single-row") }
+  document.body.appendChild(newDiv);
+  var container = document.getElementById('wildcard-table');
 
   var hot = new Handsontable(container, {
     data: data,
@@ -171,6 +169,9 @@ const createTable = (options: TableOptions) => {
   // set up page-specific reload triggers
   options.setupReloadTriggers(() => {
     let data = getDataFromPage(options)
+    
+    // todo: wrap "reload data" in a method where we can do other stuff,
+    // like resize the wildcard container, rather than directly call hot.loadData here
     hot.loadData(data)
   })
 

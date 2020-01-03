@@ -34,7 +34,7 @@ const colSpecs = [
   {
     fieldName: "destination",
     el: (row) => row.querySelector("#package-destination-hp-package"),
-    readOnly: true,
+    readOnly: false,
     type: "text"
   },
   {
