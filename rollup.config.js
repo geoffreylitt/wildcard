@@ -5,29 +5,48 @@ import postcss from 'rollup-plugin-postcss';
 import typescript from 'rollup-plugin-typescript2';
 
 export default [
+  // {
+  //   input: 'src/datepicker.ts',
+  //   output: {
+  //     file: 'dist/datepicker.js',
+  //     format: 'iife'
+  //   },
+  //   plugins: [
+  //     resolve(),
+  //     commonjs({
+  //       // non-CommonJS modules will be ignored, but you can also
+  //       // specifically include/exclude files
+  //       include: 'node_modules/**',  // Default: undefined
+  //     }),
+  //     postcss({
+  //       extensions: ['.css'],
+  //     }),
+  //     typescript()
+  //   ]
+  // },
+  // {
+  //   input: 'src/airbnb.ts',
+  //   output: {
+  //     file: 'dist/airbnb.js',
+  //     format: 'iife'
+  //   },
+  //   plugins: [
+  //     resolve(),
+  //     commonjs({
+  //       // non-CommonJS modules will be ignored, but you can also
+  //       // specifically include/exclude files
+  //       include: 'node_modules/**',  // Default: undefined
+  //     }),
+  //     postcss({
+  //       extensions: ['.css'],
+  //     }),
+  //     typescript()
+  //   ]
+  // },
   {
-    input: 'src/datepicker.ts',
+    input: 'src/todomvc.ts',
     output: {
-      file: 'dist/datepicker.js',
-      format: 'iife'
-    },
-    plugins: [
-      resolve(),
-      commonjs({
-        // non-CommonJS modules will be ignored, but you can also
-        // specifically include/exclude files
-        include: 'node_modules/**',  // Default: undefined
-      }),
-      postcss({
-        extensions: ['.css'],
-      }),
-      typescript()
-    ]
-  },
-  {
-    input: 'src/airbnb.ts',
-    output: {
-      file: 'dist/airbnb.js',
+      file: 'dist/todomvc.js',
       format: 'iife'
     },
     plugins: [

@@ -121998,7 +121998,7 @@
 	// Currently default behavior is crude: just gets the input value or text content.
 	var getValueFromElement = function (spec, cellElement) {
 	    if (spec.hasOwnProperty("getValue")) {
-	        return spec.value(cellElement);
+	        return spec.getValue(cellElement);
 	    }
 	    else {
 	        return cellElement.value || cellElement.textContent;
@@ -122095,23 +122095,20 @@
 	        licenseKey: 'non-commercial-and-evaluation'
 	    });
 	    createToggleButton(newDiv);
+	    var reloadData = function () {
+	        var data = getDataFromPage(options);
+	        hot.loadData(data);
+	    };
 	    // set up handlers to react to div changes
 	    // todo: this is inefficient; can we make fewer handlers?
 	    rows.forEach(function (row, idx) {
 	        options.colSpecs.forEach(function (col) {
 	            var el = col.el(row);
-	            el.addEventListener("input", function (e) {
-	                hot.setDataAtRowProp(idx, col.fieldName, e.target.value);
-	            });
+	            el.addEventListener("input", function (e) { return reloadData; });
 	        });
 	    });
 	    // set up page-specific reload triggers
-	    options.setupReloadTriggers(function () {
-	        var data = getDataFromPage(options);
-	        // todo: wrap "reload data" in a method where we can do other stuff,
-	        // like resize the wildcard container, rather than directly call hot.loadData here
-	        hot.loadData(data);
-	    });
+	    options.setupReloadTriggers(reloadData);
 	    // Highlight the selected row or cell in the original page.
 	    // This is important for establishing a clear mapping between page and table.
 	    // Probably need to provide a lot more site-specific config, including:
@@ -122163,52 +122160,48 @@
 	var priceClass = "_1p7iugi";
 	var ratingClass = "_ky9opu0";
 	var listingLinkClass = "_i24ijs";
-	// Specify the columns to extract
-	var colSpecs = [
-	    {
-	        fieldName: "id",
-	        el: function (row) { return row; },
-	        value: function (cell) {
-	            var path = cell.querySelector("." + listingLinkClass) && cell.querySelector("." + listingLinkClass).getAttribute('href');
-	            var id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1];
-	            return id;
-	        },
-	        readOnly: true,
-	        type: "text",
-	        hidden: true
-	    },
-	    {
-	        fieldName: "name",
-	        el: function (row) { return row.querySelector("." + titleClass); },
-	        readOnly: true,
-	        type: "text"
-	    },
-	    {
-	        fieldName: "price",
-	        el: function (row) { return row.querySelector("." + priceClass); },
-	        // We don't want to just extract the raw price text;
-	        // we want to extract only the price number.
-	        value: function (cell) { return cell.textContent.match(/\$([\d]*)/)[1]; },
-	        readOnly: true,
-	        type: "numeric"
-	    },
-	    {
-	        fieldName: "rating",
-	        el: function (row) { return row.querySelector("." + ratingClass); },
-	        readOnly: true,
-	        type: "numeric"
-	    },
-	];
-	var getDataRows = function () {
-	    return Array.from(document.getElementsByClassName(rowClass)).map(function (e) { return e; });
-	};
-	var getRowContainer = function () {
-	    return document.querySelector("." + rowContainerClass);
-	};
 	createTable({
-	    colSpecs: colSpecs,
-	    getDataRows: getDataRows,
-	    getRowContainer: getRowContainer,
+	    // Find the container div surrounding the data rows
+	    getRowContainer: function () {
+	        return document.querySelector("." + rowContainerClass);
+	    },
+	    // Find the divs for the data rows
+	    getDataRows: function () {
+	        return Array.from(document.getElementsByClassName(rowClass)).map(function (e) { return e; });
+	    },
+	    // Specify the columns to extract
+	    colSpecs: [{
+	            fieldName: "id",
+	            el: function (row) { return row; },
+	            getValue: function (cell) {
+	                var path = cell.querySelector("." + listingLinkClass) && cell.querySelector("." + listingLinkClass).getAttribute('href');
+	                var id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1];
+	                return id;
+	            },
+	            readOnly: true,
+	            type: "text",
+	            hidden: true
+	        },
+	        {
+	            fieldName: "name",
+	            el: function (row) { return row.querySelector("." + titleClass); },
+	            readOnly: true,
+	            type: "text"
+	        },
+	        {
+	            fieldName: "price",
+	            el: function (row) { return row.querySelector("." + priceClass); },
+	            // Extract the number from the price div
+	            getValue: function (cell) { return cell.textContent.match(/\$([\d]*)/)[1]; },
+	            readOnly: true,
+	            type: "numeric"
+	        },
+	        {
+	            fieldName: "rating",
+	            el: function (row) { return row.querySelector("." + ratingClass); },
+	            readOnly: true,
+	            type: "numeric"
+	        }],
 	    setupReloadTriggers: function () { }
 	});
 

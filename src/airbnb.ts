@@ -13,6 +13,15 @@ const ratingClass = "_ky9opu0"
 const listingLinkClass = "_i24ijs"
 
 createTable({
+  // Find the container div surrounding the data rows
+  getRowContainer: () => {
+    return document.querySelector(`.${rowContainerClass}`) as HTMLElement
+  },
+  // Find the divs for the data rows
+  getDataRows: () => {
+    return Array.from(document.getElementsByClassName(rowClass)).map(e => e as HTMLElement)
+  },
+  // Specify the columns to extract
   colSpecs: [{
     fieldName: "id",
     el: (row) => row,
@@ -22,23 +31,22 @@ createTable({
       return id
     },
     readOnly: true,
-    type: "text" as const,
+    type: "text",
     hidden: true
   },
   {
     fieldName: "name",
     el: (row) => row.querySelector(`.${titleClass}`),
     readOnly: true,
-    type: "text" as const
+    type: "text"
   },
   {
     fieldName: "price",
     el: (row) => row.querySelector(`.${priceClass}`),
-    // We don't want to just extract the raw price text;
-    // we want to extract only the price number.
+    // Extract the number from the price div
     getValue: (cell) => cell.textContent.match(/\$([\d]*)/)[1],
     readOnly: true,
-    type: "numeric" as const
+    type: "numeric"
   },
   {
     fieldName: "rating",
@@ -46,11 +54,5 @@ createTable({
     readOnly: true,
     type: "numeric" as const
   }],
-  getDataRows: () => {
-    return Array.from(document.getElementsByClassName(rowClass)).map(e => e as HTMLElement)
-  },
-  getRowContainer: () => {
-    return document.querySelector(`.${rowContainerClass}`) as HTMLElement
-  },
   setupReloadTriggers: () => {}
 });

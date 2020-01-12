@@ -37,7 +37,7 @@ function createToggleButton(container) {
 // Currently default behavior is crude: just gets the input value or text content.
 let getValueFromElement = (spec, cellElement) => {
   if (spec.hasOwnProperty("getValue")) {
-    return spec.value(cellElement)
+    return spec.getValue(cellElement)
   } else {
     return cellElement.value || cellElement.textContent
   }
@@ -46,7 +46,7 @@ let getValueFromElement = (spec, cellElement) => {
 function getDataFromPage(options : TableOptions) {
   let rows = options.getDataRows();
   return rows.map(rowEl => {
-    let row = {}
+    let row = { el: rowEl }
     options.colSpecs.forEach(spec => {
       let cellValue;
       // handle a hardcoded value for all rows in the column
@@ -94,13 +94,9 @@ const createTable = (options: TableOptions) => {
   let rowContainer = options.getRowContainer()
   let rows = options.getDataRows()
   let data = getDataFromPage(options)
-  let rowsById = _.keyBy(rows, row => {
-    let idSpec = options.colSpecs.find(spec => spec.fieldName === "id")
+  let rowsById = _.chain(data).keyBy(row => row.id).mapValues(row => row.el).value()
 
-    // TODO: This duplicates getDataFromPage, DRY it up
-    if (idSpec.hasOwnProperty("colValue")) { return idSpec.colValue }
-    return idSpec.getValue(row)
-  })
+  console.log("data", data, "rows by id", rowsById)
 
   let columns = options.colSpecs.map(col => ({
     data: col.fieldName,
@@ -155,25 +151,22 @@ const createTable = (options: TableOptions) => {
 
   createToggleButton(newDiv);
 
+  let reloadData = () => {
+    let data = getDataFromPage(options)
+    hot.loadData(data)
+  }
+
   // set up handlers to react to div changes
   // todo: this is inefficient; can we make fewer handlers?
   rows.forEach((row, idx) => {
     options.colSpecs.forEach(col => {
       let el = col.el(row)
-      el.addEventListener("input", e => {
-        hot.setDataAtRowProp(idx, col.fieldName, (<HTMLInputElement>e.target).value)
-      })
+      el.addEventListener("input", e => reloadData)
     })
   })
 
   // set up page-specific reload triggers
-  options.setupReloadTriggers(() => {
-    let data = getDataFromPage(options)
-    
-    // todo: wrap "reload data" in a method where we can do other stuff,
-    // like resize the wildcard container, rather than directly call hot.loadData here
-    hot.loadData(data)
-  })
+  options.setupReloadTriggers(reloadData)
 
   // Highlight the selected row or cell in the original page.
   // This is important for establishing a clear mapping between page and table.
@@ -190,14 +183,15 @@ const createTable = (options: TableOptions) => {
     let colEl : HTMLElement = colSpec.el(rowEl)
 
     if (rows.length > 1) {
-      console.log("more than one row", rows.length)
+      console.log("more than one row", rows, "highlighting", rowEl)
       // For multiple rows, we highlight the whole row
 
       rowEl.style["background-color"] = highlightColor
       rowEl.scrollIntoView({ behavior: "smooth", block: "center" })
 
-      // Clear border on other divs
+      // Clear highlight on other divs
       let otherDivs = rows.filter(r => r !== rowEl)
+      console.log("clearing", otherDivs)
       otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
     } else {
       console.log("only one row", rows.length)
