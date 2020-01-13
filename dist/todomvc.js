@@ -122053,9 +122053,9 @@
 	        },
 	        editor: col.editor,
 	        renderer: col.renderer,
-	        hidden: col.hidden
+	        hidden: col.hidden,
+	        name: col.fieldName
 	    }); });
-	    var hiddenColIndexes = columns.map(function (col, idx) { return col.hidden ? idx : null; }).filter(function (e) { return Number.isInteger(e); });
 	    // create container div
 	    var newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>");
 	    if (rows.length == 1) {
@@ -122066,22 +122066,22 @@
 	    var hot = new Handsontable(container, {
 	        data: data,
 	        rowHeaders: true,
-	        colHeaders: options.colSpecs.map(function (col) { return col.fieldName; }),
-	        filters: true,
-	        formulas: true,
+	        colHeaders: columns.map(function (col) { return col.name; }),
+	        // formulas: true,
 	        stretchH: 'none',
 	        dropdownMenu: true,
+	        filters: true,
 	        columnSorting: true,
 	        columns: columns,
 	        hiddenColumns: {
-	            columns: hiddenColIndexes,
+	            columns: columns.map(function (col, idx) { return col.hidden ? idx : null; }).filter(function (e) { return Number.isInteger(e); })
 	        },
 	        afterChange: function (changes) {
 	            if (changes) {
 	                changes.forEach(function (_a) {
 	                    var row = _a[0], prop = _a[1], oldValue = _a[2], newValue = _a[3];
 	                    var colSpec = colSpecFromProp(prop, options);
-	                    if (colSpec.readOnly) {
+	                    if (!colSpec || colSpec.readOnly) {
 	                        return;
 	                    }
 	                    var rowEl = rows[row]; // this won't work with re-sorting; change to ID
@@ -122138,8 +122138,11 @@
 	    Handsontable.hooks.add('afterSelectionByProp', function (row, prop) {
 	        var highlightColor = "#c9ebff";
 	        var unhighlightColor = "#ffffff";
-	        var rowEl = rowsById[hot.getDataAtCell(row, 0)];
 	        var colSpec = colSpecFromProp(prop, options);
+	        if (!colSpec) {
+	            return;
+	        }
+	        var rowEl = rowsById[hot.getDataAtCell(row, 0)];
 	        var colEl = colSpec.el(rowEl);
 	        if (rows.length > 1) {
 	            // For multiple rows, we highlight the whole row
@@ -122169,9 +122172,13 @@
 	            ids.forEach(function (id) { rowContainer.appendChild(rowsById[id]); });
 	        });
 	    });
+	    return {
+	        hot: hot,
+	        columns: columns
+	    };
 	};
 
-	createTable({
+	var _a = createTable({
 	    getRowContainer: function () { return document.querySelector('.todo-list'); },
 	    getDataRows: function () { return Array.from(document.querySelectorAll('.todo-list li')); },
 	    colSpecs: [
@@ -122205,6 +122212,87 @@
 	        }
 	    ],
 	    setupReloadTriggers: function () { }
+	}), hot = _a.hot, columns = _a.columns;
+	hot.updateSettings({
+	    contextMenu: {
+	        callback: function (key, selection, clickEvent) {
+	        },
+	        items: {
+	            "col-right": {
+	                name: "Add column",
+	                submenu: {
+	                    items: [
+	                        {
+	                            key: "col-right:date",
+	                            name: "Date",
+	                            callback: (function () {
+	                                columns.push({ data: "extraDate", readOnly: false, type: "date", dateFormat: "MM/DD/YYYY", });
+	                                hot.updateSettings({ columns: columns });
+	                            }),
+	                        },
+	                        {
+	                            key: "col-right:text",
+	                            name: "Text",
+	                            callback: (function () {
+	                                columns.push({ data: "extraText", readOnly: false, type: "text" });
+	                                hot.updateSettings({ columns: columns });
+	                            }),
+	                        },
+	                        {
+	                            key: "col-right:formula",
+	                            name: "formula",
+	                            callback: (function () {
+	                                columns.push({ data: "extraFormula", readOnly: false });
+	                                hot.updateSettings({ columns: columns });
+	                            }),
+	                        }
+	                    ]
+	                }
+	            }
+	        }
+	    }
 	});
+	function colIndex(prop) {
+	    return columns.findIndex(function (e) { return e.data === prop; });
+	}
+	// a shallow hacky implementation of a snooze formula
+	Handsontable.hooks.add("afterChange", function (changes) {
+	    if (changes) {
+	        changes.forEach(function (change) {
+	            var changedRow = change[0], prop = change[1], _ = change[2], val = change[3];
+	            if (prop === "extraFormula") {
+	                // hacky formula evaluation
+	                // if a formula is entered in any cell, evaluate it for all cells
+	                if (typeof val !== "string") {
+	                    return;
+	                }
+	                if (val.match(/=NOW()/)) {
+	                    hot.getDataAtProp("extraFormula").forEach(function (_, rowIndex) {
+	                        hot.setDataAtCell(rowIndex, colIndex("extraFormula"), new Date());
+	                    });
+	                }
+	                else if (val.match(/=D < NOW()/)) {
+	                    hot.getDataAtProp("extraFormula").forEach(function (_, rowIndex) {
+	                        var snoozeDate = new Date(hot.getDataAtCell(rowIndex, colIndex("extraDate")));
+	                        var show = snoozeDate < new Date();
+	                        console.log("snoozeDate", snoozeDate, "show", show);
+	                        hot.setDataAtCell(rowIndex, colIndex("extraFormula"), show);
+	                    });
+	                }
+	            }
+	            if (prop === "extraDate") {
+	                hot.getDataAtProp("extraFormula").forEach(function (val, rowIndex) {
+	                    if (!val) {
+	                        return;
+	                    }
+	                    var snoozeDate = new Date(hot.getDataAtCell(rowIndex, colIndex("extraDate")));
+	                    var show = snoozeDate < new Date();
+	                    console.log("snoozeDate", snoozeDate, "show", show);
+	                    hot.setDataAtCell(rowIndex, colIndex("extraFormula"), show);
+	                });
+	            }
+	        });
+	    }
+	}, hot);
 
 }());

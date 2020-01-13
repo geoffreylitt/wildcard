@@ -103,7 +103,7 @@ const createTable = (options: TableOptions) => {
 
   loadData()
 
-  let columns = options.colSpecs.map(col => ({
+  let columns : Array<any> = options.colSpecs.map(col => ({
     data: col.fieldName,
     readOnly: col.readOnly,
     type: col.type,
@@ -115,10 +115,9 @@ const createTable = (options: TableOptions) => {
     },
     editor: col.editor,
     renderer: col.renderer,
-    hidden: col.hidden
+    hidden: col.hidden,
+    name: col.fieldName
   }))
-
-  let hiddenColIndexes = columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
 
   // create container div
   let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
@@ -129,21 +128,21 @@ const createTable = (options: TableOptions) => {
   var hot = new Handsontable(container, {
     data: data,
     rowHeaders: true,
-    colHeaders: options.colSpecs.map(col => col.fieldName),
-    filters: true,
-    formulas: true,
+    colHeaders: columns.map(col => col.name),
+    // formulas: true,
     stretchH: 'none',
     dropdownMenu: true,
+    filters: true,
     columnSorting: true,
     columns: columns,
     hiddenColumns: {
-      columns: hiddenColIndexes,
+      columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
     },
     afterChange: (changes) => {
       if (changes) {
         changes.forEach(([row, prop, oldValue, newValue]) => {
           let colSpec = colSpecFromProp(prop, options)
-          if (colSpec.readOnly) { return; }
+          if (!colSpec || colSpec.readOnly) { return }
 
           let rowEl = rows[row] // this won't work with re-sorting; change to ID
           let el = colSpec.el(rowEl)
@@ -205,8 +204,10 @@ const createTable = (options: TableOptions) => {
     const highlightColor = "#c9ebff"
     const unhighlightColor = "#ffffff"
 
-    let rowEl : HTMLElement = rowsById[hot.getDataAtCell(row, 0)]
     let colSpec = colSpecFromProp(prop, options)
+    if (!colSpec) { return; }
+
+    let rowEl : HTMLElement = rowsById[hot.getDataAtCell(row, 0)]
     let colEl : HTMLElement = colSpec.el(rowEl)
 
     if (rows.length > 1) {
@@ -241,6 +242,11 @@ const createTable = (options: TableOptions) => {
       ids.forEach (id => { rowContainer.appendChild(rowsById[id]) })
     })
   })
+
+  return {
+    hot: hot,
+    columns: columns
+  }
 }
 
 export { createTable }
