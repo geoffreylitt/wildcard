@@ -50,29 +50,23 @@ hot.updateSettings({
         submenu: {
           items: [
             {
+              key: "col-right:general",
+              name: "General",
+              callback: (function() {
+                let colName = prompt("Enter column name")
+                columns.push({ data: "extraFormula", readOnly: false, type: "text", name: colName });
+                hot.updateSettings({ columns: columns, colHeaders: columns.map(col => col.name) })
+              }),
+            },
+            {
               key: "col-right:date",
               name: "Date",
               callback: (function() {
-                columns.push({ data: "extraDate", readOnly: false, type: "date", dateFormat: "MM/DD/YYYY", });
-                hot.updateSettings({ columns: columns })
+                let colName = prompt("Enter column name")
+                columns.push({ data: "extraDate", readOnly: false, type: "date", dateFormat: "MM/DD/YYYY", name: colName });
+                hot.updateSettings({ columns: columns, colHeaders: columns.map(col => col.name) })
               }),
             },
-            {
-              key: "col-right:text",
-              name: "Text",
-              callback: (function() {
-                columns.push({ data: "extraText", readOnly: false, type: "text" });
-                hot.updateSettings({ columns: columns })
-              }),
-            },
-            {
-              key: "col-right:formula",
-              name: "formula",
-              callback: (function() {
-                columns.push({ data: "extraFormula", readOnly: false });
-                hot.updateSettings({ columns: columns })
-              }),
-            }
           ]
         }
         
@@ -99,10 +93,10 @@ Handsontable.hooks.add("afterChange", (changes) => {
           hot.getDataAtProp("extraFormula").forEach((_, rowIndex) => {
             hot.setDataAtCell(rowIndex, colIndex("extraFormula"), new Date())
           })
-        } else if (val.match(/=D < NOW()/)) {
+        } else if (val.match(/=snoozeDate > NOW()/)) {
           hot.getDataAtProp("extraFormula").forEach((_, rowIndex) => {
             let snoozeDate = new Date(hot.getDataAtCell(rowIndex, colIndex("extraDate")))
-            let show = snoozeDate < new Date()
+            let show = snoozeDate > new Date()
             console.log("snoozeDate", snoozeDate, "show", show)
             hot.setDataAtCell(rowIndex, colIndex("extraFormula"), show)
           })
@@ -110,14 +104,18 @@ Handsontable.hooks.add("afterChange", (changes) => {
       }
 
       if (prop === "extraDate") {
+        console.log("responding to date change")
         hot.getDataAtProp("extraFormula").forEach((val, rowIndex) => {
-          if (!val) { return; }
+          // only update when the cell already has a formula or a boolean in it
+          if (typeof val !== "string" && typeof val !== "boolean") { return; }
           let snoozeDate = new Date(hot.getDataAtCell(rowIndex, colIndex("extraDate")))
-          let show = snoozeDate < new Date()
+          let show = snoozeDate > new Date()
           console.log("snoozeDate", snoozeDate, "show", show)
           hot.setDataAtCell(rowIndex, colIndex("extraFormula"), show)
         }) 
       }
     })
+
+    hot.getPlugin('filters').filter()
   }
 }, hot)

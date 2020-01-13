@@ -17,3 +17,9 @@
 #wildcard-container.single-row {
   height: 100px;
 }
+
+/* for todomvc */
+#wildcard-container {
+  margin-left: -100px;
+  height: 220px;
+}

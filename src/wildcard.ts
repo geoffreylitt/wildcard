@@ -162,12 +162,15 @@ const createTable = (options: TableOptions) => {
   // loading the data differently the first time it's initialized
   // vs. subsequent updates
   let reloadData = () => {
-    loadData()
+    let oldData = data
+    loadData() // mutates data
+    data = oldData.map((row, index) => _.merge(row, data[index]))
     hot.loadData(data)
   }
 
   // set up handlers to try to catch any changes that happen
   // we look for input events on rows, and also monitor DOM of row container
+  // should this all move out to "setup reload triggers"?
   let reloadTriggers = ["input", "click", "change", "keyup"]
   rows.forEach((row, idx) => {
     // options.colSpecs.forEach(col => {
@@ -183,7 +186,13 @@ const createTable = (options: TableOptions) => {
   })
 
   let observer = new MutationObserver((mutationList, observer) => {
-    if (mutationList.length >= 1) { reloadData() }
+    // if (mutationList.length >= 1) { reloadData() }
+
+    // this is super super hacky,
+    // just to get todomvc demo working
+    // the goal is to only catch little checkbox mutations
+    // but not big ones from filtering etc
+    if (mutationList.length === 1) { reloadData() }
   });
   observer.observe(rowContainer, {
     childList: true,
@@ -239,7 +248,11 @@ const createTable = (options: TableOptions) => {
     Handsontable.hooks.add(hook, () => {
       let ids = hot.getDataAtCol(0)
       rowContainer.innerHTML = ""
-      ids.forEach (id => { rowContainer.appendChild(rowsById[id]) })
+      ids.forEach (id => { 
+        if (rowsById[id]) {
+          rowContainer.appendChild(rowsById[id])
+        }
+      })
     })
   })
 
