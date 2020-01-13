@@ -122031,12 +122031,16 @@
 	 *  to initialize your adapter.
 	 */
 	var createTable = function (options) {
-	    // set up data for table
-	    var rowContainer = options.getRowContainer();
-	    var rows = options.getDataRows();
-	    var data = getDataFromPage(options);
-	    var rowsById = lodash.chain(data).keyBy(function (row) { return row.id; }).mapValues(function (row) { return row.el; }).value();
-	    console.log("data", data, "rows by id", rowsById);
+	    var rowContainer, rows, data, rowsById;
+	    // Load data from table; map data to DOM elements
+	    var loadData = function () {
+	        rowContainer = options.getRowContainer();
+	        rows = options.getDataRows();
+	        data = getDataFromPage(options);
+	        rowsById = lodash.chain(data).keyBy(function (row) { return row.id; }).mapValues(function (row) { return row.el; }).value();
+	        console.log("loaded data", data);
+	    };
+	    loadData();
 	    var columns = options.colSpecs.map(function (col) { return ({
 	        data: col.fieldName,
 	        readOnly: col.readOnly,
@@ -122089,17 +122093,39 @@
 	        licenseKey: 'non-commercial-and-evaluation'
 	    });
 	    createToggleButton(newDiv);
+	    // reload data from page:
+	    // re-extract, and then load into the spreadsheet
+	    // TODO: unify this more cleanly with loadData;
+	    // this works this way right now because Handsontable requires
+	    // loading the data differently the first time it's initialized
+	    // vs. subsequent updates
 	    var reloadData = function () {
-	        var data = getDataFromPage(options);
+	        loadData();
 	        hot.loadData(data);
 	    };
-	    // set up handlers to react to div changes
-	    // todo: this is inefficient; can we make fewer handlers?
+	    // set up handlers to try to catch any changes that happen
+	    // we look for input events on rows, and also monitor DOM of row container
+	    var reloadTriggers = ["input", "click", "change", "keyup"];
 	    rows.forEach(function (row, idx) {
-	        options.colSpecs.forEach(function (col) {
-	            var el = col.el(row);
-	            el.addEventListener("input", function (e) { return reloadData; });
+	        // options.colSpecs.forEach(col => {
+	        //   let el = col.el(row)
+	        //   reloadTriggers.forEach(eType => {
+	        //     el.addEventListener(eType, e => reloadData)
+	        //   })
+	        // })
+	        reloadTriggers.forEach(function (eType) {
+	            row.addEventListener(eType, function (e) { return reloadData; });
 	        });
+	    });
+	    var observer = new MutationObserver(function (mutationList, observer) {
+	        if (mutationList.length >= 1) {
+	            reloadData();
+	        }
+	    });
+	    observer.observe(rowContainer, {
+	        childList: true,
+	        attributes: false,
+	        subtree: true
 	    });
 	    // set up page-specific reload triggers
 	    options.setupReloadTriggers(reloadData);
@@ -122116,17 +122142,16 @@
 	        var colSpec = colSpecFromProp(prop, options);
 	        var colEl = colSpec.el(rowEl);
 	        if (rows.length > 1) {
-	            console.log("more than one row", rows, "highlighting", rowEl);
 	            // For multiple rows, we highlight the whole row
-	            rowEl.style["background-color"] = highlightColor;
+	            // rowEl.style["background-color"] = highlightColor
+	            rowEl.style["border"] = "solid 2px " + highlightColor;
 	            rowEl.scrollIntoView({ behavior: "smooth", block: "center" });
 	            // Clear highlight on other divs
 	            var otherDivs = rows.filter(function (r) { return r !== rowEl; });
-	            console.log("clearing", otherDivs);
-	            otherDivs.forEach(function (d) { return d.style["background-color"] = unhighlightColor; });
+	            // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
+	            otherDivs.forEach(function (d) { return d.style["border"] = "none"; });
 	        }
 	        else {
-	            console.log("only one row", rows.length);
 	            // For a single row, we highlight individual cells in the row
 	            // Add a border and scroll selected div into view
 	            colEl.style["background-color"] = highlightColor;
@@ -122146,7 +122171,6 @@
 	    });
 	};
 
-	console.log("hello world");
 	createTable({
 	    getRowContainer: function () { return document.querySelector('.todo-list'); },
 	    getDataRows: function () { return Array.from(document.querySelectorAll('.todo-list li')); },
@@ -122174,10 +122198,9 @@
 	            // having el in here makes increasingly less sense...
 	            // it's only needed when highlighting columns for single row tables
 	            // maybe make it optional and drop it usually in favor of value?
-	            el: function (row) { return row; },
-	            getValue: function (row) {
-	                console.log("running getValue", row.classList);
-	                return row.classList.contains("completed");
+	            el: function (row) { return row.querySelector("input.toggle"); },
+	            getValue: function (cell) {
+	                return cell.checked;
 	            }
 	        }
 	    ],

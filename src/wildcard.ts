@@ -90,13 +90,18 @@ interface TableOptions {
  *  to initialize your adapter.
  */
 const createTable = (options: TableOptions) => {
-  // set up data for table
-  let rowContainer = options.getRowContainer()
-  let rows = options.getDataRows()
-  let data = getDataFromPage(options)
-  let rowsById = _.chain(data).keyBy(row => row.id).mapValues(row => row.el).value()
+  let rowContainer, rows, data, rowsById;
 
-  console.log("data", data, "rows by id", rowsById)
+  // Load data from table; map data to DOM elements
+  let loadData = () => {
+    rowContainer = options.getRowContainer()
+    rows = options.getDataRows()
+    data = getDataFromPage(options)
+    rowsById = _.chain(data).keyBy(row => row.id).mapValues(row => row.el).value()
+    console.log("loaded data", data)
+  }
+
+  loadData()
 
   let columns = options.colSpecs.map(col => ({
     data: col.fieldName,
@@ -151,19 +156,41 @@ const createTable = (options: TableOptions) => {
 
   createToggleButton(newDiv);
 
+  // reload data from page:
+  // re-extract, and then load into the spreadsheet
+  // TODO: unify this more cleanly with loadData;
+  // this works this way right now because Handsontable requires
+  // loading the data differently the first time it's initialized
+  // vs. subsequent updates
   let reloadData = () => {
-    let data = getDataFromPage(options)
+    loadData()
     hot.loadData(data)
   }
 
-  // set up handlers to react to div changes
-  // todo: this is inefficient; can we make fewer handlers?
+  // set up handlers to try to catch any changes that happen
+  // we look for input events on rows, and also monitor DOM of row container
+  let reloadTriggers = ["input", "click", "change", "keyup"]
   rows.forEach((row, idx) => {
-    options.colSpecs.forEach(col => {
-      let el = col.el(row)
-      el.addEventListener("input", e => reloadData)
+    // options.colSpecs.forEach(col => {
+    //   let el = col.el(row)
+    //   reloadTriggers.forEach(eType => {
+    //     el.addEventListener(eType, e => reloadData)
+    //   })
+    // })
+
+    reloadTriggers.forEach(eType => {
+      row.addEventListener(eType, e => reloadData)
     })
   })
+
+  let observer = new MutationObserver((mutationList, observer) => {
+    if (mutationList.length >= 1) { reloadData() }
+  });
+  observer.observe(rowContainer, {
+    childList: true,
+    attributes: false,
+    subtree: true
+  });
 
   // set up page-specific reload triggers
   options.setupReloadTriggers(reloadData)
@@ -183,18 +210,17 @@ const createTable = (options: TableOptions) => {
     let colEl : HTMLElement = colSpec.el(rowEl)
 
     if (rows.length > 1) {
-      console.log("more than one row", rows, "highlighting", rowEl)
       // For multiple rows, we highlight the whole row
 
-      rowEl.style["background-color"] = highlightColor
+      // rowEl.style["background-color"] = highlightColor
+      rowEl.style["border"] = `solid 2px ${highlightColor}`
       rowEl.scrollIntoView({ behavior: "smooth", block: "center" })
 
       // Clear highlight on other divs
       let otherDivs = rows.filter(r => r !== rowEl)
-      console.log("clearing", otherDivs)
-      otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
+      // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
+      otherDivs.forEach( d => d.style["border"] = `none` )
     } else {
-      console.log("only one row", rows.length)
       // For a single row, we highlight individual cells in the row
 
       // Add a border and scroll selected div into view

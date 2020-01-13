@@ -2,8 +2,6 @@
 
 import { createTable } from './wildcard';
 
-console.log("hello world")
-
 createTable({
   getRowContainer: () => document.querySelector('.todo-list'),
   getDataRows: () => Array.from(document.querySelectorAll('.todo-list li')),
@@ -31,10 +29,9 @@ createTable({
       // having el in here makes increasingly less sense...
       // it's only needed when highlighting columns for single row tables
       // maybe make it optional and drop it usually in favor of value?
-      el: (row) => row,
-      getValue: (row) => {
-        console.log("running getValue", row.classList)
-        return row.classList.contains("completed")
+      el: (row) => row.querySelector("input.toggle"),
+      getValue: (cell) => {
+        return (cell as HTMLInputElement).checked
       }
     }
   ],
