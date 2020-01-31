@@ -54,5 +54,5 @@ createTable({
     readOnly: true,
     type: "numeric" as const
   }],
-  setupReloadTriggers: () => {}
+  setupReloadTriggers: () => { }
 });
