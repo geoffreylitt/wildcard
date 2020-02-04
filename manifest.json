@@ -1,0 +1,16 @@
+  {
+    "name": "Wildcard",
+    "version": "0.1",
+    "description": "Spreadsheet-driven customization of web applications",
+    "manifest_version": 2,
+    "content_scripts": [
+      {
+        "js": [
+          "dist/datepicker.js"
+        ],
+        "matches": [
+          "https://www.expedia.com/*"
+        ]
+      }
+    ]
+  }
