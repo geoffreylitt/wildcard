@@ -1,9 +1,9 @@
 'use strict';
 
-import { createTable } from './wildcard';
+import { createTable } from '../wildcard';
 import Handsontable from "handsontable";
 
-let {hot, columns} = createTable({
+let { hot, columns } = createTable({
   getRowContainer: () => document.querySelector('.todo-list'),
   getDataRows: () => Array.from(document.querySelectorAll('.todo-list li')),
   colSpecs: [
@@ -36,7 +36,7 @@ let {hot, columns} = createTable({
       }
     }
   ],
-  setupReloadTriggers: () => {}
+  setupReloadTriggers: () => { }
 })
 
 
@@ -52,7 +52,7 @@ hot.updateSettings({
             {
               key: "col-right:general",
               name: "General",
-              callback: (function() {
+              callback: (function () {
                 let colName = prompt("Enter column name")
                 columns.push({ data: "extraFormula", readOnly: false, type: "text", name: colName });
                 hot.updateSettings({ columns: columns, colHeaders: columns.map(col => col.name) })
@@ -61,7 +61,7 @@ hot.updateSettings({
             {
               key: "col-right:date",
               name: "Date",
-              callback: (function() {
+              callback: (function () {
                 let colName = prompt("Enter column name")
                 columns.push({ data: "extraDate", readOnly: false, type: "date", dateFormat: "MM/DD/YYYY", name: colName });
                 hot.updateSettings({ columns: columns, colHeaders: columns.map(col => col.name) })
@@ -69,7 +69,7 @@ hot.updateSettings({
             },
           ]
         }
-        
+
       }
     }
   }
@@ -112,7 +112,7 @@ Handsontable.hooks.add("afterChange", (changes) => {
           let show = snoozeDate > new Date()
           console.log("snoozeDate", snoozeDate, "show", show)
           hot.setDataAtCell(rowIndex, colIndex("extraFormula"), show)
-        }) 
+        })
       }
     })
 

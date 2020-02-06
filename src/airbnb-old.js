@@ -1,3 +1,8 @@
+// This is an old version of the Airbnb demo,
+// which combines the site adapter and the core Wildcard framework.
+// The newer version is in site_adapters/airbnb.ts.
+// Keeping this around for now because it has a couple bells and whistles not present in the newer version yet.
+
 (function () {
   'use strict';
 
@@ -19,7 +24,8 @@
     { data: "id" },
     { data: "img", renderer: "html" },
     { data: "name" },
-    { data: "price",
+    {
+      data: "price",
       type: "numeric",
       numericFormat: {
         pattern: '$0,0',
@@ -63,7 +69,7 @@
   function findRows() {
     return [...findRowContainer().children]
   }
-  
+
   // perform a like action on a row
   function likeRow(row, rest) {
     let likeButton = row.div.querySelectorAll("button")[2] // so brittle...
@@ -109,7 +115,7 @@
     return rowsData.map(r => {
       return {
         id: r.id,
-        img: '<img style="max-height: 50px;" src="' + r.imgUrl + '"/>', 
+        img: '<img style="max-height: 50px;" src="' + r.imgUrl + '"/>',
         name: r.title,
         price: r.price,
         rating: r.rating,
@@ -124,7 +130,7 @@
   function showRows(ids) {
     let rowContainer = findRowContainer()
     rowContainer.innerHTML = ""
-    ids.forEach (id => {
+    ids.forEach(id => {
       let row = rows.find(r => r.id === id)
       rowContainer.appendChild(row.div)
     })
@@ -216,20 +222,20 @@
 
     // register hooks to re-sort the list
     ['afterColumnSort', 'afterFilter'].forEach(hook => {
-      Handsontable.hooks.add(hook, (c, d) => { 
+      Handsontable.hooks.add(hook, (c, d) => {
         let ids = hot.getDataAtCol(0)
         showRows(ids)
       }, hot)
     })
 
-    Handsontable.hooks.add('afterChange', (changes) => { 
+    Handsontable.hooks.add('afterChange', (changes) => {
       if (changes) {
         changes.forEach(change => {
           let [changedRow, prop, _, val] = change
           if (prop === "userdata") {
             // hacky formula evaluation
             let formulaMatch = val && val.match(/=walkscore\((.*), (.*)\)/)
-            if(formulaMatch) {
+            if (formulaMatch) {
               let lat = hot.getDataAtCell(changedRow, colIndex(formulaMatch[1]))
               let long = hot.getDataAtCell(changedRow, colIndex(formulaMatch[2]))
               const apikey = "75bb7422674ae495291290bf8a4ad7fd"
@@ -254,7 +260,7 @@
             } else {
               let newRowData = hot.getDataAtRow(changedRow)
               renderRow(newRowData)
-    
+
               let key = userdataKey(newRowData[colIndex("id")], "notes")
               GM_setValue(key, val)
             }
@@ -289,7 +295,7 @@
 
       // Clear border on other divs
       let otherDivs = rows.filter(r => r.id !== rowId).map(r => r.div)
-      otherDivs.forEach( d => d.style.outline = "none" )
+      otherDivs.forEach(d => d.style.outline = "none")
     }, hot)
 
     unsafeWindow.updateListings = (rawListings) => {

@@ -1,6 +1,6 @@
 'use strict';
 
-import { createTable } from './wildcard';
+import { createTable } from '../wildcard';
 
 // Obscure class names for various page elements.
 // They have remained stable for several months,

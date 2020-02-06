@@ -6,7 +6,7 @@ import typescript from 'rollup-plugin-typescript2';
 
 export default [
   {
-    input: 'src/datepicker.ts',
+    input: 'src/site_adapters/datepicker.ts',
     output: {
       file: 'dist/datepicker.js',
       format: 'iife'
@@ -25,7 +25,7 @@ export default [
     ]
   },
   {
-    input: 'src/airbnb.ts',
+    input: 'src/site_adapters/airbnb.ts',
     output: {
       file: 'dist/airbnb.js',
       format: 'iife'
@@ -44,7 +44,7 @@ export default [
     ]
   },
   {
-    input: 'src/todomvc.ts',
+    input: 'src/site_adapters/todomvc.ts',
     output: {
       file: 'dist/todomvc.js',
       format: 'iife'

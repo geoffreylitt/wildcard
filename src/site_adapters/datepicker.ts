@@ -1,6 +1,6 @@
-import { createTable } from './wildcard';
+import { createTable } from '../wildcard';
 
-import { FullCalendarEditor } from './fullCalendarEditor.js'
+import { FullCalendarEditor } from '../cell_editors/fullCalendarEditor.js'
 
 // Return all the "item" divs in a list
 const getDataRows = () => {
