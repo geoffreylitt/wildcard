@@ -6,7 +6,9 @@ Early demo video: https://www.loom.com/share/cab62c8172404c39bebc4c511a60a389
 
 ## To use Wildcard
 
-[Follow these instructions](https://developer.chrome.com/getstarted) to install the Wildcard dev directory as an unpacked chrome extension.
+Clone this repo locally.
+
+[Follow these instructions](https://developer.chrome.com/getstarted) to install the cloned directory as an unpacked chrome extension.
 
 To test whether it's working: try an [Airbnb search](https://www.airbnb.com/s/Miami/homes?checkin=2019-11-14&checkout=2019-11-17&adults=1&children=0&infants=0&place_id=ChIJEcHIDqKw2YgRZU-t3XHylv8&refinement_paths%5B%5D=%2Fhomes&search_type=section_navigation); the table should appear at the bottom and you should be able to sort by price.
 
