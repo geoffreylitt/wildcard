@@ -12,8 +12,6 @@ const priceClass = "_1p7iugi"
 const ratingClass = "_ky9opu0"
 const listingLinkClass = "_i24ijs"
 
-console.log("hello heyyy world test")
-
 createTable({
   // Find the container div surrounding the data rows
   getRowContainer: () => {
