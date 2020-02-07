@@ -57,10 +57,7 @@ const colSpecs = [
 // todo: this is a weird API... simplify?
 const setupReloadTriggers = (reload) => {
   document.addEventListener("click", (e) => {
-    let target = e.target as HTMLElement
-    if (target.matches("button.datepicker-cal-date")) {
-      reload()
-    }
+    reload()
   })
 }
 

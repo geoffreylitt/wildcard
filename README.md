@@ -18,17 +18,23 @@ Wildcard is built in Typescript and uses yarn and rollup for packages and bundli
 
 ### Initial setup
 
+Install dependencies:
+
 * install [yarn](https://legacy.yarnpkg.com/en/docs/install/#mac-stable) and [rollup](https://rollupjs.org/guide/en/)
-* `yarn install` to install dependencies
+* `yarn install`
+* `yarn global add concurrently`
+
+To get code changes to automatically update the extension in the browser:
+
+* Install the [Chrome Extension AutoReload](https://github.com/JeromeDane/chrome-extension-auto-reload) as an unpacked extension from source.
+* From the `chrome://extensions` page, click Details -> Extension Options, and change the Reload Method to "Manage API".
 
 ### Dev workflow
 
 Every time you develop, follow these steps. If a change you make isn't having an effect, it's probably related to these steps:
 
-* `yarn run rollup` to start a watcher that builds the project.
+* `yarn run dev` to start a watcher that builds the project.
   * Compilation can take a few seconds. If a change isn't working, it might be that compilation didn't finish yet. (Improving compilation time is a todo; I think it's mostly time spent compiling Handsontable)
-* You must click Reload in the chrome extensions menu to apply each code change.
-  * (Todo: can we find a way around this? I was using Tampermonkey previously to avoid this, but there were some issues getting it working on other people's computer)
 
 To test if you're able to make changes, try adding a `console.log` statement to a site adapter file like `src/site_adapters/airbnb.ts` and see if it works.
 
