@@ -13,10 +13,6 @@ const listingLinkClass = "_i24ijs"
 export const AirbnbAdapter = {
   name: "Airbnb",
   urlPattern: "airbnb.com/s/",
-  // Find the container div surrounding the data rows
-  getRowContainer: () => {
-    return document.querySelector(`.${rowContainerClass}`) as HTMLElement
-  },
   // Find the divs for the data rows
   getDataRows: () => {
     return Array.from(document.getElementsByClassName(rowClass)).map(e => e as HTMLElement)

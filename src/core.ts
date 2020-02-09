@@ -88,7 +88,7 @@ interface SiteAdapterOptions {
   colSpecs: Array<ColSpecs>;
   getDataRows(): Array<HTMLElement>;
   setupReloadTriggers(setupFn: any): any;
-  getRowContainer(): HTMLElement;
+  getRowContainer?(): HTMLElement;
 }
 
 /** The main method for creating a Wildcard site adapter.
@@ -100,8 +100,12 @@ interface SiteAdapterOptions {
 
    // Load data from table; map data to DOM elements
    let loadData = () => {
-     rowContainer = options.getRowContainer()
      rows = options.getDataRows()
+     if (options.hasOwnProperty("getRowContainer")) {
+       rowContainer = options.getRowContainer()
+     } else {
+       rowContainer = rows[0].parentElement
+     }
      data = getDataFromPage(options)
      rowsById = _.chain(data).keyBy(row => row.id).mapValues(row => row.el).value()
      console.log("loaded data", data)

@@ -3,9 +3,6 @@ import { FullCalendarEditor } from '../cell_editors/fullCalendarEditor.js'
 export const ExpediaAdapter = {
   name: "Expedia2",
   urlPattern: "expedia.com",
-  getRowContainer: () => {
-    return document.getElementById("gcw-packages-form-hp-package")
-  },
   getDataRows: () => {
     return [
     document.getElementById("gcw-packages-form-hp-package")
