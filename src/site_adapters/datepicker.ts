@@ -28,7 +28,7 @@ const colSpecs = [
   {
     fieldName: "origin",
     el: (row) => row.querySelector("#package-origin-hp-package"),
-    readOnly: true,
+    readOnly: false,
     type: "text"
   },
   {
