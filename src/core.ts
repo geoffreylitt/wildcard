@@ -43,7 +43,7 @@ let getValueFromElement = (spec, cellElement) => {
   }
 }
 
-function getDataFromPage(options: TableOptions) {
+function getDataFromPage(options: SiteAdapterOptions) {
   let rows = options.getDataRows();
   return rows.map(rowEl => {
     let row = { el: rowEl }
@@ -82,7 +82,9 @@ interface ColSpecs {
   hidden?: boolean
 }
 
-interface TableOptions {
+interface SiteAdapterOptions {
+  name: string;
+  urlPattern: string;
   colSpecs: Array<ColSpecs>;
   getDataRows(): Array<HTMLElement>;
   setupReloadTriggers(setupFn: any): any;
@@ -90,10 +92,10 @@ interface TableOptions {
 }
 
 /** The main method for creating a Wildcard site adapter.
- *  In your adapter, call this with a valid [[TableOptions]] object
+ *  In your adapter, call this with a valid [[SiteAdapterOptions]] object
  *  to initialize your adapter.
  */
- const createTable = (options: TableOptions) => {
+ const createTable = (options: SiteAdapterOptions) => {
    let rowContainer, rows, data, rowsById;
 
    // Load data from table; map data to DOM elements

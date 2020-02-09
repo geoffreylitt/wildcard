@@ -24,7 +24,7 @@ const run = function () {
   let activeAdapter = adaptersForPage[0]
   console.log(`Wildcard: activating site adapter: ${activeAdapter.name}`)
 
-  createTable(activeAdapter.tableOptions)
+  createTable(activeAdapter)
 }
 
 run()
