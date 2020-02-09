@@ -5,9 +5,9 @@
 // so actually seem unlikely to change regularly.
 const rowContainerClass = "_fhph4u"
 const rowClass = "_8ssblpx"
-const titleClass = "_1ebt2xej"
+const titleClass = "_1jbo9b6h"
 const priceClass = "_1p7iugi"
-const ratingClass = "_ky9opu0"
+const ratingClass = "_3zgr580"
 const listingLinkClass = "_i24ijs"
 
 export const AirbnbAdapter = {

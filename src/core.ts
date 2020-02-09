@@ -51,12 +51,16 @@ function getDataFromPage(options: TableOptions) {
       let cellValue;
       // handle a hardcoded value for all rows in the column
       if (spec.hasOwnProperty("colValue")) { cellValue = spec.colValue }
-      else {
-        let cellEl = spec.el(rowEl)
-        cellValue = getValueFromElement(spec, cellEl)
-      }
-      row[spec.fieldName] = cellValue
-    })
+        else {
+          let cellEl = spec.el(rowEl)
+          if (cellEl) {
+            cellValue = getValueFromElement(spec, cellEl)
+          } else {
+            cellValue = null
+          }
+        }
+        row[spec.fieldName] = cellValue
+      })
     return row
   })
 }
@@ -89,177 +93,177 @@ interface TableOptions {
  *  In your adapter, call this with a valid [[TableOptions]] object
  *  to initialize your adapter.
  */
-const createTable = (options: TableOptions) => {
-  let rowContainer, rows, data, rowsById;
+ const createTable = (options: TableOptions) => {
+   let rowContainer, rows, data, rowsById;
 
-  // Load data from table; map data to DOM elements
-  let loadData = () => {
-    rowContainer = options.getRowContainer()
-    rows = options.getDataRows()
-    data = getDataFromPage(options)
-    rowsById = _.chain(data).keyBy(row => row.id).mapValues(row => row.el).value()
-    console.log("loaded data", data)
-  }
+   // Load data from table; map data to DOM elements
+   let loadData = () => {
+     rowContainer = options.getRowContainer()
+     rows = options.getDataRows()
+     data = getDataFromPage(options)
+     rowsById = _.chain(data).keyBy(row => row.id).mapValues(row => row.el).value()
+     console.log("loaded data", data)
+   }
 
-  loadData()
+   loadData()
 
-  let columns: Array<any> = options.colSpecs.map(col => ({
-    data: col.fieldName,
-    readOnly: col.readOnly,
-    type: col.type,
-    dateFormat: "MM/DD/YYYY",
-    datePickerConfig: {
-      events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'], //todo: move this out of the core plugin
-      firstDay: 1,
-      numberOfMonths: 3
-    },
-    editor: col.editor,
-    renderer: col.renderer,
-    hidden: col.hidden,
-    name: col.fieldName
-  }))
+   let columns: Array<any> = options.colSpecs.map(col => ({
+     data: col.fieldName,
+     readOnly: col.readOnly,
+     type: col.type,
+     dateFormat: "MM/DD/YYYY",
+     datePickerConfig: {
+       events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'], //todo: move this out of the core plugin
+       firstDay: 1,
+       numberOfMonths: 3
+     },
+     editor: col.editor,
+     renderer: col.renderer,
+     hidden: col.hidden,
+     name: col.fieldName
+   }))
 
-  // create container div
-  let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
-  if (rows.length == 1) { newDiv.classList.add("single-row") }
-  document.body.appendChild(newDiv);
-  var container = document.getElementById('wildcard-table');
+   // create container div
+   let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
+   if (rows.length == 1) { newDiv.classList.add("single-row") }
+     document.body.appendChild(newDiv);
+   var container = document.getElementById('wildcard-table');
 
-  var hot = new Handsontable(container, {
-    data: data,
-    rowHeaders: true,
-    colHeaders: columns.map(col => col.name),
-    // formulas: true,
-    stretchH: 'none',
-    dropdownMenu: true,
-    filters: true,
-    columnSorting: true,
-    columns: columns,
-    hiddenColumns: {
-      columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
-    },
-    afterChange: (changes) => {
-      if (changes) {
-        changes.forEach(([row, prop, oldValue, newValue]) => {
-          let colSpec = colSpecFromProp(prop, options)
-          if (!colSpec || colSpec.readOnly) { return }
+   var hot = new Handsontable(container, {
+     data: data,
+     rowHeaders: true,
+     colHeaders: columns.map(col => col.name),
+     // formulas: true,
+     stretchH: 'none',
+     dropdownMenu: true,
+     filters: true,
+     columnSorting: true,
+     columns: columns,
+     hiddenColumns: {
+       columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
+     },
+     afterChange: (changes) => {
+       if (changes) {
+         changes.forEach(([row, prop, oldValue, newValue]) => {
+           let colSpec = colSpecFromProp(prop, options)
+           if (!colSpec || colSpec.readOnly) { return }
 
-          let rowEl = rows[row] // this won't work with re-sorting; change to ID
-          let el = colSpec.el(rowEl)
-          el.value = newValue
-        });
-      }
-    },
-    licenseKey: 'non-commercial-and-evaluation'
-  });
+             let rowEl = rows[row] // this won't work with re-sorting; change to ID
+           let el = colSpec.el(rowEl)
+           el.value = newValue
+         });
+       }
+     },
+     licenseKey: 'non-commercial-and-evaluation'
+   });
 
-  createToggleButton(newDiv);
+   createToggleButton(newDiv);
 
-  // reload data from page:
-  // re-extract, and then load into the spreadsheet
-  // TODO: unify this more cleanly with loadData;
-  // this works this way right now because Handsontable requires
-  // loading the data differently the first time it's initialized
-  // vs. subsequent updates
-  let reloadData = () => {
-    let oldData = data
-    loadData() // mutates data
-    data = oldData.map((row, index) => _.merge(row, data[index]))
-    hot.loadData(data)
-  }
+   // reload data from page:
+   // re-extract, and then load into the spreadsheet
+   // TODO: unify this more cleanly with loadData;
+   // this works this way right now because Handsontable requires
+   // loading the data differently the first time it's initialized
+   // vs. subsequent updates
+   let reloadData = () => {
+     let oldData = data
+     loadData() // mutates data
+     data = oldData.map((row, index) => _.merge(row, data[index]))
+     hot.loadData(data)
+   }
 
-  // set up handlers to try to catch any changes that happen
-  // we look for input events on rows, and also monitor DOM of row container
-  // should this all move out to "setup reload triggers"?
-  let reloadTriggers = ["input", "click", "change", "keyup"]
-  rows.forEach((row, idx) => {
-    // options.colSpecs.forEach(col => {
-    //   let el = col.el(row)
-    //   reloadTriggers.forEach(eType => {
-    //     el.addEventListener(eType, e => reloadData)
-    //   })
-    // })
+   // set up handlers to try to catch any changes that happen
+   // we look for input events on rows, and also monitor DOM of row container
+   // should this all move out to "setup reload triggers"?
+   let reloadTriggers = ["input", "click", "change", "keyup"]
+   rows.forEach((row, idx) => {
+     // options.colSpecs.forEach(col => {
+       //   let el = col.el(row)
+       //   reloadTriggers.forEach(eType => {
+         //     el.addEventListener(eType, e => reloadData)
+         //   })
+         // })
 
-    reloadTriggers.forEach(eType => {
-      row.addEventListener(eType, e => reloadData)
-    })
-  })
+         reloadTriggers.forEach(eType => {
+           row.addEventListener(eType, e => reloadData)
+         })
+       })
 
-  let observer = new MutationObserver((mutationList, observer) => {
-    // if (mutationList.length >= 1) { reloadData() }
+   let observer = new MutationObserver((mutationList, observer) => {
+     // if (mutationList.length >= 1) { reloadData() }
 
-    // this is super super hacky,
-    // just to get todomvc demo working
-    // the goal is to only catch little checkbox mutations
-    // but not big ones from filtering etc
-    if (mutationList.length === 1) { reloadData() }
-  });
-  observer.observe(rowContainer, {
-    childList: true,
-    attributes: false,
-    subtree: true
-  });
+     // this is super super hacky,
+     // just to get todomvc demo working
+     // the goal is to only catch little checkbox mutations
+     // but not big ones from filtering etc
+     if (mutationList.length === 1) { reloadData() }
+   });
+   observer.observe(rowContainer, {
+     childList: true,
+     attributes: false,
+     subtree: true
+   });
 
-  // set up page-specific reload triggers
-  options.setupReloadTriggers(reloadData)
+   // set up page-specific reload triggers
+   options.setupReloadTriggers(reloadData)
 
-  // Highlight the selected row or cell in the original page.
-  // This is important for establishing a clear mapping between page and table.
-  // Probably need to provide a lot more site-specific config, including:
-  // * whether to highlight just cells or whole row
-  // * colors
-  // * borders vs background
-  Handsontable.hooks.add('afterSelectionByProp', (row, prop) => {
-    const highlightColor = "#c9ebff"
-    const unhighlightColor = "#ffffff"
+   // Highlight the selected row or cell in the original page.
+   // This is important for establishing a clear mapping between page and table.
+   // Probably need to provide a lot more site-specific config, including:
+   // * whether to highlight just cells or whole row
+   // * colors
+   // * borders vs background
+   Handsontable.hooks.add('afterSelectionByProp', (row, prop) => {
+     const highlightColor = "#c9ebff"
+     const unhighlightColor = "#ffffff"
 
-    let colSpec = colSpecFromProp(prop, options)
-    if (!colSpec) { return; }
+     let colSpec = colSpecFromProp(prop, options)
+     if (!colSpec) { return; }
 
-    let rowEl: HTMLElement = rowsById[hot.getDataAtCell(row, 0)]
-    let colEl: HTMLElement = colSpec.el(rowEl)
+     let rowEl: HTMLElement = rowsById[hot.getDataAtCell(row, 0)]
+     let colEl: HTMLElement = colSpec.el(rowEl)
 
-    if (rows.length > 1) {
-      // For multiple rows, we highlight the whole row
+     if (rows.length > 1) {
+       // For multiple rows, we highlight the whole row
 
-      // rowEl.style["background-color"] = highlightColor
-      rowEl.style["border"] = `solid 2px ${highlightColor}`
-      rowEl.scrollIntoView({ behavior: "smooth", block: "center" })
+       // rowEl.style["background-color"] = highlightColor
+       rowEl.style["border"] = `solid 2px ${highlightColor}`
+       rowEl.scrollIntoView({ behavior: "smooth", block: "center" })
 
-      // Clear highlight on other divs
-      let otherDivs = rows.filter(r => r !== rowEl)
-      // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
-      otherDivs.forEach(d => d.style["border"] = `none`)
-    } else {
-      // For a single row, we highlight individual cells in the row
+       // Clear highlight on other divs
+       let otherDivs = rows.filter(r => r !== rowEl)
+       // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
+       otherDivs.forEach(d => d.style["border"] = `none`)
+     } else {
+       // For a single row, we highlight individual cells in the row
 
-      // Add a border and scroll selected div into view
-      colEl.style["background-color"] = highlightColor
-      colEl.scrollIntoView({ behavior: "smooth", block: "center" })
+       // Add a border and scroll selected div into view
+       colEl.style["background-color"] = highlightColor
+       colEl.scrollIntoView({ behavior: "smooth", block: "center" })
 
-      // Clear border on other divs
-      let otherDivs = options.colSpecs.filter(spec => spec !== colSpecFromProp(prop, options)).map(spec => spec.el(rowEl))
-      otherDivs.forEach(d => d.style["background-color"] = unhighlightColor)
-    }
-  }, hot)
+       // Clear border on other divs
+       let otherDivs = options.colSpecs.filter(spec => spec !== colSpecFromProp(prop, options)).map(spec => spec.el(rowEl))
+       otherDivs.forEach(d => d.style["background-color"] = unhighlightColor)
+     }
+   }, hot)
 
-  let hooks = ["afterColumnSort" as const, "afterFilter" as const]
-  hooks.forEach(hook => {
-    Handsontable.hooks.add(hook, () => {
-      let ids = hot.getDataAtCol(0)
-      rowContainer.innerHTML = ""
-      ids.forEach(id => {
-        if (rowsById[id]) {
-          rowContainer.appendChild(rowsById[id])
-        }
-      })
-    })
-  })
+   let hooks = ["afterColumnSort" as const, "afterFilter" as const]
+   hooks.forEach(hook => {
+     Handsontable.hooks.add(hook, () => {
+       let ids = hot.getDataAtCol(0)
+       rowContainer.innerHTML = ""
+       ids.forEach(id => {
+         if (rowsById[id]) {
+           rowContainer.appendChild(rowsById[id])
+         }
+       })
+     })
+   })
 
-  return {
-    hot: hot,
-    columns: columns
-  }
-}
+   return {
+     hot: hot,
+     columns: columns
+   }
+ }
 
-export { createTable }
+ export { createTable }
