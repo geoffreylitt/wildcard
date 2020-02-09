@@ -14,6 +14,10 @@ export const ExpediaAdapter = {
     colValue: 1,
     // a phantom element -- ugly.
     // can we change the API so that not all columns need this?
+    //
+    // YES WE CAN
+    // just return 1 as the id for all rows
+    // and don't return an el
     el: (row) => document.createElement("div"),
     type: "text",
     hidden: true,

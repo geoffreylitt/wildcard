@@ -15,40 +15,41 @@ export const AirbnbAdapter = {
   urlPattern: "airbnb.com/s/",
   // Find the divs for the data rows
   getDataRows: () => {
-    return Array.from(document.getElementsByClassName(rowClass)).map(e => e as HTMLElement)
+    return Array.from(document.getElementsByClassName(rowClass)).map(el => {
+      let path = el.querySelector("." + listingLinkClass) && el.querySelector("." + listingLinkClass).getAttribute('href')
+      let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
+
+      return {
+        el: el as HTMLElement,
+        dataValues: {
+          id: id,
+          name: el.querySelector(`.${titleClass}`).textContent,
+          price: el.querySelector(`.${priceClass}`).textContent.match(/\$([\d]*)/)[1],
+          rating: el.querySelector(`.${ratingClass}`).textContent
+        }
+      }
+    })
   },
   // Specify the columns to extract
   colSpecs: [{
     fieldName: "id",
-    el: (row) => row,
-    getValue: (cell) => {
-      let path = cell.querySelector("." + listingLinkClass) && cell.querySelector("." + listingLinkClass).getAttribute('href')
-      let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
-      return id
-    },
     readOnly: true,
-    type: "text",
-    hidden: true
+    type: "text"
   },
   {
     fieldName: "name",
-    el: (row) => row.querySelector(`.${titleClass}`),
     readOnly: true,
     type: "text"
   },
   {
     fieldName: "price",
-    el: (row) => row.querySelector(`.${priceClass}`),
-    // Extract the number from the price div
-    getValue: (cell) => cell.textContent.match(/\$([\d]*)/)[1],
     readOnly: true,
     type: "numeric"
   },
   {
     fieldName: "rating",
-    el: (row) => row.querySelector(`.${ratingClass}`),
     readOnly: true,
-    type: "numeric" as const
-  }]
+    type: "numeric"
+  }],
 }
 

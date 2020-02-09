@@ -33,58 +33,52 @@ function createToggleButton(container) {
   document.body.appendChild(toggleBtn)
 }
 
-// Given an Element for a cell, get the value to display in the table.
-// Currently default behavior is crude: just gets the input value or text content.
-let getValueFromElement = (spec, cellElement) => {
-  if (spec.hasOwnProperty("getValue")) {
-    return spec.getValue(cellElement)
-  } else {
-    return cellElement.value || cellElement.textContent
-  }
-}
-
-function getDataFromPage(options: SiteAdapterOptions) {
+/* function getDataFromPage(options: SiteAdapterOptions) {
   let rows = options.getDataRows();
-  return rows.map(rowEl => {
-    let row = { el: rowEl }
+  rows.forEach(row => {
     options.colSpecs.forEach(spec => {
-      let cellValue;
-      // handle a hardcoded value for all rows in the column
-      if (spec.hasOwnProperty("colValue")) { cellValue = spec.colValue }
-        else {
-          let cellEl = spec.el(rowEl)
-          if (cellEl) {
-            cellValue = getValueFromElement(spec, cellEl)
-          } else {
-            cellValue = null
-          }
-        }
-        row[spec.fieldName] = cellValue
+      // If an HTML element is specified as a value,
+      // do a simple extraction of its value
+      // (commented out for now; will come back in Expedia example)
+      // if (typeof row[spec.fieldName] === HTMLElement) {
+        //   row[spec.fieldName] = cellElement.value || cellElement.textContent
+        // }
       })
-    return row
   })
-}
 
-function colSpecFromProp(prop, options) {
+  return rows
+} */
+
+function colSpecFromProp(prop, options : SiteAdapterOptions) {
   return options.colSpecs.find(spec => spec.fieldName == prop)
 }
 
-interface ColSpecs {
-  /** The name of this data column, to be displayed in the table */
-  fieldName: string;
-  el(row: HTMLElement): HTMLElement;
-  getValue?(el: HTMLElement): any;
-  colValue?: any; // hardcode the value for all rows
-  readOnly?: boolean;
-  type: string;
-  editor?: string,
-  renderer?: string,
-  hidden?: boolean
-}
+/**
+ * Defines the schema for the table being extracted.
+ * If you're extracting multiple rows, your ColSpec must start with a column
+ * named "id" which is a stable identifier for the row.
+ * If there's not one in the page to use, you can generate a unique identifier.
+ * todo: clarify how IDs work in this system
+ */
+ interface ColSpecs {
+   /** The name of this data column, to be displayed in the table */
+   fieldName: string;
+   readOnly?: boolean;
+   type: string;
+   colValue?: any;
+   editor?: string;
+   renderer?: string;
+   hidden?: boolean;
+ }
 
-interface SiteAdapterOptions {
-  /** A user visible name for the adapter */
-  name: string;
+ interface DataRow {
+   el: HTMLElement;
+   dataValues: any;
+ }
+
+ interface SiteAdapterOptions {
+   /** A user visible name for the adapter */
+   name: string;
 
   /** Specify which URL paths to activate this adapter on.
    * Currently just checks if the given pattern is a substring of
@@ -95,7 +89,7 @@ interface SiteAdapterOptions {
    colSpecs: Array<ColSpecs>;
 
    /** Return an array of data rows */
-   getDataRows(): Array<HTMLElement>;
+   getDataRows(): Array<DataRow>;
 
   /** React to live changes in the page and trigger data reloads.
    *
@@ -112,17 +106,20 @@ interface SiteAdapterOptions {
    setupReloadTriggers?(reload: any): any;
 
   /** Return element containing the rows.
-  // If not provided, default container is the parent element of the first row,
-  // which often works fine.
-  getRowContainer?(): HTMLElement;
-}
+   * If not provided, default container is the parent element of the first row,
+   * which often works fine.
+   */
+   getRowContainer?(): HTMLElement;
+ }
 
 /** The main method for creating a Wildcard site adapter.
  *  In your adapter, call this with a valid [[SiteAdapterOptions]] object
  *  to initialize your adapter.
  */
  const createTable = (options: SiteAdapterOptions) => {
-   let rowContainer, rows, data, rowsById;
+   let rowContainer, data;
+   let rows : Array<DataRow>;
+   let rowsById : { [key: string]: DataRow };
 
    // Load data from table; map data to DOM elements
    let loadData = () => {
@@ -130,10 +127,10 @@ interface SiteAdapterOptions {
      if (options.hasOwnProperty("getRowContainer")) {
        rowContainer = options.getRowContainer()
      } else {
-       rowContainer = rows[0].parentElement
+       rowContainer = rows[0].el.parentElement
      }
-     data = getDataFromPage(options)
-     rowsById = _.chain(data).keyBy(row => row.id).mapValues(row => row.el).value()
+     data = rows.map(r => r.dataValues)
+     rowsById = _.keyBy(rows, row => row.dataValues.id)
      console.log("loaded data", data)
    }
 
@@ -174,18 +171,20 @@ interface SiteAdapterOptions {
      hiddenColumns: {
        columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
      },
-     afterChange: (changes) => {
+     /* afterChange: (changes) => {
        if (changes) {
          changes.forEach(([row, prop, oldValue, newValue]) => {
            let colSpec = colSpecFromProp(prop, options)
-           if (!colSpec || colSpec.readOnly) { return }
+           if (!colSpec || colSpec.readOnly) {
+             return
+           }
 
-             let rowEl = rows[row] // this won't work with re-sorting; change to ID
+           let rowEl = rows[row] // this won't work with re-sorting; change to ID
            let el = colSpec.el(rowEl)
            el.value = newValue
          });
        }
-     },
+     }, */
      licenseKey: 'non-commercial-and-evaluation'
    });
 
@@ -210,7 +209,7 @@ interface SiteAdapterOptions {
    let reloadTriggers = ["input", "click", "change", "keyup"]
    rows.forEach((row, idx) => {
      reloadTriggers.forEach(eType => {
-       row.addEventListener(eType, e => reloadData)
+       row.el.addEventListener(eType, e => reloadData)
      })
    })
 
@@ -225,37 +224,40 @@ interface SiteAdapterOptions {
    // * whether to highlight just cells or whole row
    // * colors
    // * borders vs background
-   Handsontable.hooks.add('afterSelectionByProp', (row, prop) => {
+   Handsontable.hooks.add('afterSelectionByProp', (rowIndex, prop) => {
      const highlightColor = "#c9ebff"
      const unhighlightColor = "#ffffff"
 
      let colSpec = colSpecFromProp(prop, options)
      if (!colSpec) { return; }
 
-     let rowEl: HTMLElement = rowsById[hot.getDataAtCell(row, 0)]
-     let colEl: HTMLElement = colSpec.el(rowEl)
+     let row = rowsById[hot.getDataAtCell(rowIndex, 0)]
 
      if (rows.length > 1) {
        // For multiple rows, we highlight the whole row
 
        // rowEl.style["background-color"] = highlightColor
-       rowEl.style["border"] = `solid 2px ${highlightColor}`
-       rowEl.scrollIntoView({ behavior: "smooth", block: "center" })
+       row.el.style["border"] = `solid 2px ${highlightColor}`
+       row.el.scrollIntoView({ behavior: "smooth", block: "center" })
 
        // Clear highlight on other divs
-       let otherDivs = rows.filter(r => r !== rowEl)
+       let otherDivs = rows.filter(r => r !== row).map(r => r.el)
        // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
        otherDivs.forEach(d => d.style["border"] = `none`)
      } else {
        // For a single row, we highlight individual cells in the row
+       // (temporarily disabled while we refactor)
 
        // Add a border and scroll selected div into view
-       colEl.style["background-color"] = highlightColor
-       colEl.scrollIntoView({ behavior: "smooth", block: "center" })
+       // colEl.style["background-color"] = highlightColor
+       // colEl.scrollIntoView({ behavior: "smooth", block: "center" })
 
-       // Clear border on other divs
-       let otherDivs = options.colSpecs.filter(spec => spec !== colSpecFromProp(prop, options)).map(spec => spec.el(rowEl))
-       otherDivs.forEach(d => d.style["background-color"] = unhighlightColor)
+       // // Clear border on other divs
+       // let otherDivs = options.colSpecs
+       // .filter(spec => spec !== colSpecFromProp(prop, options))
+       // .map(spec => spec.el(rowEl))
+
+       // otherDivs.forEach(d => d.style["background-color"] = unhighlightColor)
      }
    }, hot)
 
@@ -266,7 +268,7 @@ interface SiteAdapterOptions {
        rowContainer.innerHTML = ""
        ids.forEach(id => {
          if (rowsById[id]) {
-           rowContainer.appendChild(rowsById[id])
+           rowContainer.appendChild(rowsById[id].el)
          }
        })
      })

@@ -1,11 +1,11 @@
 'use strict';
 
 import { createTable } from './core'
-import { ExpediaAdapter } from './site_adapters/expedia';
+// import { ExpediaAdapter } from './site_adapters/expedia';
 import { AirbnbAdapter } from './site_adapters/airbnb';
 
 const siteAdapters = [
-ExpediaAdapter,
+// ExpediaAdapter,
 AirbnbAdapter
 ]
 
