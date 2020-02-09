@@ -6,26 +6,10 @@
     "content_scripts": [
       {
         "js": [
-          "dist/datepicker.js"
+          "dist/wildcard.js"
         ],
         "matches": [
-          "https://www.expedia.com/*"
-        ]
-      },
-      {
-        "js": [
-          "dist/airbnb.js"
-        ],
-        "matches": [
-          "https://www.airbnb.com/s/*"
-        ]
-      },
-      {
-        "js": [
-          "dist/todomvc.js"
-        ],
-        "matches": [
-          "http://todomvc.com/examples/jquery/*"
+          "<all_urls>"
         ]
       }
     ]

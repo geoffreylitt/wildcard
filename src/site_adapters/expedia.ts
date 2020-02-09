@@ -1,5 +1,3 @@
-import { createTable } from '../wildcard';
-
 import { FullCalendarEditor } from '../cell_editors/fullCalendarEditor.js'
 
 // Return all the "item" divs in a list
@@ -18,7 +16,7 @@ const colSpecs = [
   {
     fieldName: "id",
     colValue: 1,
-    // a phantom element -- ugly. 
+    // a phantom element -- ugly.
     // can we change the API so that not all columns need this?
     el: (row) => document.createElement("div"),
     type: "text",
@@ -61,9 +59,8 @@ const setupReloadTriggers = (reload) => {
   })
 }
 
-createTable({
-  colSpecs: colSpecs,
-  getDataRows: getDataRows,
-  getRowContainer: getRowContainer,
-  setupReloadTriggers: setupReloadTriggers
-});
+export const ExpediaAdapter = {
+  name: "Expedia2",
+  urlPattern: "expedia.com"
+}
+

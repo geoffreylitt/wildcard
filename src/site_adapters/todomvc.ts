@@ -1,6 +1,6 @@
 'use strict';
 
-import { createTable } from '../wildcard';
+import { createTable } from '../core';
 import Handsontable from "handsontable";
 
 let { hot, columns } = createTable({

@@ -15,7 +15,8 @@
     "handsontable": "^7.2.2",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "pikaday": "^1.8.0"
+    "pikaday": "^1.8.0",
+    "url-pattern": "^1.0.3"
   },
   "scripts": {
     "rollup": "rollup -c -w",
