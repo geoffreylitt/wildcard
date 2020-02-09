@@ -83,33 +83,35 @@ interface ColSpecs {
 }
 
 interface SiteAdapterOptions {
-  // A user visible name for the adapter
+  /** A user visible name for the adapter */
   name: string;
 
-  // Specify which URL paths to activate this adapter on.
-  // (Currently just checks if the pattern is a substring of the URL)
-  urlPattern: string;
+  /** Specify which URL paths to activate this adapter on.
+   * Currently just checks if the given pattern is a substring of
+   * current URL path. */
+   urlPattern: string;
 
-  // A schema for the columns; see [[ColSpecs]].
-  colSpecs: Array<ColSpecs>;
+   /** A schema for the columns; see [[ColSpecs]]. */
+   colSpecs: Array<ColSpecs>;
 
-  // Return an array of data rows
-  getDataRows(): Array<HTMLElement>;
+   /** Return an array of data rows */
+   getDataRows(): Array<HTMLElement>;
 
-  // React to live changes in the page and trigger data reloads.
-  //
-  // Wildcard has some default behavior to react to changes in the page,
-  // but it doesn't handle all cases.
-  //
-  // In this function you can add site-specific handlers
-  // (e.g. listening for click events) which listen for relevant changes.
-  // When a change occurs, call the `reload` callback, which will reload data
-  // from the page.
-  //
-  // If the adapter doesn't need to react to live changes, this can be omitted.
-  setupReloadTriggers?(reload: any): any;
+  /** React to live changes in the page and trigger data reloads.
+   *
+   * Wildcard has some default behavior to react to changes in the page,
+   * but it doesn't handle all cases.
+   *
+   * In this function you can add site-specific handlers
+   * (e.g. listening for click events) which listen for relevant changes.
+   * When a change occurs, call the `reload` callback, which will reload data
+   * from the page.
+   *
+   * If the adapter doesn't need to react to live changes, this can be omitted.
+   */
+   setupReloadTriggers?(reload: any): any;
 
-  // Return element containing the rows.
+  /** Return element containing the rows.
   // If not provided, default container is the parent element of the first row,
   // which often works fine.
   getRowContainer?(): HTMLElement;
