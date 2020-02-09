@@ -49,7 +49,6 @@ export const AirbnbAdapter = {
     el: (row) => row.querySelector(`.${ratingClass}`),
     readOnly: true,
     type: "numeric" as const
-  }],
-  setupReloadTriggers: () => { }
+  }]
 }
 
