@@ -183,32 +183,10 @@ interface SiteAdapterOptions {
    // should this all move out to "setup reload triggers"?
    let reloadTriggers = ["input", "click", "change", "keyup"]
    rows.forEach((row, idx) => {
-     // options.colSpecs.forEach(col => {
-       //   let el = col.el(row)
-       //   reloadTriggers.forEach(eType => {
-         //     el.addEventListener(eType, e => reloadData)
-         //   })
-         // })
-
-         reloadTriggers.forEach(eType => {
-           row.addEventListener(eType, e => reloadData)
-         })
-       })
-
-   let observer = new MutationObserver((mutationList, observer) => {
-     // if (mutationList.length >= 1) { reloadData() }
-
-     // this is super super hacky,
-     // just to get todomvc demo working
-     // the goal is to only catch little checkbox mutations
-     // but not big ones from filtering etc
-     if (mutationList.length === 1) { reloadData() }
-   });
-   observer.observe(rowContainer, {
-     childList: true,
-     attributes: false,
-     subtree: true
-   });
+     reloadTriggers.forEach(eType => {
+       row.addEventListener(eType, e => reloadData)
+     })
+   })
 
    // set up page-specific reload triggers
    options.setupReloadTriggers(reloadData)
