@@ -1,12 +1,12 @@
 'use strict';
 
-import * as wildcard from './core'
+import { createTable } from './core'
 import { ExpediaAdapter } from './site_adapters/expedia';
 import { AirbnbAdapter } from './site_adapters/airbnb';
 
 const siteAdapters = [
-  ExpediaAdapter,
-  AirbnbAdapter
+ExpediaAdapter,
+AirbnbAdapter
 ]
 
 const run = function () {
@@ -23,6 +23,8 @@ const run = function () {
 
   let activeAdapter = adaptersForPage[0]
   console.log(`Wildcard: activating site adapter: ${activeAdapter.name}`)
+
+  createTable(activeAdapter.tableOptions)
 }
 
 run()
