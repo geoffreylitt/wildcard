@@ -4,6 +4,8 @@ A prototype that maps website data to a table, enabling end users to modify and 
 
 Early demo video: https://www.loom.com/share/cab62c8172404c39bebc4c511a60a389
 
+🚧 Not ready for real usage yet, still an early prototype! 🚧
+
 ## To use Wildcard
 
 Clone this repo locally.
@@ -12,7 +14,7 @@ Clone this repo locally.
 
 To test whether it's working: try an [Airbnb search](https://www.airbnb.com/s/Miami/homes?checkin=2019-11-14&checkout=2019-11-17&adults=1&children=0&infants=0&place_id=ChIJEcHIDqKw2YgRZU-t3XHylv8&refinement_paths%5B%5D=%2Fhomes&search_type=section_navigation); the table should appear at the bottom and you should be able to sort by price.
 
-## To develop on Wildcard
+## To develop Wildcard
 
 Wildcard is built in Typescript and uses yarn and rollup for packages and bundling.
 
