@@ -16,6 +16,8 @@ To test whether it's working: try an [Airbnb search](https://www.airbnb.com/s/Mi
 
 Wildcard is built in Typescript and uses yarn and rollup for packages and bundling.
 
+[View code documentation on Github](https://geoffreylitt.github.io/wildcard/)
+
 ### Initial setup
 
 Install dependencies:
@@ -24,19 +26,28 @@ Install dependencies:
 * `yarn install`
 * `yarn global add concurrently`
 
-To get code changes to automatically update the extension in the browser:
+Follow these steps to get code changes to automatically update the extension:
 
 * Install the [Chrome Extension AutoReload](https://github.com/JeromeDane/chrome-extension-auto-reload) as an unpacked extension from source.
 * From the `chrome://extensions` page, click Details -> Extension Options, and change the Reload Method to "Manage API".
 
 ### Dev workflow
 
-Every time you develop, follow these steps. If a change you make isn't having an effect, it's probably related to these steps:
+Every time you develop, follow these steps.
 
-* `yarn run dev` to start a watcher that builds the project.
+* `yarn run dev` to start a watcher that compiles the project and updates the Chrome extension
 * Compilation can take a few seconds. If a change isn't working, it might be that compilation didn't finish yet. (Improving compilation time is a todo; I think it's mostly time spent compiling Handsontable)
 
 To test if you're able to make changes, try adding a `console.log` statement to a site adapter file like `src/site_adapters/airbnb.ts` and see if it works.
+
+### Documentation
+
+Documentation for the Wildcard Core is built with [Typedoc](http://typedoc.org/).
+It has helpful information for e.g. building site adapters.
+
+* [View docs online](https://geoffreylitt.github.io/wildcard/) (hosted on Github pages from the docs directory here)
+* To regenerate docs from the code, run `yarn docs`.
+* To view docs locally, open `docs/index.html`.
 
 ### File layout
 
@@ -46,30 +57,3 @@ Site adapters are in `src/site_adapters`. Cell editors are in `src/cell_editors`
 
 `src/wildcard.ts` is the final file that pulls everything together and
 injects Wildcard into the page.
-
-### Documentation
-
-Documentation for the Wildcard Core is built with Typedoc.
-
-It has helpful information for e.g. building site adapters.
-
-* To regenerate docs from the code, run `yarn docs`.
-* To view docs locally, open `docs/index.html`.
-
-### To add a new site adapter
-
-Copy `src/site_adapters/airbnb.ts` and mimic the format of that file.
-
-Define a [[SiteAdapterOptions]] configuration (view docs for more details).
-
-Finally, register your adapter in `src/wildcard.ts`:
-
-```
-import { AirbnbAdapter } from './site_adapters/airbnb';
-
-const siteAdapters = [
-//...
-AirbnbAdapter
-//...
-]
-```
