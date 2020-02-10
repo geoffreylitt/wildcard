@@ -13,7 +13,12 @@ const listingLinkClass = "_i24ijs"
 export const AirbnbAdapter = {
   name: "Airbnb",
   urlPattern: "airbnb.com/s/",
-  // Find the divs for the data rows
+  colSpecs: [
+  { name: "id", type: "text" },
+  { name: "name", type: "text" },
+  { name: "price", type: "numeric" },
+  { name: "rating", type: "numeric" }
+  ],
   getDataRows: () => {
     return Array.from(document.getElementsByClassName(rowClass)).map(el => {
       let path = el.querySelector("." + listingLinkClass) && el.querySelector("." + listingLinkClass).getAttribute('href')
@@ -30,26 +35,5 @@ export const AirbnbAdapter = {
       }
     })
   },
-  // Specify the columns to extract
-  colSpecs: [{
-    name: "id",
-    readOnly: true,
-    type: "text"
-  },
-  {
-    name: "name",
-    readOnly: false,
-    type: "text"
-  },
-  {
-    name: "price",
-    readOnly: true,
-    type: "numeric"
-  },
-  {
-    name: "rating",
-    readOnly: true,
-    type: "numeric"
-  }],
 }
 

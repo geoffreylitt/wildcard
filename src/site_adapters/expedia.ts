@@ -3,13 +3,20 @@ import { FullCalendarEditor } from '../cell_editors/fullCalendarEditor.js'
 export const ExpediaAdapter = {
   name: "Expedia2",
   urlPattern: "expedia.com",
+  colSpecs: [
+  { name: "id", type: "text", hidden: true },
+  { name: "origin", editable: true, type: "text" },
+  { name: "destination", editable: true, type: "text" },
+  { name: "departDate", editable: true, type: "text", editor: FullCalendarEditor },
+  { name: "returnDate", editable: true, type: "text", editor: FullCalendarEditor }
+  ],
   getDataRows: () => {
     let form = document.getElementById("gcw-packages-form-hp-package")
     return [
     {
       el: form,
       dataValues: {
-        id: 1, // only one row so it doesn't matter
+        id: 1, // only one row so we can just hardcode an ID
         origin: form.querySelector("#package-origin-hp-package"),
         destination: form.querySelector("#package-destination-hp-package"),
         departDate: form.querySelector("#package-departing-hp-package"),
@@ -18,43 +25,10 @@ export const ExpediaAdapter = {
     }
     ]
   },
-  colSpecs: [
-  {
-    name: "id",
-    type: "text",
-    hidden: true,
-    readOnly: true
-  },
-  {
-    name: "origin",
-    readOnly: false,
-    type: "text"
-  },
-  {
-    name: "destination",
-    readOnly: false,
-    type: "text"
-  },
-  {
-    name: "departDate",
-    readOnly: false,
-    type: "text",
-    editor: FullCalendarEditor
-  },
-  {
-    name: "returnDate",
-    readOnly: false,
-    type: "text",
-    editor: FullCalendarEditor
-  }
-  ],
+  // Reload data anytime there's a click or keypress on the page
   setupReloadTriggers: (reload) => {
-    document.addEventListener("click", (e) => {
-      reload()
-    })
-    document.addEventListener("keydown", (e) => {
-      reload()
-    })
+    document.addEventListener("click", (e) => { reload() })
+    document.addEventListener("keydown", (e) => { reload() })
   }
 }
 

@@ -43,11 +43,26 @@ function colSpecFromProp(prop, options : SiteAdapterOptions) {
 interface ColSpec {
   /** The name of this data column, to be displayed in the table */
   name: string;
-  readOnly?: boolean;
+
+  /** The type of this column. Can be any
+  * [Handsontable cell type](https://handsontable.com/docs/7.3.0/tutorial-cell-types.html).
+  * Examples: text, numeric, date, checkbox. */
   type: string;
-  colValue?: any;
+
+  /** Allow user to edit this value? Defaults to false.
+  *  Making a column editable requires extracting [[PageValue]]s as Elements.*/
+  editable?: boolean;
+
+  /** Specify a custom [Handsontable editor](https://handsontable.com/docs/7.3.0/tutorial-cell-editor.html)
+  * as a class (see Expedia adapter for an example) */
   editor?: string;
+
+  /** Specify a custom [Handsontable rendererr](https://handsontable.com/docs/7.3.0/demo-custom-renderers.html)
+  * as a class (todo: not actually supported yet, but will be soon ) */
   renderer?: string;
+
+  /** Hide this column in the visible table?
+  Eg, useful for hiding an ID column that's needed for sorting */
   hidden?: boolean;
 }
 
@@ -69,7 +84,7 @@ type DataValue = string | number
 *     contents of the DOM element when the value is edited in the table.
 *   * [[DataValue]] You can run arbitrary code (e.g. regexes) to
 *     extract a value from the DOM and show it in the table.
-*     **Only compatible with readonly columns.**
+*     **Not compatible with editable columns.**
 *     Note on types: the data type specified in the colSpec will ultimately
 *     determine how the value gets displayed.
 */
@@ -164,7 +179,7 @@ const createTable = (options: SiteAdapterOptions) => {
 
   let columns: Array<any> = options.colSpecs.map(col => ({
     data: col.name,
-    readOnly: col.readOnly,
+    readOnly: !col.editable,
     type: col.type,
     dateFormat: "MM/DD/YYYY",
     datePickerConfig: {
@@ -207,7 +222,7 @@ const createTable = (options: SiteAdapterOptions) => {
       if (changes) {
         changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
           let colSpec = colSpecFromProp(prop, options)
-          if (!colSpec || colSpec.readOnly) {
+          if (!colSpec || !colSpec.editable) {
             return
           }
 
