@@ -38,7 +38,7 @@ export const AirbnbAdapter = {
   },
   {
     name: "name",
-    readOnly: true,
+    readOnly: false,
     type: "text"
   },
   {

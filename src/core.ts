@@ -53,6 +53,14 @@ interface ColSpec {
 
 type DataValue = string | number
 
+// Todo:
+// There are checks in the code for whether a PageValue is an element;
+// e.g. for updating values in the page or for highlighting values in the page.
+// A more principled way would be to use tagged unions and "pattern match".
+// (although it's a bit annoying that we have to manually add tags in our
+// runtime data to get this to work...)
+// More info here: https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions
+
 /** A data value extracted from the page.
 *   There are two options for specifying a value:
 *
@@ -64,7 +72,6 @@ type DataValue = string | number
 *     **Only compatible with readonly columns.**
 *     Note on types: the data type specified in the colSpec will ultimately
 *     determine how the value gets displayed.
-*
 */
 type PageValue = Element | DataValue
 
@@ -190,6 +197,12 @@ const createTable = (options: SiteAdapterOptions) => {
     hiddenColumns: {
       columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
     },
+
+    // TODO:
+    // Here we directly update the DOM when table values are updated.
+    // In the future, consider a different approach:
+    // 1) Make edits to our representation of the table data
+    // 2) Use a lens "put" function to propagate the update to the DOM
     afterChange: (changes) => {
       if (changes) {
         changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
@@ -270,18 +283,24 @@ const createTable = (options: SiteAdapterOptions) => {
       otherDivs.forEach(d => d.style["border"] = `none`)
     } else {
       // For a single row, we highlight individual cells in the row
-      // (temporarily disabled while we refactor)
 
-      // Add a border and scroll selected div into view
-      // colEl.style["background-color"] = highlightColor
-      // colEl.scrollIntoView({ behavior: "smooth", block: "center" })
+      let colEl = row.dataValues[prop]
+      if (!(colEl instanceof HTMLElement)) { return }
 
-      // // Clear border on other divs
-      // let otherDivs = options.colSpecs
-      // .filter(spec => spec !== colSpecFromProp(prop, options))
-      // .map(spec => spec.el(rowEl))
+        // Add a border and scroll selected div into view
+      colEl.style["background-color"] = highlightColor
+      colEl.scrollIntoView({ behavior: "smooth", block: "center" })
 
-      // otherDivs.forEach(d => d.style["background-color"] = unhighlightColor)
+      // Clear border on other column elements
+      let otherDivs = options.colSpecs
+      .filter(spec => spec !== colSpecFromProp(prop, options))
+      .map(spec => row.dataValues[spec.name])
+
+      otherDivs.forEach(d => {
+        if (d instanceof HTMLElement) {
+          d.style["background-color"] = unhighlightColor
+        }
+      })
     }
   }, hot)
 
