@@ -33,22 +33,6 @@ function createToggleButton(container) {
   document.body.appendChild(toggleBtn)
 }
 
-/* function getDataFromPage(options: SiteAdapterOptions) {
-  let rows = options.getDataRows();
-  rows.forEach(row => {
-    options.colSpecs.forEach(spec => {
-      // If an HTML element is specified as a value,
-      // do a simple extraction of its value
-      // (commented out for now; will come back in Expedia example)
-      // if (typeof row[spec.name] === HTMLElement) {
-        //   row[spec.name] = cellElement.value || cellElement.textContent
-        // }
-      })
-  })
-
-  return rows
-} */
-
 function colSpecFromProp(prop, options : SiteAdapterOptions) {
   return options.colSpecs.find(spec => spec.name == prop)
 }
@@ -67,26 +51,29 @@ interface ColSpec {
   hidden?: boolean;
 }
 
+type DataValue = string | number
+
 /** A data value extracted from the page.
 *   There are two options for specifying a value:
 *
 *   * Element: You can specify a DOM element and Wildcard will extract its
 *     contents. If the column is writable, Wildcard will also replace the
 *     contents of the DOM element when the value is edited in the table.
-*   * string value: You can run arbitrary code (e.g. regexes) to
-*     extract a string from the DOM and show it in the table.
+*   * [[DataValue]] You can run arbitrary code (e.g. regexes) to
+*     extract a value from the DOM and show it in the table.
 *     **Only compatible with readonly columns.**
-*     You can use the [[ColSpec]] to specify a type for this column, which will
-*     cast the string into different types like numbers or dates.
+*     Note on types: the data type specified in the colSpec will ultimately
+*     determine how the value gets displayed.
+*
 */
-type DataValue = Element | string
+type PageValue = Element | DataValue
 
 interface DataRow {
   /** The element representing the row */
   el: HTMLElement;
 
   /** The data values for the row, with column names as keys */
-  dataValues: { [key: string]: DataValue }
+  dataValues: { [key: string]: PageValue }
 }
 
 interface SiteAdapterOptions {
@@ -203,22 +190,27 @@ const createTable = (options: SiteAdapterOptions) => {
     hiddenColumns: {
       columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
     },
-     /* afterChange: (changes) => {
-       if (changes) {
-         changes.forEach(([row, prop, oldValue, newValue]) => {
-           let colSpec = colSpecFromProp(prop, options)
-           if (!colSpec || colSpec.readOnly) {
-             return
-           }
+    afterChange: (changes) => {
+      if (changes) {
+        changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
+          let colSpec = colSpecFromProp(prop, options)
+          if (!colSpec || colSpec.readOnly) {
+            return
+          }
 
-           let rowEl = rows[row] // this won't work with re-sorting; change to ID
-           let el = colSpec.el(rowEl)
-           el.value = newValue
-         });
-       }
-     }, */
-     licenseKey: 'non-commercial-and-evaluation'
-   });
+          let row = rows[rowIndex] // this won't work with re-sorting; change to ID
+          let el = row.dataValues[prop]
+
+          if (el instanceof HTMLInputElement) {
+            el.value = newValue
+          } else if (el instanceof HTMLElement) {
+            el.innerText = newValue
+          }
+        });
+      }
+    },
+    licenseKey: 'non-commercial-and-evaluation'
+  });
 
   createToggleButton(newDiv);
 
