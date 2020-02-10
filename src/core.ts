@@ -90,6 +90,10 @@ type DataValue = string | number
 */
 type PageValue = Element | DataValue
 
+/** A data structure representing a row of data from the page.
+*   Must specify both an HTML element and an object containing data values.
+*   (The HTML element is used for things like highlighting and sorting rows.)
+*/
 interface DataRow {
   /** The element representing the row */
   el: HTMLElement;
@@ -98,45 +102,69 @@ interface DataRow {
   dataValues: { [key: string]: PageValue }
 }
 
+/** A site adapter describes how to extract data from a specific website.
+*   See examples of existing adapters in `src/site_adapters`.
+*
+*   To create a new site adapter, copy an existing site adapter file, e.g.
+*   `src/site_adapters/airbnb.ts`, and mimic the format of that file.
+*   Use these docs below for more info on the various settings.
+*
+*   To activate your adapter, register it in `src/wildcard.ts`:
+*
+*   ```
+*   import { AirbnbAdapter } from './site_adapters/airbnb';
+*
+*   const siteAdapters = [
+*   //...
+*   AirbnbAdapter
+*   //...
+*   ]
+*   ```
+*
+*  You'll probably find it helpful to register the adapter first, and then
+*  you can insert console log statements in your getDataRows() function to
+*  start debugging your data extraction.
+*/
 interface SiteAdapterOptions {
   /** A user visible name for the adapter */
   name: string;
 
   /** Specify which URL paths to activate this adapter on.
-   * Currently just checks if the given pattern is a substring of
-   * current URL path. */
-   urlPattern: string;
+  * Currently just checks if the given pattern is a substring of
+  * current URL path.
+  */
+  urlPattern: string;
 
-   /** A schema for the columns; see [[ColSpec]] for details.
-    *  The first [[ColSpec]] in the array must be named "id" and contain
-    *  a stable identifier for the row, e.g. a server-provided ID.
-    *  (todo: write more about what to do if that's not available.)
-    */
-    colSpecs: Array<ColSpec>;
+  /** A schema for the columns; see [[ColSpec]] for details.
+  *  The first [[ColSpec]] in the array must be named "id" and contain
+  *  a stable identifier for the row, e.g. a server-provided ID.
+  *  (todo: write more about what to do if that's not available.)
+  */
+  colSpecs: Array<ColSpec>;
 
-    /** Return an array of data rows */
-    getDataRows(): Array<DataRow>;
+  /** Return the extracted data from the page. See [[DataRow]] for details. */
+  getDataRows(): Array<DataRow>;
 
   /** React to live changes in the page and trigger data reloads.
-   *
-   * Wildcard has some default behavior to react to changes in the page,
-   * but it doesn't handle all cases.
-   *
-   * In this function you can add site-specific handlers
-   * (e.g. listening for click events) which listen for relevant changes.
-   * When a change occurs, call the `reload` callback, which will reload data
-   * from the page.
-   *
-   * If the adapter doesn't need to react to live changes, this can be omitted.
-   */
-   setupReloadTriggers?(reload: any): any;
+  *
+  * Wildcard has some default behavior to react to changes in the page,
+  * but it doesn't handle all cases.
+  *
+  * In this function you can add site-specific handlers
+  * (e.g. listening for click events) which listen for relevant changes.
+  * When a change occurs, call the `reload` callback, which will reload data
+  * from the page.
+  *
+  * If the adapter doesn't need to react to live changes, this can be omitted.
+  */
+  setupReloadTriggers?(reload: any): any;
 
   /** Return element containing the rows.
-   * If not provided, default container is the parent element of the first row,
-   * which often works fine.
-   */
-   getRowContainer?(): HTMLElement;
- }
+  * If not provided, default container is the parent element of the first row,
+  * which often works fine.
+  */
+  getRowContainer?(): HTMLElement;
+}
 
 /** The main method for creating a Wildcard site adapter.
 *  In your adapter, call this with a valid [[SiteAdapterOptions]] object

@@ -69,6 +69,27 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A site adapter describes how to extract data from a specific website.
+						See examples of existing adapters in <code>src/site_adapters</code>.</p>
+					</div>
+					<p>  To create a new site adapter, copy an existing site adapter file, e.g.
+						<code>src/site_adapters/airbnb.ts</code>, and mimic the format of that file.
+					Use these docs below for more info on the various settings.</p>
+					<p>  To activate your adapter, register it in <code>src/wildcard.ts</code>:</p>
+					<pre><code>  <span class="hljs-keyword">import</span> { AirbnbAdapter } <span class="hljs-keyword">from</span> <span class="hljs-string">'./site_adapters/airbnb'</span>;
+
+  <span class="hljs-keyword">const</span> siteAdapters = [
+  <span class="hljs-comment">//...</span>
+  AirbnbAdapter
+  <span class="hljs-comment">//...</span>
+  ]</code></pre><p> You&#39;ll probably find it helpful to register the adapter first, and then
+						you can insert console log statements in your getDataRows() function to
+					start debugging your data extraction.</p>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -108,7 +129,7 @@
 					<div class="tsd-signature tsd-kind-icon">col<wbr>Specs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_core_.colspec.html" class="tsd-signature-type">ColSpec</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/ed36104/src/core.ts#L115">core.ts:115</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/0e1da9c/src/core.ts#L143">core.ts:143</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -126,7 +147,7 @@
 					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/ed36104/src/core.ts#L103">core.ts:103</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/0e1da9c/src/core.ts#L130">core.ts:130</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -141,7 +162,7 @@
 					<div class="tsd-signature tsd-kind-icon">url<wbr>Pattern<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/ed36104/src/core.ts#L108">core.ts:108</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/0e1da9c/src/core.ts#L136">core.ts:136</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -165,12 +186,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/ed36104/src/core.ts#L118">core.ts:118</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/0e1da9c/src/core.ts#L146">core.ts:146</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Return an array of data rows</p>
+									<p>Return the extracted data from the page. See <a href="_core_.datarow.html">DataRow</a> for details.</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_core_.datarow.html" class="tsd-signature-type">DataRow</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -187,7 +208,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/ed36104/src/core.ts#L138">core.ts:138</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/0e1da9c/src/core.ts#L166">core.ts:166</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -211,7 +232,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/ed36104/src/core.ts#L132">core.ts:132</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/0e1da9c/src/core.ts#L160">core.ts:160</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
