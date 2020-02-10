@@ -53,7 +53,6 @@ Documentation for the Wildcard Core is built with Typedoc.
 
 It has helpful information for e.g. building site adapters.
 
-* [View documentation on Github master](https://htmlpreview.github.io/?https://raw.githubusercontent.com/geoffreylitt/wildcard/master/docs/modules/_core_.html)
 * To regenerate docs from the code, run `yarn docs`.
 * To view docs locally, open `docs/index.html`.
 
