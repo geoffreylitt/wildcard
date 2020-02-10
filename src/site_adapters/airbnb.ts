@@ -23,31 +23,31 @@ export const AirbnbAdapter = {
         el: el as HTMLElement,
         dataValues: {
           id: id,
-          name: el.querySelector(`.${titleClass}`).textContent,
+          name: el.querySelector(`.${titleClass}`),
           price: el.querySelector(`.${priceClass}`).textContent.match(/\$([\d]*)/)[1],
-          rating: el.querySelector(`.${ratingClass}`).textContent
+          rating: el.querySelector(`.${ratingClass}`)
         }
       }
     })
   },
   // Specify the columns to extract
   colSpecs: [{
-    fieldName: "id",
+    name: "id",
     readOnly: true,
     type: "text"
   },
   {
-    fieldName: "name",
+    name: "name",
     readOnly: true,
     type: "text"
   },
   {
-    fieldName: "price",
+    name: "price",
     readOnly: true,
     type: "numeric"
   },
   {
-    fieldName: "rating",
+    name: "rating",
     readOnly: true,
     type: "numeric"
   }],

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>SiteAdapterOptions | wildcard</title>
+	<title>DataRow | wildcard</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -59,10 +59,10 @@
 					<a href="../modules/_core_.html">&quot;core&quot;</a>
 				</li>
 				<li>
-					<a href="_core_.siteadapteroptions.html">SiteAdapterOptions</a>
+					<a href="_core_.datarow.html">DataRow</a>
 				</li>
 			</ul>
-			<h1>Interface SiteAdapterOptions</h1>
+			<h1>Interface DataRow</h1>
 		</div>
 	</div>
 </header>
@@ -73,7 +73,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">SiteAdapterOptions</span>
+						<span class="target">DataRow</span>
 					</li>
 				</ul>
 			</section>
@@ -84,17 +84,8 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#colspecs" class="tsd-kind-icon">col<wbr>Specs</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#urlpattern" class="tsd-kind-icon">url<wbr>Pattern</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section tsd-is-not-exported">
-							<h3>Methods</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#getdatarows" class="tsd-kind-icon">get<wbr>Data<wbr>Rows</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#getrowcontainer" class="tsd-kind-icon">get<wbr>Row<wbr>Container</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#setupreloadtriggers" class="tsd-kind-icon">setup<wbr>Reload<wbr>Triggers</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.datarow.html#datavalues" class="tsd-kind-icon">data<wbr>Values</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.datarow.html#el" class="tsd-kind-icon">el</a></li>
 							</ul>
 						</section>
 					</div>
@@ -103,138 +94,42 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="colspecs" class="tsd-anchor"></a>
-					<h3>col<wbr>Specs</h3>
-					<div class="tsd-signature tsd-kind-icon">col<wbr>Specs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_core_.colspec.html" class="tsd-signature-type">ColSpec</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<a name="datavalues" class="tsd-anchor"></a>
+					<h3>data<wbr>Values</h3>
+					<div class="tsd-signature tsd-kind-icon">data<wbr>Values<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/595710e/src/core.ts#L106">core.ts:106</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/595710e/src/core.ts#L89">core.ts:89</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>A schema for the columns; see <a href="_core_.colspec.html">ColSpec</a> for details.
-								The first <a href="_core_.colspec.html">ColSpec</a> in the array must be named &quot;id&quot; and contain
-								a stable identifier for the row, e.g. a server-provided ID.
-							(todo: write more about what to do if that&#39;s not available.)</p>
+							<p>The data values for the row, with column names as keys</p>
 						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="../modules/_core_.html#datavalue" class="tsd-signature-type">DataValue</a></h5>
+							</li>
+						</ul>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="name" class="tsd-anchor"></a>
-					<h3>name</h3>
-					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="el" class="tsd-anchor"></a>
+					<h3>el</h3>
+					<div class="tsd-signature tsd-kind-icon">el<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLElement</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/595710e/src/core.ts#L94">core.ts:94</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/595710e/src/core.ts#L86">core.ts:86</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>A user visible name for the adapter</p>
+							<p>The element representing the row</p>
 						</div>
 					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="urlpattern" class="tsd-anchor"></a>
-					<h3>url<wbr>Pattern</h3>
-					<div class="tsd-signature tsd-kind-icon">url<wbr>Pattern<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/595710e/src/core.ts#L99">core.ts:99</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Specify which URL paths to activate this adapter on.
-								Currently just checks if the given pattern is a substring of
-							current URL path.</p>
-						</div>
-					</div>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
-				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="getdatarows" class="tsd-anchor"></a>
-					<h3>get<wbr>Data<wbr>Rows</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Data<wbr>Rows<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_core_.datarow.html" class="tsd-signature-type">DataRow</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/595710e/src/core.ts#L109">core.ts:109</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Return an array of data rows</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_core_.datarow.html" class="tsd-signature-type">DataRow</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="getrowcontainer" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> get<wbr>Row<wbr>Container</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Row<wbr>Container<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/595710e/src/core.ts#L129">core.ts:129</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Return element containing the rows.
-										If not provided, default container is the parent element of the first row,
-									which often works fine.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">HTMLElement</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="setupreloadtriggers" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> setup<wbr>Reload<wbr>Triggers</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">setup<wbr>Reload<wbr>Triggers<span class="tsd-signature-symbol">(</span>reload<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/595710e/src/core.ts#L123">core.ts:123</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>React to live changes in the page and trigger data reloads.</p>
-								</div>
-								<p>Wildcard has some default behavior to react to changes in the page,
-								but it doesn&#39;t handle all cases.</p>
-								<p>In this function you can add site-specific handlers
-									(e.g. listening for click events) which listen for relevant changes.
-									When a change occurs, call the <code>reload</code> callback, which will reload data
-								from the page.</p>
-								<p>If the adapter doesn&#39;t need to react to live changes, this can be omitted.</p>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>reload: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-						</li>
-					</ul>
 				</section>
 			</section>
 		</div>
@@ -254,36 +149,24 @@
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_core_.colspec.html" class="tsd-kind-icon">Col<wbr>Spec</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_core_.datarow.html" class="tsd-kind-icon">Data<wbr>Row</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_core_.siteadapteroptions.html" class="tsd-kind-icon">Site<wbr>Adapter<wbr>Options</a>
+						<a href="_core_.datarow.html" class="tsd-kind-icon">Data<wbr>Row</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.siteadapteroptions.html#colspecs" class="tsd-kind-icon">col<wbr>Specs</a>
+								<a href="_core_.datarow.html#datavalues" class="tsd-kind-icon">data<wbr>Values</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.siteadapteroptions.html#name" class="tsd-kind-icon">name</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.siteadapteroptions.html#urlpattern" class="tsd-kind-icon">url<wbr>Pattern</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.siteadapteroptions.html#getdatarows" class="tsd-kind-icon">get<wbr>Data<wbr>Rows</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.siteadapteroptions.html#getrowcontainer" class="tsd-kind-icon">get<wbr>Row<wbr>Container</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.siteadapteroptions.html#setupreloadtriggers" class="tsd-kind-icon">setup<wbr>Reload<wbr>Triggers</a>
+								<a href="_core_.datarow.html#el" class="tsd-kind-icon">el</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_core_.siteadapteroptions.html" class="tsd-kind-icon">Site<wbr>Adapter<wbr>Options</a>
+					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/_core_.html#datavalue" class="tsd-kind-icon">Data<wbr>Value</a>
 					</li>

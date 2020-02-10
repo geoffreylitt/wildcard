@@ -10,7 +10,7 @@ export const ExpediaAdapter = {
   },
   colSpecs: [
   {
-    fieldName: "id",
+    name: "id",
     colValue: 1,
     // a phantom element -- ugly.
     // can we change the API so that not all columns need this?
@@ -24,26 +24,26 @@ export const ExpediaAdapter = {
     readOnly: true
   },
   {
-    fieldName: "origin",
+    name: "origin",
     el: (row) => row.querySelector("#package-origin-hp-package"),
     readOnly: false,
     type: "text"
   },
   {
-    fieldName: "destination",
+    name: "destination",
     el: (row) => row.querySelector("#package-destination-hp-package"),
     readOnly: false,
     type: "text"
   },
   {
-    fieldName: "departDate",
+    name: "departDate",
     el: (row) => row.querySelector("#package-departing-hp-package"),
     readOnly: false,
     type: "text",
     editor: FullCalendarEditor
   },
   {
-    fieldName: "returnDate",
+    name: "returnDate",
     el: (row) => row.querySelector("#package-returning-hp-package"),
     readOnly: false,
     type: "text",

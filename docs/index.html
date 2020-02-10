@@ -109,20 +109,21 @@
 				<p>Site adapters are in <code>src/site_adapters</code>. Cell editors are in <code>src/cell_editors</code>.</p>
 				<p><code>src/wildcard.ts</code> is the final file that pulls everything together and
 				injects Wildcard into the page.</p>
+				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+					<h3>Documentation</h3>
+				</a>
+				<p>Documentation for the Wildcard Core is built with Typedoc.</p>
+				<p>It has helpful information for e.g. building site adapters.</p>
+				<ul>
+					<li><a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/geoffreylitt/wildcard/master/docs/modules/_core_.html">View documentation on Github master</a></li>
+					<li>To regenerate docs from the code, run <code>yarn docs</code>.</li>
+					<li>To view docs locally, open <code>docs/index.html</code>.</li>
+				</ul>
 				<a href="#to-add-a-new-site-adapter" id="to-add-a-new-site-adapter" style="color: inherit; text-decoration: none;">
 					<h3>To add a new site adapter</h3>
 				</a>
-				<p>(Todo: flesh this out in way more detail, point to the auto-generated docs)</p>
 				<p>Copy <code>src/site_adapters/airbnb.ts</code> and mimic the format of that file.</p>
-				<p>Define your adapter with the following fields:</p>
-				<ul>
-					<li>a name</li>
-					<li>a url pattern (will match the URL with a simple substring match)</li>
-					<li>getRowContainer: returns the div containing all rows</li>
-					<li>getDataRows: return an array of divs representing rows</li>
-					<li>colSpecs: details about which data to extract from each row</li>
-					<li>setupReloadTriggers: react to data changes and reload the data.</li>
-				</ul>
+				<p>Define a <a href="interfaces/_core_.siteadapteroptions.html">SiteAdapterOptions</a> configuration (view docs for more details).</p>
 				<p>Finally, register your adapter in <code>src/wildcard.ts</code>:</p>
 				<pre><code><span class="hljs-keyword">import</span> { AirbnbAdapter } <span class="hljs-keyword">from</span> <span class="hljs-string">'./site_adapters/airbnb'</span>;
 
