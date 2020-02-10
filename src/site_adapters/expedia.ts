@@ -4,43 +4,45 @@ export const ExpediaAdapter = {
   name: "Expedia2",
   urlPattern: "expedia.com",
   getDataRows: () => {
+    let form = document.getElementById("gcw-packages-form-hp-package")
     return [
-    document.getElementById("gcw-packages-form-hp-package")
+    {
+      el: form,
+      dataValues: {
+        id: 1, // only one row so it doesn't matter
+        origin: form.querySelector("#package-origin-hp-package"),
+        destination: form.querySelector("#package-destination-hp-package"),
+        departDate: form.querySelector("#package-departing-hp-package"),
+        returnDate: form.querySelector("#package-returning-hp-package")
+      }
+    }
     ]
   },
   colSpecs: [
   {
-    fieldName: "id",
-    colValue: 1,
-    // a phantom element -- ugly.
-    // can we change the API so that not all columns need this?
-    el: (row) => document.createElement("div"),
+    name: "id",
     type: "text",
     hidden: true,
     readOnly: true
   },
   {
-    fieldName: "origin",
-    el: (row) => row.querySelector("#package-origin-hp-package"),
+    name: "origin",
     readOnly: false,
     type: "text"
   },
   {
-    fieldName: "destination",
-    el: (row) => row.querySelector("#package-destination-hp-package"),
+    name: "destination",
     readOnly: false,
     type: "text"
   },
   {
-    fieldName: "departDate",
-    el: (row) => row.querySelector("#package-departing-hp-package"),
+    name: "departDate",
     readOnly: false,
     type: "text",
     editor: FullCalendarEditor
   },
   {
-    fieldName: "returnDate",
-    el: (row) => row.querySelector("#package-returning-hp-package"),
+    name: "returnDate",
     readOnly: false,
     type: "text",
     editor: FullCalendarEditor
@@ -48,6 +50,9 @@ export const ExpediaAdapter = {
   ],
   setupReloadTriggers: (reload) => {
     document.addEventListener("click", (e) => {
+      reload()
+    })
+    document.addEventListener("keydown", (e) => {
       reload()
     })
   }

@@ -33,53 +33,54 @@ function createToggleButton(container) {
   document.body.appendChild(toggleBtn)
 }
 
-// Given an Element for a cell, get the value to display in the table.
-// Currently default behavior is crude: just gets the input value or text content.
-let getValueFromElement = (spec, cellElement) => {
-  if (spec.hasOwnProperty("getValue")) {
-    return spec.getValue(cellElement)
-  } else {
-    return cellElement.value || cellElement.textContent
-  }
+function colSpecFromProp(prop, options : SiteAdapterOptions) {
+  return options.colSpecs.find(spec => spec.name == prop)
 }
 
-function getDataFromPage(options: SiteAdapterOptions) {
-  let rows = options.getDataRows();
-  return rows.map(rowEl => {
-    let row = { el: rowEl }
-    options.colSpecs.forEach(spec => {
-      let cellValue;
-      // handle a hardcoded value for all rows in the column
-      if (spec.hasOwnProperty("colValue")) { cellValue = spec.colValue }
-        else {
-          let cellEl = spec.el(rowEl)
-          if (cellEl) {
-            cellValue = getValueFromElement(spec, cellEl)
-          } else {
-            cellValue = null
-          }
-        }
-        row[spec.fieldName] = cellValue
-      })
-    return row
-  })
-}
-
-function colSpecFromProp(prop, options) {
-  return options.colSpecs.find(spec => spec.fieldName == prop)
-}
-
-interface ColSpecs {
+/**
+* Defines the schema for one column of the table being extracted.
+*/
+interface ColSpec {
   /** The name of this data column, to be displayed in the table */
-  fieldName: string;
-  el(row: HTMLElement): HTMLElement;
-  getValue?(el: HTMLElement): any;
-  colValue?: any; // hardcode the value for all rows
+  name: string;
   readOnly?: boolean;
   type: string;
-  editor?: string,
-  renderer?: string,
-  hidden?: boolean
+  colValue?: any;
+  editor?: string;
+  renderer?: string;
+  hidden?: boolean;
+}
+
+type DataValue = string | number
+
+// Todo:
+// There are checks in the code for whether a PageValue is an element;
+// e.g. for updating values in the page or for highlighting values in the page.
+// A more principled way would be to use tagged unions and "pattern match".
+// (although it's a bit annoying that we have to manually add tags in our
+// runtime data to get this to work...)
+// More info here: https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions
+
+/** A data value extracted from the page.
+*   There are two options for specifying a value:
+*
+*   * Element: You can specify a DOM element and Wildcard will extract its
+*     contents. If the column is writable, Wildcard will also replace the
+*     contents of the DOM element when the value is edited in the table.
+*   * [[DataValue]] You can run arbitrary code (e.g. regexes) to
+*     extract a value from the DOM and show it in the table.
+*     **Only compatible with readonly columns.**
+*     Note on types: the data type specified in the colSpec will ultimately
+*     determine how the value gets displayed.
+*/
+type PageValue = Element | DataValue
+
+interface DataRow {
+  /** The element representing the row */
+  el: HTMLElement;
+
+  /** The data values for the row, with column names as keys */
+  dataValues: { [key: string]: PageValue }
 }
 
 interface SiteAdapterOptions {
@@ -91,11 +92,15 @@ interface SiteAdapterOptions {
    * current URL path. */
    urlPattern: string;
 
-   /** A schema for the columns; see [[ColSpecs]]. */
-   colSpecs: Array<ColSpecs>;
+   /** A schema for the columns; see [[ColSpec]] for details.
+    *  The first [[ColSpec]] in the array must be named "id" and contain
+    *  a stable identifier for the row, e.g. a server-provided ID.
+    *  (todo: write more about what to do if that's not available.)
+    */
+    colSpecs: Array<ColSpec>;
 
-   /** Return an array of data rows */
-   getDataRows(): Array<HTMLElement>;
+    /** Return an array of data rows */
+    getDataRows(): Array<DataRow>;
 
   /** React to live changes in the page and trigger data reloads.
    *
@@ -112,170 +117,210 @@ interface SiteAdapterOptions {
    setupReloadTriggers?(reload: any): any;
 
   /** Return element containing the rows.
-  // If not provided, default container is the parent element of the first row,
-  // which often works fine.
-  getRowContainer?(): HTMLElement;
-}
-
-/** The main method for creating a Wildcard site adapter.
- *  In your adapter, call this with a valid [[SiteAdapterOptions]] object
- *  to initialize your adapter.
- */
- const createTable = (options: SiteAdapterOptions) => {
-   let rowContainer, rows, data, rowsById;
-
-   // Load data from table; map data to DOM elements
-   let loadData = () => {
-     rows = options.getDataRows()
-     if (options.hasOwnProperty("getRowContainer")) {
-       rowContainer = options.getRowContainer()
-     } else {
-       rowContainer = rows[0].parentElement
-     }
-     data = getDataFromPage(options)
-     rowsById = _.chain(data).keyBy(row => row.id).mapValues(row => row.el).value()
-     console.log("loaded data", data)
-   }
-
-   loadData()
-
-   let columns: Array<any> = options.colSpecs.map(col => ({
-     data: col.fieldName,
-     readOnly: col.readOnly,
-     type: col.type,
-     dateFormat: "MM/DD/YYYY",
-     datePickerConfig: {
-       events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'], //todo: move this out of the core plugin
-       firstDay: 1,
-       numberOfMonths: 3
-     },
-     editor: col.editor,
-     renderer: col.renderer,
-     hidden: col.hidden,
-     name: col.fieldName
-   }))
-
-   // create container div
-   let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
-   if (rows.length == 1) { newDiv.classList.add("single-row") }
-     document.body.appendChild(newDiv);
-   var container = document.getElementById('wildcard-table');
-
-   var hot = new Handsontable(container, {
-     data: data,
-     rowHeaders: true,
-     colHeaders: columns.map(col => col.name),
-     // formulas: true,
-     stretchH: 'none',
-     dropdownMenu: true,
-     filters: true,
-     columnSorting: true,
-     columns: columns,
-     hiddenColumns: {
-       columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
-     },
-     afterChange: (changes) => {
-       if (changes) {
-         changes.forEach(([row, prop, oldValue, newValue]) => {
-           let colSpec = colSpecFromProp(prop, options)
-           if (!colSpec || colSpec.readOnly) { return }
-
-             let rowEl = rows[row] // this won't work with re-sorting; change to ID
-           let el = colSpec.el(rowEl)
-           el.value = newValue
-         });
-       }
-     },
-     licenseKey: 'non-commercial-and-evaluation'
-   });
-
-   createToggleButton(newDiv);
-
-   // reload data from page:
-   // re-extract, and then load into the spreadsheet
-   // TODO: unify this more cleanly with loadData;
-   // this works this way right now because Handsontable requires
-   // loading the data differently the first time it's initialized
-   // vs. subsequent updates
-   let reloadData = () => {
-     let oldData = data
-     loadData() // mutates data
-     data = oldData.map((row, index) => _.merge(row, data[index]))
-     hot.loadData(data)
-   }
-
-   // set up handlers to try to catch any changes that happen
-   // we look for input events on rows, and also monitor DOM of row container
-   // should this all move out to "setup reload triggers"?
-   let reloadTriggers = ["input", "click", "change", "keyup"]
-   rows.forEach((row, idx) => {
-     reloadTriggers.forEach(eType => {
-       row.addEventListener(eType, e => reloadData)
-     })
-   })
-
-   // set up page-specific reload triggers
-   if (options.hasOwnProperty("setupReloadTriggers")) {
-     options.setupReloadTriggers(reloadData)
-   }
-
-   // Highlight the selected row or cell in the original page.
-   // This is important for establishing a clear mapping between page and table.
-   // Probably need to provide a lot more site-specific config, including:
-   // * whether to highlight just cells or whole row
-   // * colors
-   // * borders vs background
-   Handsontable.hooks.add('afterSelectionByProp', (row, prop) => {
-     const highlightColor = "#c9ebff"
-     const unhighlightColor = "#ffffff"
-
-     let colSpec = colSpecFromProp(prop, options)
-     if (!colSpec) { return; }
-
-     let rowEl: HTMLElement = rowsById[hot.getDataAtCell(row, 0)]
-     let colEl: HTMLElement = colSpec.el(rowEl)
-
-     if (rows.length > 1) {
-       // For multiple rows, we highlight the whole row
-
-       // rowEl.style["background-color"] = highlightColor
-       rowEl.style["border"] = `solid 2px ${highlightColor}`
-       rowEl.scrollIntoView({ behavior: "smooth", block: "center" })
-
-       // Clear highlight on other divs
-       let otherDivs = rows.filter(r => r !== rowEl)
-       // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
-       otherDivs.forEach(d => d.style["border"] = `none`)
-     } else {
-       // For a single row, we highlight individual cells in the row
-
-       // Add a border and scroll selected div into view
-       colEl.style["background-color"] = highlightColor
-       colEl.scrollIntoView({ behavior: "smooth", block: "center" })
-
-       // Clear border on other divs
-       let otherDivs = options.colSpecs.filter(spec => spec !== colSpecFromProp(prop, options)).map(spec => spec.el(rowEl))
-       otherDivs.forEach(d => d.style["background-color"] = unhighlightColor)
-     }
-   }, hot)
-
-   let hooks = ["afterColumnSort" as const, "afterFilter" as const]
-   hooks.forEach(hook => {
-     Handsontable.hooks.add(hook, () => {
-       let ids = hot.getDataAtCol(0)
-       rowContainer.innerHTML = ""
-       ids.forEach(id => {
-         if (rowsById[id]) {
-           rowContainer.appendChild(rowsById[id])
-         }
-       })
-     })
-   })
-
-   return {
-     hot: hot,
-     columns: columns
-   }
+   * If not provided, default container is the parent element of the first row,
+   * which often works fine.
+   */
+   getRowContainer?(): HTMLElement;
  }
 
- export { createTable }
+/** The main method for creating a Wildcard site adapter.
+*  In your adapter, call this with a valid [[SiteAdapterOptions]] object
+*  to initialize your adapter.
+*/
+const createTable = (options: SiteAdapterOptions) => {
+  let rowContainer;
+  let rows : Array<DataRow>;
+  let rowsById : { [key: string]: DataRow };
+  let tableData : Array<{ [key: string]: string }>
+
+  // Extracts data from the page, mutates rows and tableData variables.
+  // todo: move this function out of createTable, stop mutating state
+  let loadData = () => {
+    rows = options.getDataRows()
+
+    if (options.hasOwnProperty("getRowContainer")) {
+      rowContainer = options.getRowContainer()
+    } else {
+      rowContainer = rows[0].el.parentElement
+    }
+
+    tableData = rows.map(r => {
+      return _.mapValues(r.dataValues, value => {
+        if (value instanceof HTMLInputElement) {
+          return value.value
+        } else if (value instanceof HTMLElement) {
+          return value.textContent
+        } else {
+          return value
+        }
+      })
+    })
+
+    rowsById = _.keyBy(rows, row => row.dataValues.id)
+    console.log("loaded data", tableData)
+  }
+
+  loadData()
+
+  let columns: Array<any> = options.colSpecs.map(col => ({
+    data: col.name,
+    readOnly: col.readOnly,
+    type: col.type,
+    dateFormat: "MM/DD/YYYY",
+    datePickerConfig: {
+      events: ['Sun Dec 15 2019', 'Sat Dec 07 2019'], //todo: move this out of the core plugin
+      firstDay: 1,
+      numberOfMonths: 3
+    },
+    editor: col.editor,
+    renderer: col.renderer,
+    hidden: col.hidden,
+    name: col.name
+  }))
+
+  // create container div
+  let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
+  if (rows.length == 1) { newDiv.classList.add("single-row") }
+    document.body.appendChild(newDiv);
+  var container = document.getElementById('wildcard-table');
+
+  var hot = new Handsontable(container, {
+    data: tableData,
+    rowHeaders: true,
+    colHeaders: columns.map(col => col.name),
+    // formulas: true,
+    stretchH: 'none',
+    dropdownMenu: true,
+    filters: true,
+    columnSorting: true,
+    columns: columns,
+    hiddenColumns: {
+      columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
+    },
+
+    // TODO:
+    // Here we directly update the DOM when table values are updated.
+    // In the future, consider a different approach:
+    // 1) Make edits to our representation of the table data
+    // 2) Use a lens "put" function to propagate the update to the DOM
+    afterChange: (changes) => {
+      if (changes) {
+        changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
+          let colSpec = colSpecFromProp(prop, options)
+          if (!colSpec || colSpec.readOnly) {
+            return
+          }
+
+          let row = rows[rowIndex] // this won't work with re-sorting; change to ID
+          let el = row.dataValues[prop]
+
+          if (el instanceof HTMLInputElement) {
+            el.value = newValue
+          } else if (el instanceof HTMLElement) {
+            el.innerText = newValue
+          }
+        });
+      }
+    },
+    licenseKey: 'non-commercial-and-evaluation'
+  });
+
+  createToggleButton(newDiv);
+
+  // reload data from page:
+  // re-extract, and then load into the spreadsheet
+  // TODO: unify this more cleanly with loadData;
+  // this works this way right now because Handsontable requires
+  // loading the data differently the first time it's initialized
+  // vs. subsequent updates
+  let reloadData = () => {
+    let oldData = tableData
+    loadData() // mutates data
+    tableData = oldData.map((row, index) => _.merge(row, tableData[index]))
+    hot.loadData(tableData)
+  }
+
+  // set up handlers to try to catch any changes that happen
+  // we look for input events on rows, and also monitor DOM of row container
+  // should this all move out to "setup reload triggers"?
+  let reloadTriggers = ["input", "click", "change", "keyup"]
+  rows.forEach((row, idx) => {
+    reloadTriggers.forEach(eType => {
+      row.el.addEventListener(eType, e => reloadData)
+    })
+  })
+
+  // set up page-specific reload triggers
+  if (options.hasOwnProperty("setupReloadTriggers")) {
+    options.setupReloadTriggers(reloadData)
+  }
+
+  // Highlight the selected row or cell in the original page.
+  // This is important for establishing a clear mapping between page and table.
+  // Probably need to provide a lot more site-specific config, including:
+  // * whether to highlight just cells or whole row
+  // * colors
+  // * borders vs background
+  Handsontable.hooks.add('afterSelectionByProp', (rowIndex, prop) => {
+    const highlightColor = "#c9ebff"
+    const unhighlightColor = "#ffffff"
+
+    let colSpec = colSpecFromProp(prop, options)
+    if (!colSpec) { return; }
+
+    let row = rowsById[hot.getDataAtCell(rowIndex, 0)]
+
+    if (rows.length > 1) {
+      // For multiple rows, we highlight the whole row
+
+      // rowEl.style["background-color"] = highlightColor
+      row.el.style["border"] = `solid 2px ${highlightColor}`
+      row.el.scrollIntoView({ behavior: "smooth", block: "center" })
+
+      // Clear highlight on other divs
+      let otherDivs = rows.filter(r => r !== row).map(r => r.el)
+      // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
+      otherDivs.forEach(d => d.style["border"] = `none`)
+    } else {
+      // For a single row, we highlight individual cells in the row
+
+      let colEl = row.dataValues[prop]
+      if (!(colEl instanceof HTMLElement)) { return }
+
+        // Add a border and scroll selected div into view
+      colEl.style["background-color"] = highlightColor
+      colEl.scrollIntoView({ behavior: "smooth", block: "center" })
+
+      // Clear border on other column elements
+      let otherDivs = options.colSpecs
+      .filter(spec => spec !== colSpecFromProp(prop, options))
+      .map(spec => row.dataValues[spec.name])
+
+      otherDivs.forEach(d => {
+        if (d instanceof HTMLElement) {
+          d.style["background-color"] = unhighlightColor
+        }
+      })
+    }
+  }, hot)
+
+  let hooks = ["afterColumnSort" as const, "afterFilter" as const]
+  hooks.forEach(hook => {
+    Handsontable.hooks.add(hook, () => {
+      let ids = hot.getDataAtCol(0)
+      rowContainer.innerHTML = ""
+      ids.forEach(id => {
+        if (rowsById[id]) {
+          rowContainer.appendChild(rowsById[id].el)
+        }
+      })
+    })
+  })
+
+  return {
+    hot: hot,
+    columns: columns
+  }
+}
+
+export { createTable }

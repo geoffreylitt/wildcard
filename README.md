@@ -47,20 +47,21 @@ Site adapters are in `src/site_adapters`. Cell editors are in `src/cell_editors`
 `src/wildcard.ts` is the final file that pulls everything together and
 injects Wildcard into the page.
 
-### To add a new site adapter
+### Documentation
 
-(Todo: flesh this out in way more detail, point to the auto-generated docs)
+Documentation for the Wildcard Core is built with Typedoc.
+
+It has helpful information for e.g. building site adapters.
+
+* [View documentation on Github master](https://htmlpreview.github.io/?https://raw.githubusercontent.com/geoffreylitt/wildcard/master/docs/modules/_core_.html)
+* To regenerate docs from the code, run `yarn docs`.
+* To view docs locally, open `docs/index.html`.
+
+### To add a new site adapter
 
 Copy `src/site_adapters/airbnb.ts` and mimic the format of that file.
 
-Define your adapter with the following fields:
-
-* a name
-* a url pattern (will match the URL with a simple substring match)
-* getRowContainer: returns the div containing all rows
-* getDataRows: return an array of divs representing rows
-* colSpecs: details about which data to extract from each row
-* setupReloadTriggers: react to data changes and reload the data.
+Define a [[SiteAdapterOptions]] configuration (view docs for more details).
 
 Finally, register your adapter in `src/wildcard.ts`:
 
