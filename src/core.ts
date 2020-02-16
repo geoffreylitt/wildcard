@@ -183,6 +183,13 @@ const createTable = (options: SiteAdapterOptions) => {
   let rows : Array<DataRow>;
   let rowsById : { [key: string]: DataRow };
   let tableData : Array<{ [key: string]: string }>
+  let sortConfig;
+
+  // given a key for some data to store,
+  // return a globally qualified key scoped by adapter
+  let storageKey = (key) => {
+    return ["wildcard", options.name, key].join(":")
+  }
 
   // There's no way to add columns in the UI yet,
   // so provide a few columns as scratch space
@@ -299,6 +306,14 @@ const createTable = (options: SiteAdapterOptions) => {
     licenseKey: 'non-commercial-and-evaluation'
   });
 
+  // Restore sort order from local storage
+  chrome.storage.local.get([storageKey("sortConfig")], function(result) {
+    if (result[storageKey("sortConfig")]) {
+      sortConfig = result[storageKey("sortConfig")]
+      hot.getPlugin('columnSorting').sort(sortConfig);
+    }
+  });
+
   createToggleButton(newDiv);
 
   // reload data from page:
@@ -312,6 +327,7 @@ const createTable = (options: SiteAdapterOptions) => {
     loadData() // mutates data
     tableData = oldData.map((row, index) => _.merge(row, tableData[index]))
     hot.loadData(tableData)
+    if (sortConfig) { hot.getPlugin('columnSorting').sort(sortConfig); }
   }
 
   // set up handlers to try to catch any changes that happen
@@ -384,17 +400,31 @@ const createTable = (options: SiteAdapterOptions) => {
     }
   }, hot)
 
-  let hooks = ["afterColumnSort" as const, "afterFilter" as const]
-  hooks.forEach(hook => {
-    Handsontable.hooks.add(hook, () => {
-      let ids = hot.getDataAtCol(0)
-      rowContainer.innerHTML = ""
-      ids.forEach(id => {
-        let row = rowsById[id]
-        if (!row) { return }
-        row.els.forEach(el => {
-          rowContainer.appendChild(el)
-        })
+  Handsontable.hooks.add("afterColumnSort" as const, (_, sortConfig) => {
+    let ids = hot.getDataAtCol(0)
+    rowContainer.innerHTML = ""
+    ids.forEach(id => {
+      let row = rowsById[id]
+      if (!row) { return }
+      row.els.forEach(el => {
+        rowContainer.appendChild(el)
+      })
+    })
+
+    // Store sort order in local storage
+    let dataToStore = {}
+    dataToStore[storageKey("sortConfig")] = sortConfig
+    chrome.storage.local.set(dataToStore)
+  })
+
+  Handsontable.hooks.add("afterFilter" as const, () => {
+    let ids = hot.getDataAtCol(0)
+    rowContainer.innerHTML = ""
+    ids.forEach(id => {
+      let row = rowsById[id]
+      if (!row) { return }
+      row.els.forEach(el => {
+        rowContainer.appendChild(el)
       })
     })
   })
