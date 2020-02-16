@@ -184,6 +184,7 @@ const createTable = (options: SiteAdapterOptions) => {
   let rowsById : { [key: string]: DataRow };
   let tableData : Array<{ [key: string]: string }>
   let sortConfig;
+  let filters;
 
   // given a key for some data to store,
   // return a globally qualified key scoped by adapter
@@ -314,6 +315,23 @@ const createTable = (options: SiteAdapterOptions) => {
     }
   });
 
+  // Restore filters from local storage
+  chrome.storage.local.get([storageKey("filters")], function(result) {
+    if (result[storageKey("filters")]) {
+      const filtersPlugin = hot.getPlugin('filters')
+      filters = result[storageKey("filters")]
+      filtersPlugin.clearConditions()
+      filters.forEach(filter => {
+        filter.conditions.forEach(condition => {
+          filtersPlugin.addCondition(
+            filter.column, condition.name, condition.args, filter.operation
+          )
+        })
+      })
+      filtersPlugin.filter()
+    }
+  });
+
   createToggleButton(newDiv);
 
   // reload data from page:
@@ -327,7 +345,8 @@ const createTable = (options: SiteAdapterOptions) => {
     loadData() // mutates data
     tableData = oldData.map((row, index) => _.merge(row, tableData[index]))
     hot.loadData(tableData)
-    if (sortConfig) { hot.getPlugin('columnSorting').sort(sortConfig); }
+
+    // todo: re-sort and filter here as well?
   }
 
   // set up handlers to try to catch any changes that happen
@@ -401,6 +420,8 @@ const createTable = (options: SiteAdapterOptions) => {
   }, hot)
 
   Handsontable.hooks.add("afterColumnSort" as const, (_, sortConfig) => {
+    // Set rows in page to be the rows in the table
+    // TODO: remove duplication, turn this into a lens PUT?
     let ids = hot.getDataAtCol(0)
     rowContainer.innerHTML = ""
     ids.forEach(id => {
@@ -417,7 +438,9 @@ const createTable = (options: SiteAdapterOptions) => {
     chrome.storage.local.set(dataToStore)
   })
 
-  Handsontable.hooks.add("afterFilter" as const, () => {
+  Handsontable.hooks.add("afterFilter" as const, (filters) => {
+    // Set rows in page to be the rows in the table
+    // TODO: remove duplication, turn this into a lens PUT?
     let ids = hot.getDataAtCol(0)
     rowContainer.innerHTML = ""
     ids.forEach(id => {
@@ -427,6 +450,11 @@ const createTable = (options: SiteAdapterOptions) => {
         rowContainer.appendChild(el)
       })
     })
+
+    // Store filters in local storage
+    let dataToStore = {}
+    dataToStore[storageKey("filters")] = filters
+    chrome.storage.local.set(dataToStore)
   })
 
   return {
