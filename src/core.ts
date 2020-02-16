@@ -1,9 +1,14 @@
+// This file contains all the main framework logic.
+// Pretty soon it should probably be split into smaller parts.
+
 'use strict';
 
 import Handsontable from "handsontable";
 import "handsontable/dist/handsontable.full.min.css";
 
 import "./wildcard.css";
+
+import { extractNumber } from "./utils"
 
 import _ from "lodash";
 
@@ -95,8 +100,10 @@ type PageValue = Element | DataValue
 *   (The HTML element is used for things like highlighting and sorting rows.)
 */
 interface DataRow {
-  /** The element representing the row */
-  el: HTMLElement;
+  /** The element(s) representing the row */
+  // todo: use the full tagged union style here, rather than bare sum type,
+  // to get exhaustiveness checking everywhere
+  els: Array<HTMLElement>;
 
   /** The data values for the row, with column names as keys */
   dataValues: { [key: string]: PageValue }
@@ -129,11 +136,12 @@ interface SiteAdapterOptions {
   /** A user visible name for the adapter */
   name: string;
 
-  /** Specify which URL paths to activate this adapter on.
-  * Currently just checks if the given pattern is a substring of
-  * current URL path.
+  // todo: bring back a short form of enable that just specifies URLs?
+  /** Returns true if the adapter should run on this page.
+  *   Should be as fast as possible; usually a URL substring check is enough.
+  *   If needed, can perform arbitrary checks on the page as well.
   */
-  urlPattern: string;
+  enable():boolean;
 
   /** A schema for the columns; see [[ColSpec]] for details.
   *  The first [[ColSpec]] in the array must be named "id" and contain
@@ -176,6 +184,14 @@ const createTable = (options: SiteAdapterOptions) => {
   let rowsById : { [key: string]: DataRow };
   let tableData : Array<{ [key: string]: string }>
 
+  // There's no way to add columns in the UI yet,
+  // so provide a few columns as scratch space
+  options.colSpecs.push(
+    { name: "user1", type: "text", editable: true },
+    { name: "user2", type: "text", editable: true },
+    { name: "user3", type: "text", editable: true },
+  )
+
   // Extracts data from the page, mutates rows and tableData variables.
   // todo: move this function out of createTable, stop mutating state
   let loadData = () => {
@@ -184,23 +200,34 @@ const createTable = (options: SiteAdapterOptions) => {
     if (options.hasOwnProperty("getRowContainer")) {
       rowContainer = options.getRowContainer()
     } else {
-      rowContainer = rows[0].el.parentElement
+      rowContainer = rows[0].els[0].parentElement
     }
 
     tableData = rows.map(r => {
-      return _.mapValues(r.dataValues, value => {
+      return _.mapValues(r.dataValues, (value, propName) => {
+        let result;
+
+        // Extract data from HTML elements
         if (value instanceof HTMLInputElement) {
-          return value.value
+          result = value.value
         } else if (value instanceof HTMLElement) {
-          return value.textContent
+          result = value.textContent
         } else {
-          return value
+          result = value
         }
+
+        // Type convert data automatically
+        // todo: extract this into a more generic type conversion framework
+        let spec = options.colSpecs.find(spec => spec.name === propName)
+        if (spec.type === "numeric" && (typeof result === "string")) {
+          result = extractNumber(result)
+        }
+
+        return result
       })
     })
 
     rowsById = _.keyBy(rows, row => row.dataValues.id)
-    console.log("loaded data", tableData)
   }
 
   loadData()
@@ -223,6 +250,8 @@ const createTable = (options: SiteAdapterOptions) => {
 
   // create container div
   let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
+  document.querySelector("body").style["padding-bottom"] = "300px"
+
   if (rows.length == 1) { newDiv.classList.add("single-row") }
     document.body.appendChild(newDiv);
   var container = document.getElementById('wildcard-table');
@@ -235,6 +264,7 @@ const createTable = (options: SiteAdapterOptions) => {
     stretchH: 'none',
     dropdownMenu: true,
     filters: true,
+    formulas: true,
     columnSorting: true,
     columns: columns,
     hiddenColumns: {
@@ -289,7 +319,9 @@ const createTable = (options: SiteAdapterOptions) => {
   let reloadTriggers = ["input", "click", "change", "keyup"]
   rows.forEach((row, idx) => {
     reloadTriggers.forEach(eType => {
-      row.el.addEventListener(eType, e => reloadData)
+      row.els.forEach(el => {
+        el.addEventListener(eType, e => reloadData)
+      })
     })
   })
 
@@ -315,15 +347,19 @@ const createTable = (options: SiteAdapterOptions) => {
 
     if (rows.length > 1) {
       // For multiple rows, we highlight the whole row
-
-      // rowEl.style["background-color"] = highlightColor
-      row.el.style["border"] = `solid 2px ${highlightColor}`
-      row.el.scrollIntoView({ behavior: "smooth", block: "center" })
+      row.els.forEach(el => {
+        if (el.style) {
+          el.style["border"] = `solid 2px ${highlightColor}`
+        }
+      })
+      row.els[0].scrollIntoView({ behavior: "smooth", block: "center" })
 
       // Clear highlight on other divs
-      let otherDivs = rows.filter(r => r !== row).map(r => r.el)
-      // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
-      otherDivs.forEach(d => d.style["border"] = `none`)
+      _.flatten(rows.filter(r => r !== row).map(r => r.els)).forEach(el => {
+        if(el.style) {
+          el.style["border"] = `none`
+        }
+      })
     } else {
       // For a single row, we highlight individual cells in the row
 
@@ -353,9 +389,11 @@ const createTable = (options: SiteAdapterOptions) => {
       let ids = hot.getDataAtCol(0)
       rowContainer.innerHTML = ""
       ids.forEach(id => {
-        if (rowsById[id]) {
-          rowContainer.appendChild(rowsById[id].el)
-        }
+        let row = rowsById[id]
+        if (!row) { return }
+        row.els.forEach(el => {
+          rowContainer.appendChild(el)
+        })
       })
     })
   })

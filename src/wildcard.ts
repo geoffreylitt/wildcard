@@ -1,19 +1,22 @@
+// This is the output file that the browser runs on each page.
+// It compiles the framework and all the site adapters into one file.
+
 'use strict';
 
 import { createTable } from './core'
 import { ExpediaAdapter } from './site_adapters/expedia';
 import { AirbnbAdapter } from './site_adapters/airbnb';
+import { HNAdapter } from './site_adapters/hackernews';
 
 const siteAdapters = [
 ExpediaAdapter,
-AirbnbAdapter
+AirbnbAdapter,
+HNAdapter,
 ]
 
 const run = function () {
   // super simple substring check for now
-  let adaptersForPage = siteAdapters.filter(adapter => {
-    return (String(window.location).indexOf(adapter.urlPattern) !== -1)
-  })
+  let adaptersForPage = siteAdapters.filter(adapter => adapter.enable())
 
   if (adaptersForPage.length === 0) { return; }
   if (adaptersForPage.length > 1) {
