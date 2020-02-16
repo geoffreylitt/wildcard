@@ -13,28 +13,28 @@ import { extractNumber } from "./utils"
 import _ from "lodash";
 
 // convert HTML to a dom element
-function htmlToElement(html) {
+function htmlToElement(html):HTMLElement {
   var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
-  return template.content.firstChild;
+  return template.content.firstChild as HTMLElement;
 }
 
 function createToggleButton(container) {
   // set up button to open the table
-  let toggleBtn = htmlToElement(`<button style="
-    font-weight: bold;
-    border-radius: 10px;
-    z-index: 100000;
-    padding: 10px;
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    background-color: white;
-    box-shadow: 0px 0px 10px -1px #d5d5d5;
-    border: none;
-    " class="open-apps-trigger">💡Table View</button>'`)
-  toggleBtn.addEventListener('click', () => { container.style.visibility = (container.style.visibility === "visible") ? "hidden" : "visible" })
+  let toggleBtn = htmlToElement(`<button class='wildcard-table-toggle table-open'>↓ Close Wildcard</button>`)
+  toggleBtn.addEventListener('click', () => {
+    if (container.style.visibility === "hidden") {
+      container.style.visibility = "visible"
+      toggleBtn.innerText = "↓ Close Wildcard"
+      toggleBtn.classList.add("table-open")
+    }
+    else {
+      container.style.visibility = "hidden"
+      toggleBtn.innerText = "↑ Open Wildcard"
+      toggleBtn.classList.remove("table-open")
+    }
+  })
   document.body.appendChild(toggleBtn)
 }
 
@@ -249,7 +249,8 @@ const createTable = (options: SiteAdapterOptions) => {
   }))
 
   // create container div
-  let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
+  let newDiv = htmlToElement("<div id='wildcard-container'><div id='wildcard-table'></div></div>") as HTMLElement
+  // add space at bottom of page so table doesn't cover up content
   document.querySelector("body").style["padding-bottom"] = "300px"
 
   if (rows.length == 1) { newDiv.classList.add("single-row") }
