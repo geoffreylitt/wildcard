@@ -13,7 +13,9 @@
         ]
       }
     ],
+    "background": {"scripts": ["dist/wildcard-background.js"]},
     "permissions": [
-      "storage"
+      "storage",
+      "history"
     ]
   }

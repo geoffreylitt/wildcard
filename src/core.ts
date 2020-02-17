@@ -9,6 +9,7 @@ import "handsontable/dist/handsontable.full.min.css";
 import "./wildcard.css";
 
 import { extractNumber } from "./utils"
+import { parse, test } from "./formula"
 
 import _ from "lodash";
 
@@ -273,7 +274,6 @@ const createTable = (options: SiteAdapterOptions) => {
     stretchH: 'none',
     dropdownMenu: true,
     filters: true,
-    formulas: true,
     columnSorting: true,
     columns: columns,
     hiddenColumns: {
@@ -288,6 +288,21 @@ const createTable = (options: SiteAdapterOptions) => {
     afterChange: (changes) => {
       if (changes) {
         changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
+          // First, handle formula evaluation...
+
+          // Gather up an object with all the data in the row
+          let rowData = {}
+          options.colSpecs.forEach(spec => {
+            rowData[spec.name] = hot.getDataAtRowProp(rowIndex, spec.name)
+          })
+          // Evaluate the formula
+          if (typeof newValue === "string" && newValue[0] === "=") {
+            parse(newValue).eval(rowData).then(result => {
+              hot.setDataAtRowProp(rowIndex, prop as string, result)
+            })
+          }
+
+          // Then, propagate changes to the page
           let colSpec = colSpecFromProp(prop, options)
           if (!colSpec || !colSpec.editable) {
             return
