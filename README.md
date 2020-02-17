@@ -1,12 +1,12 @@
 # Wildcard
 
-A prototype that maps website data to a table, enabling end users to modify and reprogram the site.
+A prototype that maps website data to a table, enabling end users to modify and reprogram the site. For more details, see the [project site](https://www.geoffreylitt.com/wildcard/).
 
-Early demo video: https://www.loom.com/share/cab62c8172404c39bebc4c511a60a389
-
-🚧 Not ready for real usage yet, still an early prototype! 🚧
+[Sign up for the email newsletter](https://forms.gle/mpn1Hn8Ln7dmPo6T8) to get an email when the project is ready for beta users.
 
 ## To use Wildcard
+
+🚧 This project is an unstable prototype and not ready for real users yet. Install at your own risk and expect breaking changes. 🚧
 
 Clone this repo locally.
 
