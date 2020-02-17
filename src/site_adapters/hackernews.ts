@@ -31,12 +31,12 @@ export const HNAdapter = {
       let spacerRow = detailsRow.nextElementSibling
 
       return {
+        id: String(el.getAttribute("id")),
         els: [el, detailsRow, spacerRow]
           // Both of these steps should be handled by the framework...
           .filter(e => e) // Only include if the element is really there
           .map(e => (e as HTMLElement)), // Convert to HTMLElement type
         dataValues: {
-          id: String(el.getAttribute("id")),
           rank: el.querySelector("span.rank"),
           title: el.querySelector("a.storylink"),
           link: el.querySelector("a.storylink").getAttribute("href"),
@@ -46,7 +46,9 @@ export const HNAdapter = {
           user: detailsRow.querySelector("a.hnuser"),
           comments: extractNumber(Array.from(detailsRow.querySelectorAll("a"))
         .find(e => e.textContent.indexOf("comments") !== -1), 0)
-        }
+        },
+        annotationContainer: detailsRow.querySelector("td.subtext") as HTMLElement,
+        annotationTemplate: `| <span style="color: #f60;">$annotation</span>`
       }
     })
   },

@@ -8,7 +8,6 @@ export const WeatherChannelAdapter = {
         return urlContains("https://weather.com/weather/hourbyhour")
     },
     colSpecs: [
-        { name: "id", type: "text", hidden: true },
         { name: "Time", type: "text" },
         { name: "Description", type: "text"},
         { name: "Temp °F", type: "numeric"},
@@ -26,8 +25,8 @@ export const WeatherChannelAdapter = {
         return arrayOfRows.map(el => {
             return {
                 els: [el],
+                id: el.querySelector('.dsx-date').textContent,
                 dataValues: {
-                    id: el.querySelector('.dsx-date').textContent,
                     Time: el.querySelector('.dsx-date'),
                     Description: el.querySelector('.description').children[0],
                     'Temp °F': el.querySelector('.temp').children[0],
