@@ -1,3 +1,6 @@
+// This file contains all the main framework logic.
+// Pretty soon it should probably be split into smaller parts.
+
 'use strict';
 
 import Handsontable from "handsontable";
@@ -5,31 +8,33 @@ import "handsontable/dist/handsontable.full.min.css";
 
 import "./wildcard.css";
 
+import { extractNumber } from "./utils"
+
 import _ from "lodash";
 
 // convert HTML to a dom element
-function htmlToElement(html) {
+function htmlToElement(html):HTMLElement {
   var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
-  return template.content.firstChild;
+  return template.content.firstChild as HTMLElement;
 }
 
 function createToggleButton(container) {
   // set up button to open the table
-  let toggleBtn = htmlToElement(`<button style="
-    font-weight: bold;
-    border-radius: 10px;
-    z-index: 100000;
-    padding: 10px;
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    background-color: white;
-    box-shadow: 0px 0px 10px -1px #d5d5d5;
-    border: none;
-    " class="open-apps-trigger">💡Table View</button>'`)
-  toggleBtn.addEventListener('click', () => { container.style.visibility = (container.style.visibility === "visible") ? "hidden" : "visible" })
+  let toggleBtn = htmlToElement(`<button class='wildcard-table-toggle table-open'>↓ Close Wildcard</button>`)
+  toggleBtn.addEventListener('click', () => {
+    if (container.style.visibility === "hidden") {
+      container.style.visibility = "visible"
+      toggleBtn.innerText = "↓ Close Wildcard"
+      toggleBtn.classList.add("table-open")
+    }
+    else {
+      container.style.visibility = "hidden"
+      toggleBtn.innerText = "↑ Open Wildcard"
+      toggleBtn.classList.remove("table-open")
+    }
+  })
   document.body.appendChild(toggleBtn)
 }
 
@@ -95,8 +100,10 @@ type PageValue = Element | DataValue
 *   (The HTML element is used for things like highlighting and sorting rows.)
 */
 interface DataRow {
-  /** The element representing the row */
-  el: HTMLElement;
+  /** The element(s) representing the row */
+  // todo: use the full tagged union style here, rather than bare sum type,
+  // to get exhaustiveness checking everywhere
+  els: Array<HTMLElement>;
 
   /** The data values for the row, with column names as keys */
   dataValues: { [key: string]: PageValue }
@@ -129,11 +136,12 @@ interface SiteAdapterOptions {
   /** A user visible name for the adapter */
   name: string;
 
-  /** Specify which URL paths to activate this adapter on.
-  * Currently just checks if the given pattern is a substring of
-  * current URL path.
+  // todo: bring back a short form of enable that just specifies URLs?
+  /** Returns true if the adapter should run on this page.
+  *   Should be as fast as possible; usually a URL substring check is enough.
+  *   If needed, can perform arbitrary checks on the page as well.
   */
-  urlPattern: string;
+  enable():boolean;
 
   /** A schema for the columns; see [[ColSpec]] for details.
   *  The first [[ColSpec]] in the array must be named "id" and contain
@@ -175,6 +183,22 @@ const createTable = (options: SiteAdapterOptions) => {
   let rows : Array<DataRow>;
   let rowsById : { [key: string]: DataRow };
   let tableData : Array<{ [key: string]: string }>
+  let sortConfig;
+  let filters;
+
+  // given a key for some data to store,
+  // return a globally qualified key scoped by adapter
+  let storageKey = (key) => {
+    return ["wildcard", options.name, key].join(":")
+  }
+
+  // There's no way to add columns in the UI yet,
+  // so provide a few columns as scratch space
+  options.colSpecs.push(
+    { name: "user1", type: "text", editable: true },
+    { name: "user2", type: "text", editable: true },
+    { name: "user3", type: "text", editable: true },
+  )
 
   // Extracts data from the page, mutates rows and tableData variables.
   // todo: move this function out of createTable, stop mutating state
@@ -184,23 +208,34 @@ const createTable = (options: SiteAdapterOptions) => {
     if (options.hasOwnProperty("getRowContainer")) {
       rowContainer = options.getRowContainer()
     } else {
-      rowContainer = rows[0].el.parentElement
+      rowContainer = rows[0].els[0].parentElement
     }
 
     tableData = rows.map(r => {
-      return _.mapValues(r.dataValues, value => {
+      return _.mapValues(r.dataValues, (value, propName) => {
+        let result;
+
+        // Extract data from HTML elements
         if (value instanceof HTMLInputElement || value instanceof HTMLTextAreaElement) {
-          return value.value
+          result = value.value
         } else if (value instanceof HTMLElement) {
-          return value.textContent
+          result = value.textContent
         } else {
-          return value
+          result = value
         }
+
+        // Type convert data automatically
+        // todo: extract this into a more generic type conversion framework
+        let spec = options.colSpecs.find(spec => spec.name === propName)
+        if (spec.type === "numeric" && (typeof result === "string")) {
+          result = extractNumber(result)
+        }
+
+        return result
       })
     })
 
     rowsById = _.keyBy(rows, row => row.dataValues.id)
-    console.log("loaded data", tableData)
   }
 
   loadData()
@@ -222,7 +257,10 @@ const createTable = (options: SiteAdapterOptions) => {
   }))
 
   // create container div
-  let newDiv = htmlToElement("<div id=\"wildcard-container\" style=\"\"><div id=\"wildcard-table\"></div></div>") as HTMLElement
+  let newDiv = htmlToElement("<div id='wildcard-container'><div id='wildcard-table'></div></div>") as HTMLElement
+  // add space at bottom of page so table doesn't cover up content
+  document.querySelector("body").style["padding-bottom"] = "300px"
+
   if (rows.length == 1) { newDiv.classList.add("single-row") }
     document.body.appendChild(newDiv);
   var container = document.getElementById('wildcard-table');
@@ -235,6 +273,7 @@ const createTable = (options: SiteAdapterOptions) => {
     stretchH: 'none',
     dropdownMenu: true,
     filters: true,
+    formulas: true,
     columnSorting: true,
     columns: columns,
     hiddenColumns: {
@@ -268,6 +307,31 @@ const createTable = (options: SiteAdapterOptions) => {
     licenseKey: 'non-commercial-and-evaluation'
   });
 
+  // Restore sort order from local storage
+  chrome.storage.local.get([storageKey("sortConfig")], function(result) {
+    if (result[storageKey("sortConfig")]) {
+      sortConfig = result[storageKey("sortConfig")]
+      hot.getPlugin('columnSorting').sort(sortConfig);
+    }
+  });
+
+  // Restore filters from local storage
+  chrome.storage.local.get([storageKey("filters")], function(result) {
+    if (result[storageKey("filters")]) {
+      const filtersPlugin = hot.getPlugin('filters')
+      filters = result[storageKey("filters")]
+      filtersPlugin.clearConditions()
+      filters.forEach(filter => {
+        filter.conditions.forEach(condition => {
+          filtersPlugin.addCondition(
+            filter.column, condition.name, condition.args, filter.operation
+          )
+        })
+      })
+      filtersPlugin.filter()
+    }
+  });
+
   createToggleButton(newDiv);
 
   // reload data from page:
@@ -281,6 +345,8 @@ const createTable = (options: SiteAdapterOptions) => {
     loadData() // mutates data
     tableData = oldData.map((row, index) => _.merge(row, tableData[index]))
     hot.loadData(tableData)
+
+    // todo: re-sort and filter here as well?
   }
 
   // set up handlers to try to catch any changes that happen
@@ -289,7 +355,9 @@ const createTable = (options: SiteAdapterOptions) => {
   let reloadTriggers = ["input", "click", "change", "keyup"]
   rows.forEach((row, idx) => {
     reloadTriggers.forEach(eType => {
-      row.el.addEventListener(eType, e => reloadData)
+      row.els.forEach(el => {
+        el.addEventListener(eType, e => reloadData)
+      })
     })
   })
 
@@ -315,15 +383,19 @@ const createTable = (options: SiteAdapterOptions) => {
 
     if (rows.length > 1) {
       // For multiple rows, we highlight the whole row
-
-      // rowEl.style["background-color"] = highlightColor
-      row.el.style["border"] = `solid 2px ${highlightColor}`
-      row.el.scrollIntoView({ behavior: "smooth", block: "center" })
+      row.els.forEach(el => {
+        if (el.style) {
+          el.style["border"] = `solid 2px ${highlightColor}`
+        }
+      })
+      row.els[0].scrollIntoView({ behavior: "smooth", block: "center" })
 
       // Clear highlight on other divs
-      let otherDivs = rows.filter(r => r !== row).map(r => r.el)
-      // otherDivs.forEach( d => d.style["background-color"] = unhighlightColor )
-      otherDivs.forEach(d => d.style["border"] = `none`)
+      _.flatten(rows.filter(r => r !== row).map(r => r.els)).forEach(el => {
+        if(el.style) {
+          el.style["border"] = `none`
+        }
+      })
     } else {
       // For a single row, we highlight individual cells in the row
 
@@ -347,17 +419,42 @@ const createTable = (options: SiteAdapterOptions) => {
     }
   }, hot)
 
-  let hooks = ["afterColumnSort" as const, "afterFilter" as const]
-  hooks.forEach(hook => {
-    Handsontable.hooks.add(hook, () => {
-      let ids = hot.getDataAtCol(0)
-      rowContainer.innerHTML = ""
-      ids.forEach(id => {
-        if (rowsById[id]) {
-          rowContainer.appendChild(rowsById[id].el)
-        }
+  Handsontable.hooks.add("afterColumnSort" as const, (_, sortConfig) => {
+    // Set rows in page to be the rows in the table
+    // TODO: remove duplication, turn this into a lens PUT?
+    let ids = hot.getDataAtCol(0)
+    rowContainer.innerHTML = ""
+    ids.forEach(id => {
+      let row = rowsById[id]
+      if (!row) { return }
+      row.els.forEach(el => {
+        rowContainer.appendChild(el)
       })
     })
+
+    // Store sort order in local storage
+    let dataToStore = {}
+    dataToStore[storageKey("sortConfig")] = sortConfig
+    chrome.storage.local.set(dataToStore)
+  })
+
+  Handsontable.hooks.add("afterFilter" as const, (filters) => {
+    // Set rows in page to be the rows in the table
+    // TODO: remove duplication, turn this into a lens PUT?
+    let ids = hot.getDataAtCol(0)
+    rowContainer.innerHTML = ""
+    ids.forEach(id => {
+      let row = rowsById[id]
+      if (!row) { return }
+      row.els.forEach(el => {
+        rowContainer.appendChild(el)
+      })
+    })
+
+    // Store filters in local storage
+    let dataToStore = {}
+    dataToStore[storageKey("filters")] = filters
+    chrome.storage.local.set(dataToStore)
   })
 
   return {

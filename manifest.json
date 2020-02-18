@@ -12,5 +12,8 @@
           "<all_urls>"
         ]
       }
+    ],
+    "permissions": [
+      "storage"
     ]
   }

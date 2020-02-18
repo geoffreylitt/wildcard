@@ -1,9 +1,10 @@
 import { FullCalendarEditor } from '../cell_editors/fullCalendarEditor.js'
 import { RichTextEditor } from '../cell_editors/richTextEditor.js'
+import { urlContains } from '../utils'
 
 export const ExpediaAdapter = {
   name: "Expedia2",
-  urlPattern: "expedia.com",
+  enable: () => urlContains("expedia.com"),
   colSpecs: [
   { name: "id", type: "text", hidden: true },
   { name: "origin", editable: true, type: "text" },
@@ -15,7 +16,7 @@ export const ExpediaAdapter = {
     let form = document.getElementById("gcw-packages-form-hp-package")
     return [
     {
-      el: form,
+      els: [form],
       dataValues: {
         id: 1, // only one row so we can just hardcode an ID
         origin: form.querySelector("#package-origin-hp-package"),

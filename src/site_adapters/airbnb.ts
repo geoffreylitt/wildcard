@@ -1,8 +1,7 @@
 'use strict';
 
-// Obscure class names for various page elements.
-// They have remained stable for several months,
-// so actually seem unlikely to change regularly.
+import { urlContains, extractNumber } from "../utils"
+
 const rowContainerClass = "_fhph4u"
 const rowClass = "_8ssblpx"
 const titleClass = "_1jbo9b6h"
@@ -12,7 +11,7 @@ const listingLinkClass = "_i24ijs"
 
 export const AirbnbAdapter = {
   name: "Airbnb",
-  urlPattern: "airbnb.com/s/",
+  enable: () => urlContains("airbnb.com/s/"),
   colSpecs: [
   { name: "id", type: "text" },
   { name: "name", type: "text" },
@@ -21,19 +20,22 @@ export const AirbnbAdapter = {
   ],
   getDataRows: () => {
     return Array.from(document.getElementsByClassName(rowClass)).map(el => {
-      let path = el.querySelector("." + listingLinkClass) && el.querySelector("." + listingLinkClass).getAttribute('href')
-      let id = path.match(/\/rooms\/([0-9]*)\?/) && path.match(/\/rooms\/([0-9]*)\?/)[1]
+      let path = el.querySelector("." + listingLinkClass).getAttribute('href')
+      let id = path.match(/\/rooms\/([0-9]*)\?/)[1]
 
       return {
-        el: el as HTMLElement,
+        els: [el as HTMLElement],
         dataValues: {
           id: id,
           name: el.querySelector(`.${titleClass}`),
           price: el.querySelector(`.${priceClass}`).textContent.match(/\$([\d]*)/)[1],
-          rating: el.querySelector(`.${ratingClass}`)
+          rating: extractNumber(el.querySelector(`.${ratingClass}`))
         }
       }
     })
   },
+  setupReloadTriggers: (reload) => {
+    document.addEventListener("click", (e) => { reload() })
+  }
 }
 
