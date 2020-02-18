@@ -3,10 +3,12 @@
 import { createTable } from './core'
 import { ExpediaAdapter } from './site_adapters/expedia';
 import { AirbnbAdapter } from './site_adapters/airbnb';
+import {BloggerAdapter} from "./site_adapters/blogger";
 
 const siteAdapters = [
 ExpediaAdapter,
-AirbnbAdapter
+AirbnbAdapter,
+    BloggerAdapter
 ]
 
 const run = function () {

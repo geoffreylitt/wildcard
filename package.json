@@ -7,6 +7,7 @@
   "author": "Geoffrey Litt <glitt@mit.edu>",
   "license": "MIT",
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^16.0.0",
     "@fullcalendar/core": "^4.3.1",
     "@fullcalendar/daygrid": "^4.3.0",
     "@fullcalendar/interaction": "^4.3.0",

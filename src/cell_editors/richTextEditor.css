@@ -1,0 +1,14 @@
+#open-apps-rich-text-editor-container {
+    background-color: white;
+    padding: 20px;
+    position: fixed;
+    height: 500px;
+    width: 700px;
+    bottom: 100px;
+    right: 50px;
+    z-index: 1000;
+}
+
+.cke_show_borders {
+    overflow: scroll;
+}

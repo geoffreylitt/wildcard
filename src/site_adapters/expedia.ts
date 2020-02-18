@@ -1,4 +1,5 @@
 import { FullCalendarEditor } from '../cell_editors/fullCalendarEditor.js'
+import { RichTextEditor } from '../cell_editors/richTextEditor.js'
 
 export const ExpediaAdapter = {
   name: "Expedia2",
@@ -6,7 +7,7 @@ export const ExpediaAdapter = {
   colSpecs: [
   { name: "id", type: "text", hidden: true },
   { name: "origin", editable: true, type: "text" },
-  { name: "destination", editable: true, type: "text" },
+  { name: "destination", editable: true, type: "text", editor: RichTextEditor },
   { name: "departDate", editable: true, type: "text", editor: FullCalendarEditor },
   { name: "returnDate", editable: true, type: "text", editor: FullCalendarEditor }
   ],

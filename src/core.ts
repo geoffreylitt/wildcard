@@ -189,7 +189,7 @@ const createTable = (options: SiteAdapterOptions) => {
 
     tableData = rows.map(r => {
       return _.mapValues(r.dataValues, value => {
-        if (value instanceof HTMLInputElement) {
+        if (value instanceof HTMLInputElement || value instanceof HTMLTextAreaElement) {
           return value.value
         } else if (value instanceof HTMLElement) {
           return value.textContent
@@ -257,7 +257,7 @@ const createTable = (options: SiteAdapterOptions) => {
           let row = rows[rowIndex] // this won't work with re-sorting; change to ID
           let el = row.dataValues[prop]
 
-          if (el instanceof HTMLInputElement) {
+          if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
             el.value = newValue
           } else if (el instanceof HTMLElement) {
             el.innerText = newValue
