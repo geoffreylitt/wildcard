@@ -107,12 +107,12 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#colspecs" class="tsd-kind-icon">col<wbr>Specs</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#urlpattern" class="tsd-kind-icon">url<wbr>Pattern</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#enable" class="tsd-kind-icon">enable</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#getdatarows" class="tsd-kind-icon">get<wbr>Data<wbr>Rows</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#getrowcontainer" class="tsd-kind-icon">get<wbr>Row<wbr>Container</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.siteadapteroptions.html#setupreloadtriggers" class="tsd-kind-icon">setup<wbr>Reload<wbr>Triggers</a></li>
@@ -129,7 +129,7 @@
 					<div class="tsd-signature tsd-kind-icon">col<wbr>Specs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="_core_.colspec.html" class="tsd-signature-type">ColSpec</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/9cc2a99/src/core.ts#L143">core.ts:143</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L151">core.ts:151</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -147,7 +147,7 @@
 					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/9cc2a99/src/core.ts#L130">core.ts:130</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L137">core.ts:137</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -156,26 +156,33 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="urlpattern" class="tsd-anchor"></a>
-					<h3>url<wbr>Pattern</h3>
-					<div class="tsd-signature tsd-kind-icon">url<wbr>Pattern<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/9cc2a99/src/core.ts#L136">core.ts:136</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Specify which URL paths to activate this adapter on.
-								Currently just checks if the given pattern is a substring of
-							current URL path.</p>
-						</div>
-					</div>
-				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
+					<a name="enable" class="tsd-anchor"></a>
+					<h3>enable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">enable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L144">core.ts:144</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true if the adapter should run on this page.
+										Should be as fast as possible; usually a URL substring check is enough.
+									If needed, can perform arbitrary checks on the page as well.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
 					<a name="getdatarows" class="tsd-anchor"></a>
 					<h3>get<wbr>Data<wbr>Rows</h3>
@@ -186,7 +193,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/9cc2a99/src/core.ts#L146">core.ts:146</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L154">core.ts:154</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -208,7 +215,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/9cc2a99/src/core.ts#L166">core.ts:166</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L174">core.ts:174</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -232,7 +239,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/9cc2a99/src/core.ts#L160">core.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L168">core.ts:168</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -265,8 +272,17 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
+					<li class="label tsd-is-external">
+						<span>Internals</span>
+					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="../modules/_core_.html">&quot;core&quot;</a>
+					</li>
+					<li class="label tsd-is-external">
+						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_utils_.html">&quot;utils&quot;</a>
 					</li>
 				</ul>
 			</nav>
@@ -289,8 +305,8 @@
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
 								<a href="_core_.siteadapteroptions.html#name" class="tsd-kind-icon">name</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.siteadapteroptions.html#urlpattern" class="tsd-kind-icon">url<wbr>Pattern</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
+								<a href="_core_.siteadapteroptions.html#enable" class="tsd-kind-icon">enable</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-not-exported">
 								<a href="_core_.siteadapteroptions.html#getdatarows" class="tsd-kind-icon">get<wbr>Data<wbr>Rows</a>
