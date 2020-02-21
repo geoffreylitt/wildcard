@@ -380,7 +380,6 @@ const createTable = (options: SiteAdapterOptions) => {
 
     // Copy the formula to the whole column
     if (propagate) {
-      console.log("propagating formula")
       tableData.forEach((row, i) => {
         row[prop] = formula
 
@@ -527,6 +526,20 @@ const createTable = (options: SiteAdapterOptions) => {
     let dataToStore = {}
     dataToStore[storageKey("filters")] = filters
     chrome.storage.local.set(dataToStore)
+
+    // when we unfilter, there may be a column that contains some unevaluated
+    // formula cells. in this case, just refresh the whole column
+    // todo: find a more principled way to handle this...
+    options.colSpecs.forEach(spec => {
+      if (spec.formula) {
+        let prop = spec.name
+        hot.getDataAtProp(prop).forEach((val, rowIndex) => {
+          if (typeof val === "string" && val[0] === "=") {
+            handleFormula(val, rowIndex, prop, false)
+          }
+        })
+      }
+    })
   })
 
   return {
