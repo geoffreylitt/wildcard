@@ -266,6 +266,7 @@ const createTable = (options: SiteAdapterOptions) => {
     document.body.appendChild(newDiv);
   var container = document.getElementById('wildcard-table');
 
+  // Initialize the table
   var hot = new Handsontable(container, {
     data: tableData,
     rowHeaders: true,
@@ -278,46 +279,6 @@ const createTable = (options: SiteAdapterOptions) => {
     columns: columns,
     hiddenColumns: {
       columns: columns.map((col, idx) => col.hidden ? idx : null).filter(e => Number.isInteger(e))
-    },
-
-    // TODO:
-    // Here we directly update the DOM when table values are updated.
-    // In the future, consider a different approach:
-    // 1) Make edits to our representation of the table data
-    // 2) Use a lens "put" function to propagate the update to the DOM
-    afterChange: (changes) => {
-      if (changes) {
-        changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
-          // First, handle formula evaluation...
-
-          // Gather up an object with all the data in the row
-          let rowData = {}
-          options.colSpecs.forEach(spec => {
-            rowData[spec.name] = hot.getDataAtRowProp(rowIndex, spec.name)
-          })
-          // Evaluate the formula
-          if (typeof newValue === "string" && newValue[0] === "=") {
-            parse(newValue).eval(rowData).then(result => {
-              hot.setDataAtRowProp(rowIndex, prop as string, result)
-            })
-          }
-
-          // Then, propagate changes to the page
-          let colSpec = colSpecFromProp(prop, options)
-          if (!colSpec || !colSpec.editable) {
-            return
-          }
-
-          let row = rows[rowIndex] // this won't work with re-sorting; change to ID
-          let el = row.dataValues[prop]
-
-          if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-            el.value = newValue
-          } else if (el instanceof HTMLElement) {
-            el.innerText = newValue
-          }
-        });
-      }
     },
     licenseKey: 'non-commercial-and-evaluation'
   });
@@ -348,6 +309,10 @@ const createTable = (options: SiteAdapterOptions) => {
   });
 
   createToggleButton(newDiv);
+
+  // ===
+  // Set up triggers for data reloading when the page changes
+  // ===
 
   // reload data from page:
   // re-extract, and then load into the spreadsheet
@@ -380,6 +345,56 @@ const createTable = (options: SiteAdapterOptions) => {
   if (options.hasOwnProperty("setupReloadTriggers")) {
     options.setupReloadTriggers(reloadData)
   }
+
+  // ===
+  // Add hooks to the Handsontable to handle various interactions
+  // ===
+
+  // When a cell changes, 1) evaluate formulas, 2) update the DOM
+  // TODO:
+  // Here we directly update the DOM when table values are updated.
+  // In the future, consider a different approach:
+  // 1) Make edits to our representation of the table data
+  // 2) Use a lens "put" function to propagate the update to the DOM
+  Handsontable.hooks.add('afterChange', (changes) => {
+    if (changes) {
+      changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
+        // If formula was entered, eval the formula
+        if (typeof newValue === "string" && newValue[0] === "=") {
+          let rowData = {}
+          options.colSpecs.forEach(spec => {
+            rowData[spec.name] = hot.getDataAtRowProp(rowIndex, spec.name)
+          })
+
+          parse(newValue).eval(rowData).then(result => {
+            hot.setDataAtRowProp(rowIndex, prop as string, result)
+          })
+
+          // Copy the formula to the next row down.
+          // This ends up looping and filling in the whole column
+          let nextRowIndex = (rowIndex + 1) % tableData.length
+          if (hot.getDataAtRowProp(nextRowIndex, prop as string) !== newValue) {
+            hot.setDataAtRowProp(nextRowIndex, prop as string, newValue)
+          }
+        }
+
+        // Propagate changes to the page
+        let colSpec = colSpecFromProp(prop, options)
+        if (!colSpec || !colSpec.editable) {
+          return
+        }
+
+        let row = rows[rowIndex] // this won't work with re-sorting; change to ID
+        let el = row.dataValues[prop]
+
+        if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+          el.value = newValue
+        } else if (el instanceof HTMLElement) {
+          el.innerText = newValue
+        }
+      });
+    }
+  }, hot)
 
   // Highlight the selected row or cell in the original page.
   // This is important for establishing a clear mapping between page and table.
