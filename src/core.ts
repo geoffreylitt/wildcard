@@ -381,8 +381,16 @@ const createTable = (options: SiteAdapterOptions) => {
     // Copy the formula to the whole column
     if (propagate) {
       console.log("propagating formula")
-      tableData.forEach((row, i) => { row[prop] = formula })
-      reloadData()
+      tableData.forEach((row, i) => {
+        row[prop] = formula
+
+        // if the row is in the table, update the table too
+        let idxInTable = hot.getDataAtProp("id").indexOf(row.id)
+        if (idxInTable !== -1) {
+          // The source param here prevents afterchange from doing further propagation
+          hot.setDataAtRowProp(idxInTable, prop, formula, "formulaPropagate")
+        }
+      })
     }
 
     // Store formula column in local storage
