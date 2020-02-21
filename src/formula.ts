@@ -22,7 +22,7 @@ Formula {
 let getHistory = (url) => {
   return new Promise((resolve, _reject) => {
     chrome.runtime.sendMessage({command: "getVisits", url: url}, function(response) {
-      let result = response.visits.length > 0
+      let result = !!response.visits && response.visits.length > 0
       resolve(result)
     });
   })

@@ -70,6 +70,9 @@ interface ColSpec {
   /** Hide this column in the visible table?
   Eg, useful for hiding an ID column that's needed for sorting */
   hidden?: boolean;
+
+  /** Is this a formula column? */
+  formula?: boolean;
 }
 
 type DataValue = string | number
@@ -186,6 +189,7 @@ const createTable = (options: SiteAdapterOptions) => {
   let tableData : Array<{ [key: string]: string }>
   let sortConfig;
   let filters;
+  let storedColumns = {}
 
   // given a key for some data to store,
   // return a globally qualified key scoped by adapter
@@ -283,29 +287,41 @@ const createTable = (options: SiteAdapterOptions) => {
     licenseKey: 'non-commercial-and-evaluation'
   });
 
-  // Restore sort order from local storage
-  chrome.storage.local.get([storageKey("sortConfig")], function(result) {
-    if (result[storageKey("sortConfig")]) {
-      sortConfig = result[storageKey("sortConfig")]
-      hot.getPlugin('columnSorting').sort(sortConfig);
-    }
-  });
-
-  // Restore filters from local storage
-  chrome.storage.local.get([storageKey("filters")], function(result) {
-    if (result[storageKey("filters")]) {
-      const filtersPlugin = hot.getPlugin('filters')
-      filters = result[storageKey("filters")]
-      filtersPlugin.clearConditions()
-      filters.forEach(filter => {
-        filter.conditions.forEach(condition => {
-          filtersPlugin.addCondition(
-            filter.column, condition.name, condition.args, filter.operation
-          )
-        })
+  // Restore data from local storage: sort order, filters, and stored columns
+  chrome.storage.local.get([storageKey("sortConfig"), storageKey("filters"), storageKey("columns")], function(result) {
+    if (result[storageKey("columns")]) {
+      storedColumns = result[storageKey("columns")]
+      _.each(storedColumns, (col, name) => {
+        if(col.colSpec.formula) {
+          // todo: handle missing column -- need to add it to the table here
+          hot.setDataAtRowProp(0, name, col.formula)
+        }
       })
-      filtersPlugin.filter()
     }
+
+    // Wait a bit for stored columns to populate before loading sort and filters
+    // TODO: find a less hacky way to do this.
+    // Can we find a way to get a callback in for when the
+    window.setTimeout(() => {
+      if (result[storageKey("sortConfig")]) {
+        sortConfig = result[storageKey("sortConfig")]
+        hot.getPlugin('columnSorting').sort(sortConfig);
+      }
+
+      if (result[storageKey("filters")]) {
+        const filtersPlugin = hot.getPlugin('filters')
+        filters = result[storageKey("filters")]
+        filtersPlugin.clearConditions()
+        filters.forEach(filter => {
+          filter.conditions.forEach(condition => {
+            filtersPlugin.addCondition(
+              filter.column, condition.name, condition.args, filter.operation
+            )
+          })
+        })
+        filtersPlugin.filter()
+      }
+    }, 100)
   });
 
   createToggleButton(newDiv);
@@ -350,35 +366,57 @@ const createTable = (options: SiteAdapterOptions) => {
   // Add hooks to the Handsontable to handle various interactions
   // ===
 
+  // Handle a formula entered into a cell
+  let handleFormula = (formula:string, rowIndex:number, prop:string, propagate:boolean) => {
+    // Mark the column as a formula column
+    let colSpec = colSpecFromProp(prop, options)
+    colSpec.formula = true
+
+    let rowData = {}
+    options.colSpecs.forEach(spec => {
+      rowData[spec.name] = hot.getDataAtRowProp(rowIndex, spec.name)
+    })
+
+    // Eval the formula, with the data from the row as context
+    parse(formula).eval(rowData).then(result => {
+      hot.setDataAtRowProp(rowIndex, prop as string, result)
+    })
+
+    // Copy the formula to the whole column
+    if (propagate) {
+      tableData.forEach((_, i) => {
+        if (hot.getDataAtRowProp(i, prop as string) !== formula) {
+          hot.setDataAtRowProp(i, prop as string, formula, "formulafill")
+        }
+      })
+    }
+
+    // Store formula column in local storage
+    // TODO: extend to storing annotations too
+    storedColumns[prop] = {
+      colSpec: colSpec,
+      formula: formula
+    }
+    let dataToStore = {}
+    dataToStore[storageKey("columns")] = storedColumns
+    chrome.storage.local.set(dataToStore)
+  }
+
   // When a cell changes, 1) evaluate formulas, 2) update the DOM
   // TODO:
   // Here we directly update the DOM when table values are updated.
   // In the future, consider a different approach:
   // 1) Make edits to our representation of the table data
   // 2) Use a lens "put" function to propagate the update to the DOM
-  Handsontable.hooks.add('afterChange', (changes) => {
+  Handsontable.hooks.add('afterChange', (changes, source) => {
     if (changes) {
       changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
-        // If formula was entered, eval the formula
         if (typeof newValue === "string" && newValue[0] === "=") {
-          let rowData = {}
-          options.colSpecs.forEach(spec => {
-            rowData[spec.name] = hot.getDataAtRowProp(rowIndex, spec.name)
-          })
-
-          parse(newValue).eval(rowData).then(result => {
-            hot.setDataAtRowProp(rowIndex, prop as string, result)
-          })
-
-          // Copy the formula to the next row down.
-          // This ends up looping and filling in the whole column
-          let nextRowIndex = (rowIndex + 1) % tableData.length
-          if (hot.getDataAtRowProp(nextRowIndex, prop as string) !== newValue) {
-            hot.setDataAtRowProp(nextRowIndex, prop as string, newValue)
-          }
+          let propagate = (source === "edit")
+          handleFormula(newValue, rowIndex, prop as string, propagate)
         }
 
-        // Propagate changes to the page
+        // Update the DOM
         let colSpec = colSpecFromProp(prop, options)
         if (!colSpec || !colSpec.editable) {
           return
