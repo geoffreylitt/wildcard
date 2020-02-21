@@ -183,6 +183,7 @@ interface SiteAdapterOptions {
 *  to initialize your adapter.
 */
 const createTable = (options: SiteAdapterOptions) => {
+  console.log("hi there")
   let rowContainer;
   let rows : Array<DataRow>;
   let rowsById : { [key: string]: DataRow };
@@ -372,23 +373,16 @@ const createTable = (options: SiteAdapterOptions) => {
     let colSpec = colSpecFromProp(prop, options)
     colSpec.formula = true
 
-    let rowData = {}
-    options.colSpecs.forEach(spec => {
-      rowData[spec.name] = hot.getDataAtRowProp(rowIndex, spec.name)
-    })
-
     // Eval the formula, with the data from the row as context
-    parse(formula).eval(rowData).then(result => {
+    parse(formula).eval(tableData[rowIndex]).then(result => {
       hot.setDataAtRowProp(rowIndex, prop as string, result)
     })
 
     // Copy the formula to the whole column
     if (propagate) {
-      tableData.forEach((_, i) => {
-        if (hot.getDataAtRowProp(i, prop as string) !== formula) {
-          hot.setDataAtRowProp(i, prop as string, formula, "formulafill")
-        }
-      })
+      console.log("propagating formula")
+      tableData.forEach((row, i) => { row[prop] = formula })
+      reloadData()
     }
 
     // Store formula column in local storage
@@ -411,6 +405,7 @@ const createTable = (options: SiteAdapterOptions) => {
   Handsontable.hooks.add('afterChange', (changes, source) => {
     if (changes) {
       changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
+        console.log("after change", rowIndex, prop)
         if (typeof newValue === "string" && newValue[0] === "=") {
           let propagate = (source === "edit")
           handleFormula(newValue, rowIndex, prop as string, propagate)
@@ -422,8 +417,9 @@ const createTable = (options: SiteAdapterOptions) => {
           return
         }
 
-        let row = rows[rowIndex] // this won't work with re-sorting; change to ID
-        let el = row.dataValues[prop]
+        // let row = rows[rowIndex] // this won't work with re-sorting; change to ID
+        let rowData = tableData.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
+        let el:any = rowData[prop]
 
         if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
           el.value = newValue
