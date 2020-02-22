@@ -6,17 +6,19 @@ export const BloggerAdapter = {
     enable: () => urlContains("blogger.com"),
     colSpecs: [
         { name: "id", type: "text", hidden: true },
-        { name: "document", editable: true, type: "text", editor: RichTextEditor },
-        { name: "source", editable: true, renderer: 'html', type: "text", editor: RichTextEditor },
+        { name: "document", editable: true, renderer: 'html', type: "text", editor: RichTextEditor },
+        { name: "source", editable: true, type: "text", editor: RichTextEditor },
     ],
     getDataRows: () => {
         let container : HTMLElement = document.getElementById("blogger-app");
+        let iframeLoaded = document.querySelectorAll('iframe').length == 3;
+        let doc = iframeLoaded ? document.querySelectorAll('iframe')[2].contentDocument.body : container.querySelector("#postingComposeBox");
         return [
             {
                 els: [container],
                 dataValues: {
                     id: 1, // only one row so we can just hardcode an ID
-                    document: container.querySelector("#postingComposeBox"),
+                    document: doc,
                     source: container.querySelector("#postingHtmlBox"),
                 }
             }
