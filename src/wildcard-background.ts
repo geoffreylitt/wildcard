@@ -4,14 +4,23 @@
 
 'use strict';
 
+const getVisits = (request, sender, sendResponse) => {
+  chrome.history.getVisits({ url: request.url }, (visits) => {
+    sendResponse({visits: visits});
+  })
+}
+
+const handlers = {
+  getVisits: getVisits,
+  readingTime: () => {}
+}
+
 chrome.runtime.onMessage.addListener(
-  function(request, _sender, sendResponse) {
-    if (request.command === "getVisits") {
-      console.log("received request", request)
-      chrome.history.getVisits({ url: request.url }, (visits) => {
-        console.log("responding", visits)
-        sendResponse({visits: visits});
-      })
+  function(request, sender, sendResponse) {
+    let handler = handlers[request.command]
+
+    if (handler) {
+      handler.call(this, request, sender, sendResponse)
     }
 
     return true;

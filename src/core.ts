@@ -298,7 +298,6 @@ const createTable = (options: SiteAdapterOptions) => {
   chrome.storage.local.get([storageKey("sortConfig"), storageKey("filters"), storageKey("columns")], function(result) {
     if (result[storageKey("columns")]) {
       storedColumns = result[storageKey("columns")]
-      console.log("loaded stored columns", storedColumns)
       _.each(storedColumns, (col, name) => {
         if(col.colSpec.formula) {
           // todo: handle missing column -- need to add it to the table here
@@ -375,11 +374,7 @@ const createTable = (options: SiteAdapterOptions) => {
 
   // Handle a formula entered into a cell
   let handleFormula = (formula:string, rowIndex:number, prop:string, propagate:boolean) => {
-    console.log("handle formula", formula, rowIndex, prop)
     let colSpec = colSpecFromProp(prop, options)
-
-    // Clear any filters on this column when we start editing its formula
-    filtersPlugin.removeConditions(hot.propToCol(prop))
 
     if (formula === null || formula === "") {
       // A special case: entered an empty value into a formula column
@@ -390,7 +385,6 @@ const createTable = (options: SiteAdapterOptions) => {
       // Eval the formula, with the data from the row as context
       let rowData = tableData.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
       parse(formula).eval(rowData).then(result => {
-        console.log("evaluated result", result, "setting to", rowIndex)
         hot.setDataAtRowProp(rowIndex, prop as string, result)
         hot.setCellMeta(rowIndex, hot.propToCol(prop), "formula", formula)
       })
@@ -398,12 +392,15 @@ const createTable = (options: SiteAdapterOptions) => {
 
     // Copy the formula to the whole column
     if (propagate) {
+      // Clear any filters on this column when we start editing its formula
+      filtersPlugin.removeConditions(hot.propToCol(prop))
+      filtersPlugin.filter()
+
       tableData.forEach((row, i) => {
         row[prop] = formula
 
         // if the row is in the table, update the table too
         let idxInTable = hot.getDataAtCol(hot.propToCol("id")).indexOf(row.id)
-        console.log("updating", "id", row.id, "row index", idxInTable)
         if (idxInTable !== -1) {
           // The source param here prevents afterchange from doing further propagation
           hot.setDataAtRowProp(idxInTable, prop, formula, "formulaPropagate")
