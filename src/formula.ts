@@ -32,9 +32,26 @@ async function visited(url) {
   return await getHistory(url)
 }
 
+let getReadingTime = (url) => {
+  return new Promise((resolve, _reject) => {
+    chrome.runtime.sendMessage({command: "getReadingTime", url: url}, function(response) {
+      let result = response.seconds || null
+      resolve(result)
+    });
+  })
+}
+
+async function readingTime(url) {
+  return await getReadingTime(url)
+}
+
 const functions = {
-  visited: async function(arg) {
+  "Visited": async function(arg) {
     let result = await visited(arg)
+    return result
+  },
+  "ReadingTime": async function(arg) {
+    let result = await readingTime(arg)
     return result
   }
 }
@@ -107,7 +124,7 @@ class Formula {
   }
 }
 
-export function parse(s) {
+export function formulaParse(s) {
   if (s === null || s[0] !== '=') {
     return null;
   } else {
@@ -115,8 +132,3 @@ export function parse(s) {
   }
 }
 
-export function test() {
-  let formula = parse("=pad(value)")
-  let result = formula.eval({ value: "world" })
-  return result
-}

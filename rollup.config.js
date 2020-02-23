@@ -4,6 +4,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import postcss from 'rollup-plugin-postcss';
 import typescript from 'rollup-plugin-typescript2';
 import json from '@rollup/plugin-json';
+import builtins from 'rollup-plugin-node-builtins';
 
 export default [
 {
@@ -30,7 +31,8 @@ export default [
   input: 'src/wildcard-background.ts',
   output: {
     file: 'dist/wildcard-background.js',
-    format: 'iife'
+    format: 'iife',
+    intro: 'const global = window;'
   },
   plugins: [
   resolve(),
@@ -40,6 +42,8 @@ export default [
         include: 'node_modules/**',  // Default: undefined
       }),
   typescript(),
+  json(),
+  builtins()
   ]
 },
 ];

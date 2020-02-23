@@ -10,7 +10,7 @@ import { FormulaEditor } from "./cell_editors/formulaEditor";
 import "./wildcard.css";
 
 import { extractNumber } from "./utils"
-import { parse, test } from "./formula"
+import { formulaParse } from "./formula"
 
 import _ from "lodash";
 
@@ -384,7 +384,7 @@ const createTable = (options: SiteAdapterOptions) => {
     } else {
       // Eval the formula, with the data from the row as context
       let rowData = tableData.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
-      parse(formula).eval(rowData).then(result => {
+      formulaParse(formula).eval(rowData).then(result => {
         hot.setDataAtRowProp(rowIndex, prop as string, result)
         hot.setCellMeta(rowIndex, hot.propToCol(prop), "formula", formula)
       })
