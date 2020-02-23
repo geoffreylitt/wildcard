@@ -1,6 +1,7 @@
 import moment from 'moment';
 import Handsontable from 'handsontable';
 import { Calendar } from '@fullcalendar/core';
+import googleCalendarPlugin from '@fullcalendar/google-calendar'
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
@@ -26,28 +27,22 @@ class FullCalendarEditor extends Handsontable.editors.BaseEditor {
   init () {
     this.selectedDate = new Date()
 
-    this.calendarDiv = htmlToElement(`<div id="open-apps-calendar-container"><div id="open-apps-calendar"></div></div>`)
+    this.calendarDiv = htmlToElement(`<div id="open-apps-calendar-container"><div id="open-apps-calendar"></div></div>`);
     document.body.appendChild(this.calendarDiv);
 
     this.calendar = new Calendar(document.getElementById('open-apps-calendar'), {
-      plugins: [ interactionPlugin, dayGridPlugin ],
+      plugins: [ interactionPlugin, dayGridPlugin, googleCalendarPlugin ],
       selectable: true,
       select: (info) => {
-        console.log("selected ", info.start, info.end)
-        this.selectedDate = info.start
+        console.log("selected ", info.start, info.end);
+        this.selectedDate = info.start;
       },
-      events: [
-        {
-          title  : 'Fly to Miami',
-          start  : '2020-01-06',
-        },
-        {
-          title  : 'Return from Miami',
-          start  : '2020-01-09'
-        }
-      ]
+      googleCalendarApiKey: 'AIzaSyCpKAQzhc5HOvQ1a7j1QXEKqpIAeEaawLE',
+      events: {
+        googleCalendarId: '858lgk6ojl7vio2e3d15gkppv4@group.calendar.google.com'
+      }
     });
-
+ 
     this.calendar.render();
     this.calendarDiv.style.display = "none"
 
