@@ -94,6 +94,11 @@ class Formula {
   }
 
   eval(row) {
+    // A deleted formula evaluates to empty
+    if (this.src === "") {
+      return null
+    }
+
     if (this.match.succeeded()) {
       return formulaSemantics(this.match).toAst().eval(row);
     } else {

@@ -5,6 +5,7 @@
 
 import Handsontable from "handsontable";
 import "handsontable/dist/handsontable.full.min.css";
+import { FormulaEditor } from "./cell_editors/formulaEditor";
 
 import "./wildcard.css";
 
@@ -73,6 +74,9 @@ interface ColSpec {
 
   /** Is this a formula column? */
   formula?: boolean;
+
+  /** Is this a column added by the user to the table? */
+  userCol?: boolean;
 }
 
 type DataValue = string | number
@@ -183,7 +187,6 @@ interface SiteAdapterOptions {
 *  to initialize your adapter.
 */
 const createTable = (options: SiteAdapterOptions) => {
-  console.log("hi there")
   let rowContainer;
   let rows : Array<DataRow>;
   let rowsById : { [key: string]: DataRow };
@@ -201,9 +204,9 @@ const createTable = (options: SiteAdapterOptions) => {
   // There's no way to add columns in the UI yet,
   // so provide a few columns as scratch space
   options.colSpecs.push(
-    { name: "user1", type: "text", editable: true },
-    { name: "user2", type: "text", editable: true },
-    { name: "user3", type: "text", editable: true },
+    { name: "user1", type: "text", editable: true, editor: FormulaEditor, userCol: true },
+    { name: "user2", type: "text", editable: true, editor: FormulaEditor, userCol: true },
+    { name: "user3", type: "text", editable: true, editor: FormulaEditor, userCol: true },
   )
 
   // Extracts data from the page, mutates rows and tableData variables.
@@ -259,7 +262,8 @@ const createTable = (options: SiteAdapterOptions) => {
     editor: col.editor,
     renderer: col.renderer,
     hidden: col.hidden,
-    name: col.name
+    name: col.name,
+    user: col.userCol
   }))
 
   // create container div
@@ -292,6 +296,7 @@ const createTable = (options: SiteAdapterOptions) => {
   chrome.storage.local.get([storageKey("sortConfig"), storageKey("filters"), storageKey("columns")], function(result) {
     if (result[storageKey("columns")]) {
       storedColumns = result[storageKey("columns")]
+      console.log("loaded stored columns", storedColumns)
       _.each(storedColumns, (col, name) => {
         if(col.colSpec.formula) {
           // todo: handle missing column -- need to add it to the table here
@@ -369,14 +374,20 @@ const createTable = (options: SiteAdapterOptions) => {
 
   // Handle a formula entered into a cell
   let handleFormula = (formula:string, rowIndex:number, prop:string, propagate:boolean) => {
-    // Mark the column as a formula column
     let colSpec = colSpecFromProp(prop, options)
-    colSpec.formula = true
 
-    // Eval the formula, with the data from the row as context
-    parse(formula).eval(tableData[rowIndex]).then(result => {
-      hot.setDataAtRowProp(rowIndex, prop as string, result)
-    })
+    if (formula === null || formula === "") {
+      // A special case: entered an empty value into a formula column
+      // This represents "delete this formula from this column"
+      formula = null
+      hot.setCellMeta(rowIndex, hot.propToCol(prop), "formula", null)
+    } else {
+      // Eval the formula, with the data from the row as context
+      parse(formula).eval(tableData[rowIndex]).then(result => {
+        hot.setDataAtRowProp(rowIndex, prop as string, result)
+        hot.setCellMeta(rowIndex, hot.propToCol(prop), "formula", formula)
+      })
+    }
 
     // Copy the formula to the whole column
     if (propagate) {
@@ -385,19 +396,21 @@ const createTable = (options: SiteAdapterOptions) => {
 
         // if the row is in the table, update the table too
         let idxInTable = hot.getDataAtProp("id").indexOf(row.id)
+        console.log("updating", "id", row.id, "row index", idxInTable)
         if (idxInTable !== -1) {
           // The source param here prevents afterchange from doing further propagation
           hot.setDataAtRowProp(idxInTable, prop, formula, "formulaPropagate")
+          hot.setCellMeta(idxInTable, hot.propToCol(prop), "formula", formula)
         }
       })
     }
 
     // Store formula column in local storage
-    // TODO: extend to storing annotations too
     storedColumns[prop] = {
       colSpec: colSpec,
       formula: formula
     }
+
     let dataToStore = {}
     dataToStore[storageKey("columns")] = storedColumns
     chrome.storage.local.set(dataToStore)
@@ -412,26 +425,33 @@ const createTable = (options: SiteAdapterOptions) => {
   Handsontable.hooks.add('afterChange', (changes, source) => {
     if (changes) {
       changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
-        console.log("after change", rowIndex, prop)
-        if (typeof newValue === "string" && newValue[0] === "=") {
+        let colSpec = colSpecFromProp(prop, options)
+
+        let rawFormula = (typeof newValue === "string" && newValue[0] === "=")
+        let empty = (newValue === "" || newValue === null)
+        // If user enters a row formula, it sets this column to be a formula col
+        if (colSpec.userCol && rawFormula) {
+          colSpec.formula = true
+        }
+        // Evaluate a formula in two cases:
+        // 1) it's a raw unevaluated formula
+        // 2) it's an empty cell, so we need to process a "delete formula"
+        if (colSpec.formula && (rawFormula || empty)) {
           let propagate = (source === "edit")
           handleFormula(newValue, rowIndex, prop as string, propagate)
         }
 
         // Update the DOM
-        let colSpec = colSpecFromProp(prop, options)
-        if (!colSpec || !colSpec.editable) {
-          return
-        }
+        if (colSpec.editable) {
+          // let row = rows[rowIndex] // this won't work with re-sorting; change to ID
+          let rowData = tableData.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
+          let el:any = rowData[prop]
 
-        // let row = rows[rowIndex] // this won't work with re-sorting; change to ID
-        let rowData = tableData.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
-        let el:any = rowData[prop]
-
-        if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-          el.value = newValue
-        } else if (el instanceof HTMLElement) {
-          el.innerText = newValue
+          if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+            el.value = newValue
+          } else if (el instanceof HTMLElement) {
+            el.innerText = newValue
+          }
         }
       });
     }
