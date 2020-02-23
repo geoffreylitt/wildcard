@@ -200,6 +200,28 @@ const createTable = (options: SiteAdapterOptions) => {
     { name: "user3", type: "text", editable: true },
   )
 
+  /**
+   * This checks the typing of a variable. We use this instead of instanceof in order to accomodate iframes, where
+   * the instanceof check fails. https://stackoverflow.com/questions/52222237/instanceof-fails-in-iframe
+   * @param element type to be tested against
+   * @param newValue value whose type is being tested
+   */
+  let isTypeOf = (element, newValue) => {
+    if(newValue) {
+      if (element === HTMLElement) {
+        return isHTMLElement(newValue);
+      } else {
+        return newValue instanceof element || newValue.__proto__.toString() === element.toString();
+      }
+    }
+    return false;
+  };
+
+  let isHTMLElement = (el) => {
+    let elProtoString = el.__proto__.toString();
+    return el instanceof HTMLElement || (elProtoString.includes("HTML") && elProtoString.includes("Element"));
+  };
+
   // Extracts data from the page, mutates rows and tableData variables.
   // todo: move this function out of createTable, stop mutating state
   let loadData = () => {
@@ -215,18 +237,27 @@ const createTable = (options: SiteAdapterOptions) => {
       return _.mapValues(r.dataValues, (value, propName) => {
         let result;
 
-        // Extract data from HTML elements
-        if (value instanceof HTMLInputElement) {
-          result = value.value
-        } else if (value instanceof HTMLElement) {
-          result = value.textContent
-        } else {
-          result = value
-        }
 
         // Type convert data automatically
         // todo: extract this into a more generic type conversion framework
-        let spec = options.colSpecs.find(spec => spec.name === propName)
+        let spec = options.colSpecs.find(spec => spec.name === propName);
+
+        let isHTML = false;
+        if (spec.renderer.toLowerCase() === "html") {
+          isHTML = true;
+        }
+
+        // Extract data from HTML elements
+        if (isTypeOf(HTMLInputElement, value) || isTypeOf(HTMLTextAreaElement, value)) {
+          result = value.value;
+        } else if (isHTML && isTypeOf(HTMLElement, value)) {
+          result = value.innerHTML;
+        } else if (isTypeOf(HTMLElement, value)) {
+          result = value.textContent;
+        } else {
+          result = value;
+        }
+
         if (spec.type === "numeric" && (typeof result === "string")) {
           result = extractNumber(result)
         }
@@ -296,9 +327,14 @@ const createTable = (options: SiteAdapterOptions) => {
           let row = rows[rowIndex] // this won't work with re-sorting; change to ID
           let el = row.dataValues[prop]
 
-          if (el instanceof HTMLInputElement) {
-            el.value = newValue
-          } else if (el instanceof HTMLElement) {
+          if (isTypeOf(HTMLInputElement, el) || isTypeOf(HTMLTextAreaElement, el)) {
+            //@ts-ignore
+            el.value = newValue;
+          } else if (colSpec.renderer.toLowerCase() === 'html' && isTypeOf(HTMLElement, el)){
+            //@ts-ignore
+            el.innerHTML = newValue;
+          } else if (isTypeOf(HTMLElement, el)) {
+            //@ts-ignore
             el.innerText = newValue
           }
         });

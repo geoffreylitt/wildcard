@@ -6,11 +6,13 @@
 import { createTable } from './core'
 import { ExpediaAdapter } from './site_adapters/expedia';
 import { AirbnbAdapter } from './site_adapters/airbnb';
+import {BloggerAdapter} from "./site_adapters/blogger";
 import { HNAdapter } from './site_adapters/hackernews';
 
 const siteAdapters = [
 ExpediaAdapter,
 AirbnbAdapter,
+BloggerAdapter,
 HNAdapter,
 ]
 
