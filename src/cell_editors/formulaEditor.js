@@ -7,7 +7,6 @@ class FormulaEditor extends Handsontable.editors.TextEditor {
 
   prepare(row, col, prop, td, originalValue, cellProperties) {
     super.prepare(row, col, prop, td, originalValue, cellProperties);
-    console.log("meta:", cellProperties)
     if(cellProperties.formula) {
       this.formula = cellProperties.formula
     } else {

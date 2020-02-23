@@ -298,6 +298,7 @@ const createTable = (options: SiteAdapterOptions) => {
   chrome.storage.local.get([storageKey("sortConfig"), storageKey("filters"), storageKey("columns")], function(result) {
     if (result[storageKey("columns")]) {
       storedColumns = result[storageKey("columns")]
+      console.log("loaded stored columns", storedColumns)
       _.each(storedColumns, (col, name) => {
         if(col.colSpec.formula) {
           // todo: handle missing column -- need to add it to the table here
@@ -376,26 +377,43 @@ const createTable = (options: SiteAdapterOptions) => {
   let handleFormula = (formula:string, rowIndex:number, prop:string, propagate:boolean) => {
     let colSpec = colSpecFromProp(prop, options)
 
-    if (formula === null || formula === "") {
+    if (formula === "") {
+      formula = null
+    }
+
+    if (formula === null) {
       // A special case: entered an empty value into a formula column
       // This represents "delete this formula from this column"
-      formula = null
       hot.setCellMeta(rowIndex, hot.propToCol(prop), "formula", null)
     } else {
       // Eval the formula, with the data from the row as context
       let rowData = tableData.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
       formulaParse(formula).eval(rowData).then(result => {
-        hot.setDataAtRowProp(rowIndex, prop as string, result)
+        hot.setDataAtRowProp(rowIndex, prop as string, result, "formulaEval")
         hot.setCellMeta(rowIndex, hot.propToCol(prop), "formula", formula)
       })
     }
 
-    // Copy the formula to the whole column
+    // If this is a direct formula edit, do further stuff
+    // (If it's just the result of propagating a formula to the other
+    // cells in the column, don't need to do this stuff)
     if (propagate) {
+      // Store formula column in local storage
+      storedColumns[prop] = {
+        colSpec: colSpec,
+        formula: formula
+      }
+
+      console.log("storing columns", storedColumns)
+      let dataToStore = {}
+      dataToStore[storageKey("columns")] = storedColumns
+      chrome.storage.local.set(dataToStore)
+
       // Clear any filters on this column when we start editing its formula
       filtersPlugin.removeConditions(hot.propToCol(prop))
       filtersPlugin.filter()
 
+      // Copy the formula to the whole column
       tableData.forEach((row, i) => {
         row[prop] = formula
 
@@ -408,16 +426,6 @@ const createTable = (options: SiteAdapterOptions) => {
         }
       })
     }
-
-    // Store formula column in local storage
-    storedColumns[prop] = {
-      colSpec: colSpec,
-      formula: formula
-    }
-
-    let dataToStore = {}
-    dataToStore[storageKey("columns")] = storedColumns
-    chrome.storage.local.set(dataToStore)
   }
 
   // When a cell changes, 1) evaluate formulas, 2) update the DOM
@@ -429,6 +437,7 @@ const createTable = (options: SiteAdapterOptions) => {
   Handsontable.hooks.add('afterChange', (changes, source) => {
     if (changes) {
       changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
+        console.log("change", rowIndex, prop, source)
         let colSpec = colSpecFromProp(prop, options)
 
         let rawFormula = (typeof newValue === "string" && newValue[0] === "=")
