@@ -48,7 +48,7 @@ export const HNAdapter = {
         .find(e => e.textContent.indexOf("comments") !== -1), 0)
         },
         annotationContainer: detailsRow.querySelector("td.subtext") as HTMLElement,
-        annotationTemplate: `| <span>$annotation</span>`
+        annotationTemplate: `| <span style="color: #f60;">$annotation</span>`
       }
     })
   },

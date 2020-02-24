@@ -7,6 +7,17 @@
 // to add functionality only available in background scripts,
 // add a message handler to this list
 
+let fetchWithTimeout:any = (url, options, timeout) => {
+  return new Promise((resolve, reject) => {
+    fetch(url, options).then(resolve, reject);
+
+    if (timeout) {
+      const e = new Error("Connection timed out");
+      setTimeout(reject, timeout, e);
+    }
+  });
+}
+
 const getVisits = (request, sender, sendResponse) => {
   chrome.history.getVisits({ url: request.url }, (visits) => {
     sendResponse({visits: visits});
@@ -15,14 +26,17 @@ const getVisits = (request, sender, sendResponse) => {
 
 const getReadingTime = (request, sender, sendResponse) => {
   const apiUrl= `https://klopets.com/readtime/?url=${request.url}&json`
-  fetch(apiUrl).then(r => r.json()).then(result => {
-    console.log("result", result)
-    if (result.seconds) {
-      sendResponse({ seconds: result.seconds })
-    } else {
-      sendResponse({ error: "couldn't fetch read time" })
-    }
-  })
+  fetchWithTimeout(apiUrl, {}, 5000)
+    .then(r => r.json())
+    .catch(err => sendResponse({ error: "couldn't fetch read time" }))
+    .then(result => {
+      console.log("result", result)
+      if (result.seconds) {
+        sendResponse({ seconds: result.seconds })
+      } else {
+        sendResponse({ error: "couldn't fetch read time" })
+      }
+    })
 }
 
 const handlers = {
