@@ -7,8 +7,10 @@ Formula {
   Formula
     = "=" Exp
 
-  Exp
-    = FunctionExp
+  Exp = AddExp
+
+  SimpleExp =
+    FunctionExp
     | StringLiteral
     | NumberLiteral
     | attribute
@@ -24,6 +26,16 @@ Formula {
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
+
+  AddExp
+    = AddExp "+" MulExp --plus
+    | AddExp "-" MulExp --minus
+    | MulExp
+
+  MulExp
+    = MulExp "*" SimpleExp --times
+    | MulExp "/" SimpleExp --divide
+    | SimpleExp
 }
 `;
 
@@ -77,10 +89,10 @@ const functions = {
   "Multiply": function(x, y) {
     return promisify(x * y)
   },
-  "Add": function(x, y) {
+  "Plus": function(x, y) {
     return promisify(x + y)
   },
-  "Subtract": function(x, y) {
+  "Minus": function(x, y) {
     return promisify(x - y)
   },
   "Round": function(x) {
@@ -97,6 +109,9 @@ const formulaSemantics = formulaGrammar.createSemantics().addOperation('toAst', 
   Exp: function(e) {
     return e.toAst();
   },
+  SimpleExp: function(e) {
+    return e.toAst();
+  },
   FunctionExp: function(fnName, _p1, args, _p2) {
     return new FnNode(fnName.sourceString, args.asIteration().toAst())
   },
@@ -109,7 +124,18 @@ const formulaSemantics = formulaGrammar.createSemantics().addOperation('toAst', 
   NumberLiteral: function(num) {
     return new NumberNode(num.sourceString)
   },
-
+  MulExp_times: function(a, _, b) {
+    return new FnNode("Multiply", [a, b].map(x => x.toAst()))
+  },
+  MulExp_divide: function(a, _, b) {
+    return new FnNode("Divide", [a, b].map(x => x.toAst()))
+  },
+  AddExp_plus: function(a, _, b) {
+    return new FnNode("Plus", [a, b].map(x => x.toAst()))
+  },
+  AddExp_minus: function(a, _, b) {
+    return new FnNode("Minus", [a, b].map(x => x.toAst()))
+  }
 });
 
 class FnNode {
