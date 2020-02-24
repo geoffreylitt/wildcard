@@ -13,9 +13,9 @@ export const BloggerAdapter = {
         let container : HTMLElement = document.getElementById("blogger-app");
         return [
             {
+                id: 1,
                 els: [container],
                 dataValues: {
-                    id: 1, // only one row so we can just hardcode an ID
                     document: container.querySelector("#postingComposeBox"),
                     source: container.querySelector("#postingHtmlBox"),
                 }

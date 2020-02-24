@@ -40,9 +40,7 @@ function createToggleButton(container) {
   document.body.appendChild(toggleBtn)
 }
 
-function colSpecFromProp(prop, options : SiteAdapterOptions) {
-  return options.colSpecs.find(spec => spec.name == prop)
-}
+
 
 /**
 * Defines the schema for one column of the table being extracted.
@@ -77,6 +75,9 @@ interface ColSpec {
 
   /** Is this a column added by the user to the table? */
   userCol?: boolean;
+
+  /** If a user column, should it display in the page? */
+  showUserCol?: boolean;
 }
 
 type DataValue = string | number
@@ -113,8 +114,24 @@ interface DataRow {
   // to get exhaustiveness checking everywhere
   els: Array<HTMLElement>;
 
+  /** A stable ID for the row */
+  id: any;
+
   /** The data values for the row, with column names as keys */
-  dataValues: { [key: string]: PageValue }
+  dataValues: { [key: string]: PageValue };
+
+  /** A container for adding user annotations */
+  annotationContainer?: HTMLElement;
+
+  /** The actual div for storing annotations in.
+   *  Maintained internally by the framework, no need to set in the site adapter
+  */
+  annotationTarget?: HTMLElement
+
+  /** An HTML template for storing an annotation on this row.
+   *  should include "$annotation", which will be replaced by annotation text
+   */
+  annotationTemplate?: string;
 }
 
 /** A site adapter describes how to extract data from a specific website.
@@ -193,12 +210,23 @@ const createTable = (options: SiteAdapterOptions) => {
   let tableData : Array<{ [key: string]: string }>
   let sortConfig;
   let filters;
-  let storedColumns = {}
+  let storedColumns = {};
+  let hot;
 
   // given a key for some data to store,
   // return a globally qualified key scoped by adapter
   let storageKey = (key) => {
     return ["wildcard", options.name, key].join(":")
+  }
+
+  let colSpecFromProp = (prop) => {
+    return options.colSpecs.find(spec => spec.name == prop)
+  }
+
+  // Touch all the cells in a column, triggering afterChange callbacks
+  let resetColumn = (prop) => {
+    let currentData = hot.getDataAtProp(prop)
+    hot.setDataAtRowProp(currentData.map((val, idx) => [idx, prop, val]))
   }
 
   // There's no way to add columns in the UI yet,
@@ -207,6 +235,8 @@ const createTable = (options: SiteAdapterOptions) => {
     { name: "user1", type: "text", editable: true, editor: FormulaEditor, userCol: true },
     { name: "user2", type: "text", editable: true, editor: FormulaEditor, userCol: true },
     { name: "user3", type: "text", editable: true, editor: FormulaEditor, userCol: true },
+    { name: "user4", type: "text", editable: true, editor: FormulaEditor, userCol: true },
+    { name: "user5", type: "text", editable: true, editor: FormulaEditor, userCol: true },
   )
 
   // Extracts data from the page, mutates rows and tableData variables.
@@ -220,8 +250,13 @@ const createTable = (options: SiteAdapterOptions) => {
       rowContainer = rows[0].els[0].parentElement
     }
 
+    rows.forEach(row => {
+      row.annotationTarget = htmlToElement("<span class='user-annotations'></span>")
+      row.annotationContainer.appendChild(row.annotationTarget)
+    })
+
     tableData = rows.map(r => {
-      return _.mapValues(r.dataValues, (value, propName) => {
+      let data =  _.mapValues(r.dataValues, (value, propName) => {
         let result;
 
         // Extract data from HTML elements
@@ -242,9 +277,13 @@ const createTable = (options: SiteAdapterOptions) => {
 
         return result
       })
+
+      data.id = r.id
+
+      return data
     })
 
-    rowsById = _.keyBy(rows, row => row.dataValues.id)
+    rowsById = _.keyBy(rows, row => row.id)
   }
 
   loadData()
@@ -276,13 +315,46 @@ const createTable = (options: SiteAdapterOptions) => {
   var container = document.getElementById('wildcard-table');
 
   // Initialize the table
-  var hot = new Handsontable(container, {
+  hot = new Handsontable(container, {
     data: tableData,
     rowHeaders: true,
     colHeaders: columns.map(col => col.name),
     // formulas: true,
     stretchH: 'none',
-    dropdownMenu: true,
+    dropdownMenu: {
+      "items": {
+        "showInPage": {
+          name: "Show column in page",
+          hidden: function () {
+            let prop = this.colToProp(this.getSelectedLast()[1])
+            let colSpec = colSpecFromProp(prop)
+
+            return (!colSpec.userCol || colSpec.showUserCol)
+          },
+          callback: function(key, selection, clickEvent) {
+            let prop = this.colToProp(this.getSelectedLast()[1])
+            let colSpec = colSpecFromProp(prop)
+            colSpec.showUserCol = true
+            resetColumn(prop)
+          }
+        },
+        "hideInPage": {
+          name: "Hide column in page",
+          hidden: function () {
+            let prop = this.colToProp(this.getSelectedLast()[1])
+            let colSpec = colSpecFromProp(prop)
+
+            return (!colSpec.userCol || !colSpec.showUserCol)
+          },
+          callback: function(key, selection, clickEvent) {
+            let prop = this.colToProp(this.getSelectedLast()[1])
+            let colSpec = colSpecFromProp(prop)
+            colSpec.showUserCol = false
+            resetColumn(prop)
+          }
+        }
+      }
+    },
     filters: true,
     columnSorting: true,
     columns: columns,
@@ -298,7 +370,6 @@ const createTable = (options: SiteAdapterOptions) => {
   chrome.storage.local.get([storageKey("sortConfig"), storageKey("filters"), storageKey("columns")], function(result) {
     if (result[storageKey("columns")]) {
       storedColumns = result[storageKey("columns")]
-      console.log("loaded stored columns", storedColumns)
       _.each(storedColumns, (col, name) => {
         if(col.colSpec.formula) {
           // todo: handle missing column -- need to add it to the table here
@@ -375,7 +446,7 @@ const createTable = (options: SiteAdapterOptions) => {
 
   // Handle a formula entered into a cell
   let handleFormula = (formula:string, rowIndex:number, prop:string, propagate:boolean) => {
-    let colSpec = colSpecFromProp(prop, options)
+    let colSpec = colSpecFromProp(prop)
 
     if (formula === "") {
       formula = null
@@ -404,7 +475,6 @@ const createTable = (options: SiteAdapterOptions) => {
         formula: formula
       }
 
-      console.log("storing columns", storedColumns)
       let dataToStore = {}
       dataToStore[storageKey("columns")] = storedColumns
       chrome.storage.local.set(dataToStore)
@@ -419,6 +489,10 @@ const createTable = (options: SiteAdapterOptions) => {
 
         // if the row is in the table, update the table too
         let idxInTable = hot.getDataAtCol(hot.propToCol("id")).indexOf(row.id)
+
+        // TODO:
+        // Handsontable supports a bulk version of setDataAtRowProp
+        // which should be faster than doing it one by one like this.
         if (idxInTable !== -1) {
           // The source param here prevents afterchange from doing further propagation
           hot.setDataAtRowProp(idxInTable, prop, formula, "formulaPropagate")
@@ -437,8 +511,7 @@ const createTable = (options: SiteAdapterOptions) => {
   Handsontable.hooks.add('afterChange', (changes, source) => {
     if (changes) {
       changes.forEach(([rowIndex, prop, oldValue, newValue]) => {
-        console.log("change", rowIndex, prop, source)
-        let colSpec = colSpecFromProp(prop, options)
+        let colSpec = colSpecFromProp(prop)
 
         let rawFormula = (typeof newValue === "string" && newValue[0] === "=")
         let empty = (newValue === "" || newValue === null)
@@ -454,9 +527,19 @@ const createTable = (options: SiteAdapterOptions) => {
           handleFormula(newValue, rowIndex, prop as string, propagate)
         }
 
-        // Update the DOM
-        if (colSpec.editable) {
-          // let row = rows[rowIndex] // this won't work with re-sorting; change to ID
+        // update the DOM
+        if (!colSpec.editable) { return }
+
+        // Update user-added columns for this row
+        let row = rows.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
+        let columnsToShow = options.colSpecs.filter(spec => spec.userCol && spec.showUserCol)
+        let values = columnsToShow.map(spec => hot.getDataAtRowProp(rowIndex, spec.name)).filter(v => v)
+        let annotationsHTML = values.map(value => row.annotationTemplate.replace("$annotation", value))
+        row.annotationTarget.innerHTML = annotationsHTML.join(" ")
+
+        // Update direct site values
+        if (!colSpec.userCol) {
+          // Update data directly from the original site
           let rowData = tableData.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
           let el:any = rowData[prop]
 
@@ -480,7 +563,7 @@ const createTable = (options: SiteAdapterOptions) => {
     const highlightColor = "#c9ebff"
     const unhighlightColor = "#ffffff"
 
-    let colSpec = colSpecFromProp(prop, options)
+    let colSpec = colSpecFromProp(prop)
     if (!colSpec) { return; }
 
     let row = rowsById[hot.getDataAtCell(rowIndex, 0)]
@@ -512,7 +595,7 @@ const createTable = (options: SiteAdapterOptions) => {
 
       // Clear border on other column elements
       let otherDivs = options.colSpecs
-      .filter(spec => spec !== colSpecFromProp(prop, options))
+      .filter(spec => spec !== colSpecFromProp(prop))
       .map(spec => row.dataValues[spec.name])
 
       otherDivs.forEach(d => {

@@ -24,9 +24,9 @@ export const AirbnbAdapter = {
       let id = path.match(/\/rooms\/([0-9]*)\?/)[1]
 
       return {
+        id: id,
         els: [el as HTMLElement],
         dataValues: {
-          id: id,
           name: el.querySelector(`.${titleClass}`),
           price: el.querySelector(`.${priceClass}`).textContent.match(/\$([\d]*)/)[1],
           rating: extractNumber(el.querySelector(`.${ratingClass}`))

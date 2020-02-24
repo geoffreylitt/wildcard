@@ -9,15 +9,29 @@ Formula {
 
   Exp
     = FunctionExp
+    | StringLiteral
+    | NumberLiteral
     | attribute
 
+  StringLiteral
+    = "\\\"" alnum+ "\\\""
+
+  NumberLiteral
+    = digit+
+
   attribute
-    = letter+
+    = alnum+
 
   FunctionExp
-    = letter+ "(" Exp ")"
+    = letter+ "(" ListOf<Exp, ","> ")"
 }
 `;
+
+let promisify = (value) => {
+  return new Promise((resolve, _) => {
+    resolve(value)
+  })
+}
 
 let getHistory = (url) => {
   return new Promise((resolve, _reject) => {
@@ -50,9 +64,27 @@ const functions = {
     let result = await visited(arg)
     return result
   },
-  "ReadingTime": async function(arg) {
+  "ReadTimeInSeconds": async function(arg) {
     let result = await readingTime(arg)
     return result
+  },
+  "Concat": function(...args) {
+    return promisify(args.join(" "))
+  },
+  "Divide": function(x, y) {
+    return promisify(x / y)
+  },
+  "Multiply": function(x, y) {
+    return promisify(x * y)
+  },
+  "Add": function(x, y) {
+    return promisify(x + y)
+  },
+  "Subtract": function(x, y) {
+    return promisify(x - y)
+  },
+  "Round": function(x) {
+    return promisify(Math.round(x))
   }
 }
 
@@ -65,27 +97,36 @@ const formulaSemantics = formulaGrammar.createSemantics().addOperation('toAst', 
   Exp: function(e) {
     return e.toAst();
   },
-  FunctionExp: function(fnName, _p1, arg, _p2) {
-    return new FnNode(fnName.sourceString, arg.toAst())
+  FunctionExp: function(fnName, _p1, args, _p2) {
+    return new FnNode(fnName.sourceString, args.asIteration().toAst())
   },
   attribute: function(chars) {
     return new AttrNode(chars.sourceString);
-  }
+  },
+  StringLiteral: function(_q1, string , _q2) {
+    return new StringNode(string.sourceString)
+  },
+  NumberLiteral: function(num) {
+    return new NumberNode(num.sourceString)
+  },
+
 });
 
 class FnNode {
   fnName: string;
-  arg: any;
+  args: Array<any>;
 
-  constructor(fnName, arg) {
+  constructor(fnName, args) {
     this.fnName = fnName
-    this.arg = arg
+    this.args = args
   }
 
   eval(row) {
     let fn = functions[this.fnName]
-    if (fn) { return fn.call(this, this.arg.eval(row)) }
-    else { return null } //??
+    if (!fn) { return null }
+    return Promise.all(this.args.map(arg => arg.eval(row))).then(values => {
+      return fn.apply(this, values)
+    })
   }
 }
 
@@ -97,7 +138,31 @@ class AttrNode {
   }
 
   eval(row) {
-    return row[this.name]
+    return promisify(row[this.name])
+  }
+}
+
+class StringNode {
+  string: string;
+
+  constructor(str) {
+    this.string = str
+  }
+
+  eval(row) {
+    return promisify(this.string)
+  }
+}
+
+class NumberNode {
+  number: number;
+
+  constructor(num) {
+    this.number = Number(num)
+  }
+
+  eval(row) {
+    return promisify(this.number)
   }
 }
 
@@ -119,7 +184,8 @@ class Formula {
     if (this.match.succeeded()) {
       return formulaSemantics(this.match).toAst().eval(row);
     } else {
-      return "#ERROR!";
+      console.error(`Couldn't parse formula: ${this.match.message}`)
+      return `Error: ${this.match.message}`;
     }
   }
 }
