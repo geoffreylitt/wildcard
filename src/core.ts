@@ -324,6 +324,11 @@ const createTable = (options: SiteAdapterOptions) => {
     stretchH: 'none',
     dropdownMenu: {
       "items": {
+        "filter_by_condition": {},
+        "filter_operators": {},
+        "filter_by_value": {},
+        "filter_action_bar": {},
+        "---------": {},
         "showInPage": {
           name: "Show column in page",
           hidden: function () {
@@ -353,7 +358,7 @@ const createTable = (options: SiteAdapterOptions) => {
             colSpec.showUserCol = false
             resetColumn(prop)
           }
-        }
+        },
       }
     },
     filters: true,
