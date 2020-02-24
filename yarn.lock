@@ -17,6 +17,11 @@
   resolved "https://registry.yarnpkg.com/@fullcalendar/daygrid/-/daygrid-4.3.0.tgz#1b4ab9fdc238dba77921cb7c5bd2d813c834e905"
   integrity sha512-OrGaRIGbELESOXOCXtoQVY4cOxnxmN7OrjDGbMoVITdoXWuIZ6sFNO84WcBQoRaIbkmqVM0SAU2MENwy+eEwqQ==
 
+"@fullcalendar/google-calendar@^4.4.0":
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/google-calendar/-/google-calendar-4.4.0.tgz#40bd1dcb0f85055d084584403bcb1da30f85d04d"
+  integrity sha512-2OrrGG2uzlYwLFxf6cLCGvvAcfNU0DVC7t+PYKmfnma3pjvsGZvrpP2sE1G1OKntLAZUr/fWS/nbRoVYcYfdhg==
+
 "@fullcalendar/interaction@^4.3.0":
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/@fullcalendar/interaction/-/interaction-4.3.0.tgz#a52d22e4fa2666d5032c77afde75ecfad95c0f3b"

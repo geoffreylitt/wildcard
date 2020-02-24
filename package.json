@@ -10,6 +10,7 @@
     "@ckeditor/ckeditor5-build-classic": "^16.0.0",
     "@fullcalendar/core": "^4.3.1",
     "@fullcalendar/daygrid": "^4.3.0",
+    "@fullcalendar/google-calendar": "^4.4.0",
     "@fullcalendar/interaction": "^4.3.0",
     "@fullcalendar/moment": "^4.3.0",
     "@types/chrome": "^0.0.95",
