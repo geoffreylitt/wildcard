@@ -243,7 +243,7 @@ const createTable = (options: SiteAdapterOptions) => {
         let spec = options.colSpecs.find(spec => spec.name === propName);
 
         let isHTML = false;
-        if (spec.renderer.toLowerCase() === "html") {
+        if (spec.renderer && spec.renderer.toLowerCase() === "html") {
           isHTML = true;
         }
 
@@ -330,7 +330,7 @@ const createTable = (options: SiteAdapterOptions) => {
           if (isTypeOf(HTMLInputElement, el) || isTypeOf(HTMLTextAreaElement, el)) {
             //@ts-ignore
             el.value = newValue;
-          } else if (colSpec.renderer.toLowerCase() === 'html' && isTypeOf(HTMLElement, el)){
+          } else if (colSpec.renderer && colSpec.renderer.toLowerCase() === 'html' && isTypeOf(HTMLElement, el)){
             //@ts-ignore
             el.innerHTML = newValue;
           } else if (isTypeOf(HTMLElement, el)) {
