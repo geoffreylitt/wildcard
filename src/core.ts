@@ -192,14 +192,6 @@ const createTable = (options: SiteAdapterOptions) => {
     return ["wildcard", options.name, key].join(":")
   }
 
-  // There's no way to add columns in the UI yet,
-  // so provide a few columns as scratch space
-  options.colSpecs.push(
-    { name: "user1", type: "text", editable: true },
-    { name: "user2", type: "text", editable: true },
-    { name: "user3", type: "text", editable: true },
-  )
-
   /**
    * This checks the typing of a variable. We use this instead of instanceof in order to accomodate iframes, where
    * the instanceof check fails. https://stackoverflow.com/questions/52222237/instanceof-fails-in-iframe
@@ -222,14 +214,24 @@ const createTable = (options: SiteAdapterOptions) => {
     return el instanceof HTMLElement || (elProtoString.includes("HTML") && elProtoString.includes("Element"));
   };
 
+  let getDataRows = () => {
+    rows = options.getDataRows()
+
+  }
+
   // Extracts data from the page, mutates rows and tableData variables.
   // todo: move this function out of createTable, stop mutating state
   let loadData = () => {
     rows = options.getDataRows()
 
+    // If data wasn't loaded, exit this function early
+    if (!rows || rows.length === 0) {
+      return
+    }
+
     if (options.hasOwnProperty("getRowContainer")) {
       rowContainer = options.getRowContainer()
-    } else {
+    } else if (rows.length > 0) {
       rowContainer = rows[0].els[0].parentElement
     }
 
@@ -270,6 +272,20 @@ const createTable = (options: SiteAdapterOptions) => {
   }
 
   loadData()
+
+  // If data wasn't loaded, schedule a retry in 1 second
+  if (!rows || rows.length === 0) {
+    setTimeout(() => { createTable(options) }, 1000)
+    return
+  }
+
+  // There's no way to add columns in the UI yet,
+  // so provide a few columns as scratch space
+  options.colSpecs.push(
+    { name: "user1", type: "text", editable: true },
+    { name: "user2", type: "text", editable: true },
+    { name: "user3", type: "text", editable: true },
+  )
 
   let columns: Array<any> = options.colSpecs.map(col => ({
     data: col.name,
