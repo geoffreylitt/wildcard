@@ -224,6 +224,7 @@ const createTable = (options: SiteAdapterOptions) => {
   }
 
   // Touch all the cells in a column, triggering afterChange callbacks
+  // todo: I think this can be optimized a lot for formula columns, seems slow
   let resetColumn = (prop) => {
     let currentData = hot.getDataAtProp(prop)
     hot.setDataAtRowProp(currentData.map((val, idx) => [idx, prop, val]))
