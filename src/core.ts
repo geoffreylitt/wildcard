@@ -212,6 +212,9 @@ const createTable = (options: SiteAdapterOptions) => {
   let filters;
   let storedColumns = {};
   let hot;
+  let colDependencies = {
+    user1: ["user2"]
+  };
 
   // given a key for some data to store,
   // return a globally qualified key scoped by adapter
@@ -531,6 +534,18 @@ const createTable = (options: SiteAdapterOptions) => {
         if (colSpec.formula && (rawFormula || empty)) {
           let propagate = (source === "edit")
           handleFormula(newValue, rowIndex, prop as string, propagate)
+        }
+
+        // if the edit came from a formula eval, recalc downstream dependencies
+        if (source as string === "formulaEval" && colDependencies.hasOwnProperty(prop)) {
+          colDependencies[prop].forEach(propToUpdate => {
+            let formula = hot.getCellMeta(rowIndex, hot.propToCol(propToUpdate)).formula
+            // console.log("need to update", rowIndex, propToUpdate, formula)
+
+            // It should look like a "formula propagation" update,
+            // so that it doesn't trigger updates on the whole column
+            hot.setDataAtRowProp(rowIndex, propToUpdate, formula, "formulaPropagate")
+          })
         }
 
         // update the DOM
