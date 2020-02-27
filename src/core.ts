@@ -212,9 +212,7 @@ const createTable = (options: SiteAdapterOptions) => {
   let filters;
   let storedColumns = {};
   let hot;
-  let colDependencies = {
-    user1: ["user2"]
-  };
+  let colDependencies = {};
 
   // given a key for some data to store,
   // return a globally qualified key scoped by adapter
@@ -466,8 +464,9 @@ const createTable = (options: SiteAdapterOptions) => {
       // This represents "delete this formula from this column"
       hot.setCellMeta(rowIndex, hot.propToCol(prop), "formula", null)
     } else {
-      // Eval the formula, with the data from the row as context
       let rowData = tableData.find(row => row.id === hot.getDataAtRowProp(rowIndex, "id"))
+
+      // Eval the formula, with the data from the row as context
       formulaParse(formula).eval(rowData).then(result => {
         hot.setDataAtRowProp(rowIndex, prop as string, result, "formulaEval")
         hot.setCellMeta(rowIndex, hot.propToCol(prop), "formula", formula)
@@ -478,6 +477,23 @@ const createTable = (options: SiteAdapterOptions) => {
     // (If it's just the result of propagating a formula to the other
     // cells in the column, don't need to do this stuff)
     if (propagate) {
+      if (formula !== null) {
+        // Update dependencies tracking
+        // todo: handle GCing dependencies when formula deleted
+        formulaParse(formula).colrefs().forEach(ref => {
+          console.log("updating", ref, "=>", prop)
+          if (!colDependencies.hasOwnProperty(ref)) {
+            colDependencies[ref] = []
+          }
+
+          // If this column A references another column B in the formula,
+          // register that when B is updated we need to update A
+          if (colDependencies[ref].indexOf(ref) === -1) {
+            colDependencies[ref].push(prop)
+          }
+        })
+      }
+
       // Store formula column in local storage
       storedColumns[prop] = {
         colSpec: colSpec,
@@ -540,7 +556,6 @@ const createTable = (options: SiteAdapterOptions) => {
         if (source as string === "formulaEval" && colDependencies.hasOwnProperty(prop)) {
           colDependencies[prop].forEach(propToUpdate => {
             let formula = hot.getCellMeta(rowIndex, hot.propToCol(propToUpdate)).formula
-            // console.log("need to update", rowIndex, propToUpdate, formula)
 
             // It should look like a "formula propagation" update,
             // so that it doesn't trigger updates on the whole column

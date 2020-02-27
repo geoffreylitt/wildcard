@@ -1,6 +1,7 @@
 'use strict';
 
 import ohm from 'ohm-js/dist/ohm';
+import _ from "lodash";
 
 const GRAMMAR_SRC = `
 Formula {
@@ -13,7 +14,7 @@ Formula {
     FunctionExp
     | StringLiteral
     | NumberLiteral
-    | attribute
+    | ColRef
 
   StringLiteral
     = "\\\"" alnum+ "\\\""
@@ -21,7 +22,7 @@ Formula {
   NumberLiteral
     = digit+
 
-  attribute
+  ColRef
     = alnum+
 
   FunctionExp
@@ -115,8 +116,8 @@ const formulaSemantics = formulaGrammar.createSemantics().addOperation('toAst', 
   FunctionExp: function(fnName, _p1, args, _p2) {
     return new FnNode(fnName.sourceString, args.asIteration().toAst())
   },
-  attribute: function(chars) {
-    return new AttrNode(chars.sourceString);
+  ColRef: function(chars) {
+    return new ColRefNode(chars.sourceString);
   },
   StringLiteral: function(_q1, string , _q2) {
     return new StringNode(string.sourceString)
@@ -154,9 +155,13 @@ class FnNode {
       return fn.apply(this, values)
     })
   }
+
+  colrefs() {
+    return _.chain(this.args.map(arg => arg.colrefs())).flatten().uniq().value()
+  }
 }
 
-class AttrNode {
+class ColRefNode {
   name: string;
 
   constructor(name) {
@@ -165,6 +170,10 @@ class AttrNode {
 
   eval(row) {
     return promisify(row[this.name])
+  }
+
+  colrefs() {
+    return [this.name]
   }
 }
 
@@ -178,6 +187,10 @@ class StringNode {
   eval(row) {
     return promisify(this.string)
   }
+
+  colrefs() {
+    return []
+  }
 }
 
 class NumberNode {
@@ -189,6 +202,10 @@ class NumberNode {
 
   eval(row) {
     return promisify(this.number)
+  }
+
+  colrefs() {
+    return []
   }
 }
 
@@ -212,6 +229,18 @@ class Formula {
     } else {
       console.error(`Couldn't parse formula: ${this.match.message}`)
       return `Error: ${this.match.message}`;
+    }
+  }
+
+  colrefs() {
+    if (this.src === "") {
+      return null
+    }
+
+    if (this.match.succeeded()) {
+      let colrefs = formulaSemantics(this.match).toAst().colrefs();
+      console.log("colrefs for", this.src, colrefs);
+      return colrefs;
     }
   }
 }
