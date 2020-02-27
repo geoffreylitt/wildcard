@@ -30,4 +30,3 @@ export const BloggerAdapter = {
         document.addEventListener("keydown", (e) => { reload() });
     }
 };
-
