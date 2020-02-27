@@ -479,9 +479,9 @@ const createTable = (options: SiteAdapterOptions) => {
     if (propagate) {
       if (formula !== null) {
         // Update dependencies tracking
-        // todo: handle GCing dependencies when formula deleted
+        // todo: handle GCing dependencies when formula deleted --
+        // a better way to do it would be to separate out of handleFormula
         formulaParse(formula).colrefs().forEach(ref => {
-          console.log("updating", ref, "=>", prop)
           if (!colDependencies.hasOwnProperty(ref)) {
             colDependencies[ref] = []
           }
