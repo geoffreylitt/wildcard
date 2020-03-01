@@ -73,7 +73,7 @@ export const UberEatsAdapter = {
             prefix = el.children[0].children[2];
           }
 
-          let r_name = prefix.children[0];
+          let r_name = prefix.children[0].innerText;
    
           let pricey_html = <HTMLElement> prefix.children[1];
           let pricey_text = pricey_html.innerText;
@@ -82,8 +82,6 @@ export const UberEatsAdapter = {
           let r_category = pricey_text.substring(bullet_idx+1,pricey_text.length);
 
           let delivery_metadata = prefix.children[2].children[0];
-
-
           let r_rating = 0;
           let r_fee = 0;
 
@@ -96,7 +94,7 @@ export const UberEatsAdapter = {
             r_fee = parseFloat(fee_text.substring(1,fee_end));
           }
           
-          else if (delivery_metadata > 3) {
+          else if (delivery_metadata.children.length > 3) {
             let rat_html = <HTMLElement> delivery_metadata.children[2].children[1];
             let rat_text = rat_html.innerText;
             let rat_end = rat_text.indexOf("(");
@@ -107,10 +105,6 @@ export const UberEatsAdapter = {
             let fee_end = fee_text.indexOf("D");
             r_fee = parseFloat(fee_text.substring(1,fee_end));
           }
-
-          console.log(r_name);
-          console.log(r_category);
-          console.log(r_pricey);
 
           return {
             els: [el],
