@@ -1,6 +1,8 @@
 'use strict';
 
 import { extractNumber, urlExact, urlContains } from "../utils"
+import 'jquery';
+
 
 export const UberEatsAdapter = {
   name: "Uber Eats",
@@ -8,19 +10,143 @@ export const UberEatsAdapter = {
     return urlContains("ubereats.com")
   },
   colSpecs: [
-  { name: "id", type: "text" },
-  { name: "name", type: "text" }
+  { name: "id", type: "text", hidden: true },
+  { name: "name", type: "text" },
+  { name: "notes", type: "text" },
+  { name: "priceyness", type: "text" },
+  { name: "rating", type: "numeric" },
+  { name: "fee", type: "numeric" }
   ],
   getDataRows: () => {
-    return Array.from(document.querySelectorAll("li")).map(el => {
-      return {
-        els: [el],
-        dataValues: {
-          id: el.querySelector("a").getAttribute("href"),
-          name: el.children[0].children[0].children[1].children[0]
-        },
-      }
+    // window.onload = function() {
+    //   // console.log("loaded");
+    // }
+    // return Array.from(document.querySelectorAll("li")).map(el => {
+
+      // let reg_prefix = el.children[0].children[0].children[1];
+      // let alt_prefix = el.children[0].children[0].children[2];
+      // let prefix = reg_prefix;
+
+      // if (reg_prefix.children.length == 0){
+      //   prefix = alt_prefix;
+      // }
+
+      // let r_name = prefix.children[0];
+   
+      // let pricey_html = <HTMLElement> prefix.children[1];
+      // let pricey_text = pricey_html.innerText;
+      // let bullet_idx = pricey_text.indexOf("•"); 
+      // let r_pricey = pricey_text.substring(0, bullet_idx);
+      // let r_category = pricey_text.substring(bullet_idx+1,pricey_text.length);
+
+      // let rat_html = <HTMLElement> prefix.children[2].children[0].children[2].children[1];
+      // let rat_text = rat_html.innerText;
+      // let rat_end = rat_text.indexOf("(");
+      // let r_rating = parseFloat(rat_text.substring(0,rat_end));
+
+      // let fee_html = <HTMLElement> prefix.children[2].children[0].children[4].children[1];
+      // let fee_text = fee_html.innerText;
+      // let fee_end = fee_text.indexOf("D");
+      // let r_fee = parseFloat(fee_text.substring(1,fee_end));
+
+      // return {
+      //   els: [el],
+      //   dataValues: {
+      //     id: el.querySelector("a").getAttribute("href"),
+      //     name: r_name,
+      //     notes: r_category,
+      //     priceyness: r_pricey,
+      //     rating: r_rating,
+      //     fee: r_fee
+      //   },
+      // }
+    return Array.from(document.querySelectorAll("a")).map(el => {
+      var prefix;
+        
+        //check that el has restaurant 
+        if (el.getAttribute("href").includes("food-delivery/") == true){
+          if (el.children[0].children.length == 2){
+            prefix = el.children[0].children[1];
+          }
+
+          else if (el.children[0].children.length == 3){
+            prefix = el.children[0].children[2];
+          }
+
+          let r_name = prefix.children[0];
+   
+          let pricey_html = <HTMLElement> prefix.children[1];
+          let pricey_text = pricey_html.innerText;
+          let bullet_idx = pricey_text.indexOf("•"); 
+          let r_pricey = pricey_text.substring(0, bullet_idx);
+          let r_category = pricey_text.substring(bullet_idx+1,pricey_text.length);
+
+          let delivery_metadata = prefix.children[2].children[0];
+
+
+          let r_rating = 0;
+          let r_fee = 0;
+
+          //there are no ratings for the restaurant
+          if (delivery_metadata.children.length == 3){
+
+            let fee_html = <HTMLElement> delivery_metadata.children[2].children[1];
+            let fee_text = fee_html.innerText;
+            let fee_end = fee_text.indexOf("D");
+            r_fee = parseFloat(fee_text.substring(1,fee_end));
+          }
+          
+          else if (delivery_metadata > 3) {
+            let rat_html = <HTMLElement> delivery_metadata.children[2].children[1];
+            let rat_text = rat_html.innerText;
+            let rat_end = rat_text.indexOf("(");
+            let r_rating = parseFloat(rat_text.substring(0,rat_end));
+  
+            let fee_html = <HTMLElement> delivery_metadata.children[4].children[1];
+            let fee_text = fee_html.innerText;
+            let fee_end = fee_text.indexOf("D");
+            r_fee = parseFloat(fee_text.substring(1,fee_end));
+          }
+
+          console.log(r_name);
+          console.log(r_category);
+          console.log(r_pricey);
+
+          return {
+            els: [el],
+            dataValues: {
+                id: el.getAttribute("href"),
+                name: r_name,
+                notes: r_category,
+                priceyness: r_pricey,
+                rating: r_rating,
+                fee: r_fee
+            },
+          }
+
+        }
+
+        //return dummy values if el doesn't have restaurant
+        else{
+          return {
+            els: [el],
+            dataValues: {
+                id: el.getAttribute("href"),
+                name: "N/A",
+                notes: "N/A",
+                priceyness: "N/A",
+                rating: 0,
+                fee: 0
+            },
+          }
+        }
+    
     })
   },
+  // Reload data anytime there's a click or keypress on the page
+  setupReloadTriggers: (reload) => {
+    document.addEventListener("click", (e) => { reload() });
+    document.addEventListener("keydown", (e) => { reload() });
+  }
 }
 
