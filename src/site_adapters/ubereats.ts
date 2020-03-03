@@ -1,8 +1,6 @@
 'use strict';
 
 import { extractNumber, urlExact, urlContains } from "../utils"
-import 'jquery';
-
 
 export const UberEatsAdapter = {
   name: "Uber Eats",
@@ -74,6 +72,7 @@ export const UberEatsAdapter = {
           }
 
           let r_name = prefix.children[0].innerText;
+          console.log(r_name);
    
           let pricey_html = <HTMLElement> prefix.children[1];
           let pricey_text = pricey_html.innerText;
@@ -139,7 +138,9 @@ export const UberEatsAdapter = {
   },
   // Reload data anytime there's a click or keypress on the page
   setupReloadTriggers: (reload) => {
-    document.addEventListener("click", (e) => { reload() });
+    document.addEventListener("click", (e) => { 
+      console.log("clicked");
+      reload() });
     document.addEventListener("keydown", (e) => { reload() });
   }
 }

@@ -9,13 +9,15 @@ import { AirbnbAdapter } from './site_adapters/airbnb';
 import {BloggerAdapter} from "./site_adapters/blogger";
 import {UberEatsAdapter} from "./site_adapters/ubereats";
 import { HNAdapter } from './site_adapters/hackernews';
+import { AmazonAdapter } from './site_adapters/amazon';
 
 const siteAdapters = [
 ExpediaAdapter,
 AirbnbAdapter,
 BloggerAdapter,
 HNAdapter,
-UberEatsAdapter
+UberEatsAdapter,
+AmazonAdapter
 ]
 
 const run = function () {
