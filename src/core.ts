@@ -3,8 +3,6 @@
 
 'use strict';
 
-// import 'jquery';
-
 import Handsontable from "handsontable";
 import "handsontable/dist/handsontable.full.min.css";
 
@@ -204,8 +202,6 @@ const createTable = (options: SiteAdapterOptions) => {
     if(newValue) {
       if (element === HTMLElement) {
         return isHTMLElement(newValue);
-      } else if (element === HTMLInputElement){ //adjustment for ubereats
-        return isHTMLElement(newValue);
       } else {
         return newValue instanceof element || newValue.__proto__.toString() === element.toString();
       }
@@ -220,20 +216,13 @@ const createTable = (options: SiteAdapterOptions) => {
 
   let getDataRows = () => {
     rows = options.getDataRows()
+
   }
 
   // Extracts data from the page, mutates rows and tableData variables.
   // todo: move this function out of createTable, stop mutating state
   let loadData = () => {
-
-    // $(document).ready(function(){ //asynchronous feature
-    //   console.log("document is ready");
-    //   // manipulate the DOM all you want here
-    //   rows = options.getDataRows()
-    // });
-
     rows = options.getDataRows()
-
 
     // If data wasn't loaded, exit this function early
     if (!rows || rows.length === 0) {
