@@ -8,7 +8,7 @@ A prototype that maps website data to a table, enabling end users to modify and 
 
 🚧 This project is an unstable prototype and not ready for real users yet. Install at your own risk and expect breaking changes. 🚧
 
-Clone this repo locally: `git clone git@github.com:geoffreylitt/wildcard.git`
+Clone this repo locally: `git clone https://github.com/geoffreylitt/wildcard.git`
 
 [Follow these instructions](https://developer.chrome.com/extensions/getstarted#manifest) to install the cloned directory as an unpacked chrome extension.
 
