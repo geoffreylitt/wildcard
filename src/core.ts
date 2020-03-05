@@ -71,7 +71,7 @@ interface ColSpec {
   hidden?: boolean;
 }
 
-type DataValue = string | number
+type DataValue = string | number | boolean
 
 // Todo:
 // There are checks in the code for whether a PageValue is an element;
@@ -203,15 +203,14 @@ const createTable = (options: SiteAdapterOptions) => {
       if (element === HTMLElement) {
         return isHTMLElement(newValue);
       } else {
-        return newValue instanceof element || newValue.__proto__.toString() === element.toString();
+        return newValue instanceof element || (newValue.__proto___ && (newValue.__proto__).toString() === element.toString());
       }
     }
     return false;
   };
 
   let isHTMLElement = (el) => {
-    let elProtoString = el.__proto__.toString();
-    return el instanceof HTMLElement || (elProtoString.includes("HTML") && elProtoString.includes("Element"));
+    return el instanceof HTMLElement || (el.__proto__.toString().includes("HTML") && el.__proto__.toString().includes("Element"));
   };
 
   let getDataRows = () => {
@@ -245,7 +244,7 @@ const createTable = (options: SiteAdapterOptions) => {
         let spec = options.colSpecs.find(spec => spec.name === propName);
 
         let isHTML = false;
-        if (spec.renderer && spec.renderer.toLowerCase() === "html") {
+        if (spec && spec.renderer && spec.renderer.toLowerCase() === "html") {
           isHTML = true;
         }
 
@@ -260,7 +259,7 @@ const createTable = (options: SiteAdapterOptions) => {
           result = value;
         }
 
-        if (spec.type === "numeric" && (typeof result === "string")) {
+        if (spec && spec.type === "numeric" && (typeof result === "string")) {
           result = extractNumber(result)
         }
 
