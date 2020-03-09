@@ -27,8 +27,8 @@ export const WeatherChannelAdapter = {
         return arrayOfRows.map(el => {
             return {
                 els: [el],
+                id: el.querySelector('.dsx-date').textContent,
                 dataValues: {
-                    id: el.querySelector('.dsx-date').textContent,
                     Time: el.querySelector('.dsx-date'),
                     Description: el.querySelector('.description').children[0],
                     'Temp °F': el.querySelector('.temp').children[0],

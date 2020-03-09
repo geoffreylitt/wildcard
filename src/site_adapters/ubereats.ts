@@ -14,13 +14,14 @@ export const UberEatsAdapter = {
   getDataRows: () => {
     return Array.from(document.querySelectorAll("li")).map(el => {
       return {
+        id: el.querySelector("a").getAttribute("href"),
         els: [el],
         dataValues: {
           id: el.querySelector("a").getAttribute("href"),
           name: el.children[0].children[0].children[1].children[0]
-        },
+        }
       }
     })
-  },
+  }
 }
 

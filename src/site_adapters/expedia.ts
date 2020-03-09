@@ -16,9 +16,9 @@ export const ExpediaAdapter = {
     let form = document.getElementById("gcw-packages-form-hp-package")
     return [
     {
+      id: 1, // only one row so we can just hardcode an ID
       els: [form],
       dataValues: {
-        id: 1, // only one row so we can just hardcode an ID
         origin: form.querySelector("#package-origin-hp-package"),
         destination: form.querySelector("#package-destination-hp-package"),
         departDate: form.querySelector("#package-departing-hp-package"),

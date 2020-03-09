@@ -15,9 +15,9 @@ export const BloggerAdapter = {
         let doc = iframeLoaded ? document.querySelectorAll('iframe')[2].contentDocument.body : container.querySelector("#postingComposeBox");
         return [
             {
+                id: 1,
                 els: [container],
                 dataValues: {
-                    id: 1, // only one row so we can just hardcode an ID
                     document: doc,
                     source: container.querySelector("#postingHtmlBox"),
                 }
@@ -28,5 +28,6 @@ export const BloggerAdapter = {
     setupReloadTriggers: (reload) => {
         document.addEventListener("click", (e) => { reload() });
         document.addEventListener("keydown", (e) => { reload() });
-    }
+    },
+    iframe: true
 };
