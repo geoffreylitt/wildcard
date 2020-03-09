@@ -1,6 +1,7 @@
 'use strict';
 
 import { extractNumber, urlExact, urlContains } from "../utils"
+import * as moment from 'moment';
 
 export const WeatherChannelAdapter = {
     name: "Weather Channel",
@@ -9,7 +10,8 @@ export const WeatherChannelAdapter = {
     },
     colSpecs: [
         { name: "id", type: "text", hidden: true },
-        { name: "Time", type: "text" },
+        { name: "Time", type: "time", timeFormat: 'h:mm:ss a',
+            correctFormat: true },
         { name: "Description", type: "text"},
         { name: "Temp °F", type: "numeric"},
         { name: "Feels °F", type: "numeric"},
@@ -22,7 +24,6 @@ export const WeatherChannelAdapter = {
         //tableRows includes the heading, so we don't want to include that
         let arrayOfRows = Array.from(tableRows);
         arrayOfRows.shift();
-        //tableRows[0].remove();
         return arrayOfRows.map(el => {
             return {
                 els: [el],
