@@ -14,6 +14,10 @@
   bottom: 0;
 }
 
+.handsontable {
+  z-index: 3060 !important;
+}
+
 #wildcard-container.single-row {
   height: 100px;
 }

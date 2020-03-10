@@ -12,7 +12,7 @@ export const YoutubeAdapter = {
         { name: "Title", type: "text" },
         { name: "Time", type: "text"},
         { name: "Uploader", type: "text"},
-        { name: "Watched?", type: "checkbox"}
+        { name: "% Watched", type: "numeric"}
     ],
     getDataRows: () => {
         let tableRows = document.querySelector('#contents').children;
@@ -26,15 +26,18 @@ export const YoutubeAdapter = {
                 let timeStamp = timeStampExists
                     ? el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1].textContent.replace((/  |\r\n|\n|\r/gm),"")
                     : "N/A";
+                let watchedPercentage = el.querySelector('#progress') !== null
+                    ? progressToNumber((el.querySelector('#progress') as HTMLElement).style.width)
+                    : 0;
 
                 return {
                     els: [elAsHTMLElement],
+                    id: el.querySelector('#video-title-link').getAttribute("href"),
                     dataValues: {
-                        id: el.querySelector('#video-title-link').getAttribute("href"),
                         Title: el.querySelector('#video-title'),
                         Time: timeStamp,
                         Uploader: el.querySelector('#text').children[0],
-                        'Watched?': el.querySelector('#progress') !== null
+                        '% Watched': watchedPercentage,
                     },
                 }
             }
@@ -52,3 +55,7 @@ export const YoutubeAdapter = {
     }
 };
 
+function progressToNumber(progress){
+    let strippedProgress = progress.slice(0, -1);
+    return parseInt(strippedProgress);
+}
