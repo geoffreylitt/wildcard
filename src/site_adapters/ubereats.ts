@@ -16,48 +16,6 @@ export const UberEatsAdapter = {
   { name: "fee", type: "numeric" }
   ],
   getDataRows: () => {
-    // window.onload = function() {
-    //   // console.log("loaded");
-    // }
-    // return Array.from(document.querySelectorAll("li")).map(el => {
-
-      // let reg_prefix = el.children[0].children[0].children[1];
-      // let alt_prefix = el.children[0].children[0].children[2];
-      // let prefix = reg_prefix;
-
-      // if (reg_prefix.children.length == 0){
-      //   prefix = alt_prefix;
-      // }
-
-      // let r_name = prefix.children[0];
-   
-      // let pricey_html = <HTMLElement> prefix.children[1];
-      // let pricey_text = pricey_html.innerText;
-      // let bullet_idx = pricey_text.indexOf("•"); 
-      // let r_pricey = pricey_text.substring(0, bullet_idx);
-      // let r_category = pricey_text.substring(bullet_idx+1,pricey_text.length);
-
-      // let rat_html = <HTMLElement> prefix.children[2].children[0].children[2].children[1];
-      // let rat_text = rat_html.innerText;
-      // let rat_end = rat_text.indexOf("(");
-      // let r_rating = parseFloat(rat_text.substring(0,rat_end));
-
-      // let fee_html = <HTMLElement> prefix.children[2].children[0].children[4].children[1];
-      // let fee_text = fee_html.innerText;
-      // let fee_end = fee_text.indexOf("D");
-      // let r_fee = parseFloat(fee_text.substring(1,fee_end));
-
-      // return {
-      //   els: [el],
-      //   dataValues: {
-      //     id: el.querySelector("a").getAttribute("href"),
-      //     name: r_name,
-      //     notes: r_category,
-      //     priceyness: r_pricey,
-      //     rating: r_rating,
-      //     fee: r_fee
-      //   },
-      // }
     return Array.from(document.querySelectorAll("a")).map(el => {
       var prefix;
         
@@ -72,7 +30,6 @@ export const UberEatsAdapter = {
           }
 
           let r_name = prefix.children[0].innerText;
-          console.log(r_name);
    
           let pricey_html = <HTMLElement> prefix.children[1];
           let pricey_text = pricey_html.innerText;
@@ -96,8 +53,8 @@ export const UberEatsAdapter = {
           else if (delivery_metadata.children.length > 3) {
             let rat_html = <HTMLElement> delivery_metadata.children[2].children[1];
             let rat_text = rat_html.innerText;
-            let rat_end = rat_text.indexOf("(");
-            let r_rating = parseFloat(rat_text.substring(0,rat_end));
+            let rat_end = rat_text.indexOf("\n");
+            r_rating = parseFloat(rat_text.substring(0,rat_end));
   
             let fee_html = <HTMLElement> delivery_metadata.children[4].children[1];
             let fee_text = fee_html.innerText;
@@ -118,23 +75,7 @@ export const UberEatsAdapter = {
           }
 
         }
-
-        //return dummy values if el doesn't have restaurant
-        else{
-          return {
-            els: [el],
-            dataValues: {
-                id: el.getAttribute("href"),
-                name: "N/A",
-                notes: "N/A",
-                priceyness: "N/A",
-                rating: 0,
-                fee: 0
-            },
-          }
-        }
-    
-    })
+    }).filter(row => row != undefined);
   },
   // Reload data anytime there's a click or keypress on the page
   setupReloadTriggers: (reload) => {

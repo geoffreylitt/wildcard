@@ -3,8 +3,6 @@
 
 'use strict';
 
-// import 'jquery';
-
 import Handsontable from "handsontable";
 import "handsontable/dist/handsontable.full.min.css";
 
@@ -227,14 +225,7 @@ const createTable = (options: SiteAdapterOptions) => {
   // todo: move this function out of createTable, stop mutating state
   let loadData = () => {
 
-    // $(document).ready(function(){ //asynchronous feature
-    //   console.log("document is ready");
-    //   // manipulate the DOM all you want here
-    //   rows = options.getDataRows()
-    // });
-
     rows = options.getDataRows()
-
 
     // If data wasn't loaded, exit this function early
     if (!rows || rows.length === 0) {
@@ -407,7 +398,7 @@ const createTable = (options: SiteAdapterOptions) => {
   let reloadData = () => {
     let oldData = tableData
     loadData() // mutates data
-    tableData = oldData.map((row, index) => _.merge(row, tableData[index]))
+    // tableData = oldData.map((row, index) => _.merge(row, tableData[index]))
     hot.loadData(tableData)
 
     // todo: re-sort and filter here as well?
