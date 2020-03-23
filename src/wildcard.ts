@@ -10,6 +10,8 @@ import {BloggerAdapter} from "./site_adapters/blogger";
 import {UberEatsAdapter} from "./site_adapters/ubereats";
 import { HNAdapter } from './site_adapters/hackernews';
 import { AmazonAdapter } from './site_adapters/amazon';
+import {WeatherChannelAdapter} from "./site_adapters/weatherchannel";
+import {YoutubeAdapter} from "./site_adapters/youtube";
 
 const siteAdapters = [
 ExpediaAdapter,
@@ -17,7 +19,9 @@ AirbnbAdapter,
 BloggerAdapter,
 HNAdapter,
 UberEatsAdapter,
-AmazonAdapter
+AmazonAdapter,
+WeatherChannelAdapter,
+YoutubeAdapter
 ]
 
 const run = function () {

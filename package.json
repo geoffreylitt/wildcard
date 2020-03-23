@@ -19,7 +19,10 @@
     "handsontable": "^7.2.2",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
+    "ohm-js": "^0.14.0",
     "pikaday": "^1.8.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "unfluff": "^3.2.0",
     "url-pattern": "^1.0.3"
   },
   "scripts": {
@@ -29,6 +32,7 @@
     "dev": "concurrently 'node chrome-autoreload.js' 'rollup -c -w'"
   },
   "devDependencies": {
+    "@rollup/plugin-json": "^4.0.2",
     "concurrently": "^5.1.0",
     "rollup": "^1.27.8",
     "rollup-plugin-commonjs": "^10.1.0",

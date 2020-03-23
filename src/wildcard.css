@@ -10,8 +10,12 @@
   font-size: 14px;
   height: 250px;
   width: 100%;
-  z-index: 1000;
+  z-index: 3000;
   bottom: 0;
+}
+
+.handsontable {
+  z-index: 3060 !important;
 }
 
 #wildcard-container.single-row {

@@ -63,9 +63,9 @@ export const UberEatsAdapter = {
           }
 
           return {
-            els: [el],
+            id: el.getAttribute("href"),
+            els: [el as HTMLElement],
             dataValues: {
-                id: el.getAttribute("href"),
                 name: r_name,
                 notes: r_category,
                 priceyness: r_pricey,

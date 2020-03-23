@@ -210,9 +210,17 @@
 
 import { urlContains } from '../utils'
 
-const rowContainerClass = "s-result-list s-search-results sg-row";
-const nameClass = "a-size-base-plus a-color-base a-text-normal";
-const priceClass = "a-price";
+const rowContainerID = "olpOfferList";
+const rowClass = "a-row a-spacing-mini olpOffer";
+const priceClass = "a-column a-span2 olpPriceColumn";
+const shippingPriceClass = "olpShippingPrice";
+const estTaxClass = "olpEstimatedTaxText";
+const conditionClass = "a-size-medium olpCondition a-text-bold";
+const arrivalClass = "a-expander-content a-expander-partial-collapse-content";
+const sellerClass = "a-column a-span2 olpSellerColumn";
+const sellerName = "a-spacing-none olpSellerName";
+const ratingClass = "a-icon-alt";
+
 var counter = 0;
 
 export const AmazonAdapter = {
@@ -220,66 +228,74 @@ export const AmazonAdapter = {
   enable: () => urlContains("amazon.com"),
   colSpecs: [
   { name: "id", type: "text", hidden: true },
-  { name: "name", editable: true, type: "text" },
-  { name: "price", editable: true, type: "numeric" },
-  { name: "rating", editable: true, type: "numeric" }
+  { name: "total_price", editable: true, type: "numeric" },
+  { name: "delivery_detail", editable: true, type: "text" },
+  { name: "seller_rating", editable: true, type: "numeric" }
   ],
   getDataRows: () => {
 
-    var group = document.getElementsByClassName(rowContainerClass)[1].children;
+    var group = document.getElementById(rowContainerID).getElementsByClassName(rowClass);
 
     return Array.from(group).map(el => {
-      //extract data from div
-      var pdt_name_el;
-      var pdt_name;
-      var price_el;
-      var price;
-      var rating_el;
-      var rating;
 
-      try {
-        let prefix = el.children[0].children[0].children[0];
-        pdt_name_el = <HTMLElement> prefix.getElementsByClassName(nameClass)[0];
-        pdt_name = pdt_name_el.innerText;
+      var price = 0;
+      
+      var price_el = <HTMLElement> el.getElementsByClassName(priceClass)[0];
+      var price_text = price_el.innerText;
+
+      var base_start_idx = price_text.indexOf("$");
+      var base_end_idx = price_text.indexOf("+");
+      var base_price_text = price_text.substring(base_start_idx + 1, base_end_idx);
+      var base_price = parseFloat(base_price_text);
+      // console.log("base:", base_price);
+
+      var ship_price = 0;
+      var tax_price = 0;
+      if (price_text.toLowerCase().includes("free shipping")){
+        //check for free shipping
+       var tax_start_idx = price_text.indexOf("$", base_end_idx);
+       var tax_end_idx = price_text.indexOf("e");
+       var tax_price_text = price_text.substring(tax_start_idx + 1, tax_end_idx);
+       tax_price = parseFloat(tax_price_text);
       }
 
-      catch{
-        pdt_name = "N/A";
-      }
+      else{
+        //no free shipping - there should be a number
+      var ship_start_idx = price_text.indexOf("$", base_end_idx);
+      var ship_end_idx = price_text.indexOf("s");
+      var ship_price_text = price_text.substring(ship_start_idx + 1, ship_end_idx);
+      ship_price = parseFloat(ship_price_text); 
+      // console.log("ship:", ship_price);
 
-      try{
-        let prefix = el.children[0].children[0].children[0];
-        price_el = <HTMLElement> prefix.getElementsByClassName(priceClass)[0];
-        let price_offscreen_el = <HTMLElement> price_el.getElementsByClassName("a-offscreen")[0];
-        let price_text = price_offscreen_el.innerText
-        price = parseFloat(price_text.substring(1,price_text.length));
-      }
-      catch{
-        price = 0;
-      }
+      var tax_start_idx = price_text.indexOf("$", ship_end_idx);
+      var tax_end_idx = price_text.indexOf("e", tax_start_idx);
+      var tax_price_text = price_text.substring(tax_start_idx + 1, tax_end_idx);
+      var tax_price = parseFloat(tax_price_text);
+      // console.log("tax_price:", tax_price);
+    }
 
-      try{
-        let prefix = el.children[0].children[0].children[0];
-        rating_el = <HTMLElement> prefix.getElementsByClassName("a-icon-alt")[0];
-        let rat_text = rating_el.innerText;
-        let rat_end_idx = rat_text.indexOf("o"); 
-        rating = parseFloat(rat_text.substring(0, rat_end_idx));
-      }
 
-      catch{
-        rating = 0;
-      }
+      //TO-DO: calculate total price 
+      price = base_price + ship_price + tax_price;
 
-      //use document.getElementsByClassName("s-result-list s-search-results sg-row")[1].children[16].children[0].children[0].children[0].getElementsByClassName("a-size-base-plus a-color-base a-text-normal")
+      var delivery_el = <HTMLElement>el.getElementsByClassName(arrivalClass)[0];
+      var delivery_text = delivery_el.innerText;
+
+      var rating_el = <HTMLElement> el.getElementsByClassName(sellerClass)[0].getElementsByClassName(ratingClass)[0];
+      var rating_text = rating_el.innerText;
+
+      var seller_name = <HTMLElement> el.getElementsByClassName(sellerName)[0];
+      // var link_text = seller_name.querySelectorAll("a").href'
+
 
       counter += 1;
       return {
+        id: seller_name.querySelector("a").href,
         els: [el as HTMLElement],
         dataValues: {
-          id: counter,
-          name: pdt_name,
-          price: price,
-          rating: rating
+          total_price: price.toFixed(2),
+          delivery_detail: delivery_text,
+          seller_rating: rating_text
         }
       }
     })
