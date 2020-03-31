@@ -14,6 +14,21 @@ export const YoutubeAdapter = {
         { name: "Uploader", type: "text"},
         { name: "% Watched", type: "numeric"}
     ],
+    styleSelectedRow: (row) => {
+        row.els.forEach(el => {
+            if (el.style) {
+                el.style["background-color"] = `#c9ebff`
+            }
+        });
+        row.els[0].scrollIntoView({ behavior: "smooth", block: "center" })
+    },
+    styleUnselectedRows: (rows) => {
+        rows.forEach(el => {
+            if(el.style) {
+                el.style["background-color"] = ``
+            }
+        })
+    },
     getDataRows: () => {
         let tableRows = document.querySelector('#contents').children;
         return Array.from(tableRows).map((el, index) => {

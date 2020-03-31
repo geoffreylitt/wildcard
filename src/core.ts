@@ -202,6 +202,16 @@ interface SiteAdapterOptions {
       (Enables special handling of certain HTML elements, which doesn't
        work well on all sites) */
   iframe?: boolean;
+
+  /**
+   * Styling function for the selected row
+   */
+  styleSelectedRow?(row: DataRow): void;
+
+  /**
+   * Styling function for the non-selected rows
+   */
+  styleUnselectedRows?(rows: DataRow[]): void;
 }
 
 /** The main method for creating a Wildcard site adapter.
@@ -672,20 +682,33 @@ const createTable = (options: SiteAdapterOptions) => {
     let row = rowsById[hot.getDataAtCell(rowIndex, 0)]
 
     if (rows.length > 1) {
-      // For multiple rows, we highlight the whole row
-      row.els.forEach(el => {
-        if (el.style) {
-          el.style["border"] = `solid 2px ${highlightColor}`
-        }
-      })
-      row.els[0].scrollIntoView({ behavior: "smooth", block: "center" })
+      // For multiple rows, we apply styling on the whole row
+      if(options.styleSelectedRow){
+        options.styleSelectedRow(row);
+      }
+      else {
+        row.els.forEach(el => {
+          if (el.style) {
+            el.style["border"] = `solid 2px ${highlightColor}`
+          }
+        })
+        row.els[0].scrollIntoView({behavior: "smooth", block: "center"})
+      }
 
-      // Clear highlight on other divs
-      _.flatten(rows.filter(r => r !== row).map(r => r.els)).forEach(el => {
-        if(el.style) {
-          el.style["border"] = `none`
-        }
-      })
+      // Clear styling on other rows
+      let unselectedRows = _.flatten(rows.filter(r => r !== row).map(r => r.els));
+      if(options.styleUnselectedRows){
+        options.styleUnselectedRows(unselectedRows);
+      }
+      else
+      {
+        unselectedRows.forEach(el => {
+          if(el.style) {
+            el.style["border"] = `none`
+          }
+        })
+      }
+
     } else {
       // For a single row, we highlight individual cells in the row
 
