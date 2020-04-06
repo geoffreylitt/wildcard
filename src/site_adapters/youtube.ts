@@ -14,16 +14,16 @@ export const YoutubeAdapter = {
         { name: "Uploader", type: "text"},
         { name: "% Watched", type: "numeric"}
     ],
-    styleSelectedRow: (row) => {
-        row.els.forEach(el => {
+    onRowSelected: (els) => {
+        els.forEach(el => {
             if (el.style) {
                 el.style["background-color"] = `#c9ebff`
             }
         });
-        row.els[0].scrollIntoView({ behavior: "smooth", block: "center" })
+        els[0].scrollIntoView({ behavior: "smooth", block: "center" })
     },
-    styleUnselectedRows: (rows) => {
-        rows.forEach(el => {
+    styleUnselectedRow: (els) => {
+        els.forEach(el => {
             if(el.style) {
                 el.style["background-color"] = ``
             }
@@ -37,7 +37,7 @@ export const YoutubeAdapter = {
             if(el.querySelector('#video-title-link') !== null && el.querySelector('#overlays') != null && el.querySelector('#overlays').children[0] != null){
 
                 let overlayChildrenAmount = el.querySelector('#overlays').children.length;
-                let timeStampExists = el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1] !== undefined;
+                let timeStampExists = overlayChildrenAmount >= 2 && el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1] !== undefined;
                 let timeStamp = timeStampExists
                     ? el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1].textContent.replace((/  |\r\n|\n|\r/gm),"")
                     : "N/A";

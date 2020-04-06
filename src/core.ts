@@ -204,14 +204,14 @@ interface SiteAdapterOptions {
   iframe?: boolean;
 
   /**
-   * Styling function for the selected row
+   * Applies any behavior to the selected row in the original page.
    */
-  styleSelectedRow?(row: DataRow): void;
+  onRowSelected?(els: HTMLElement[]): void;
 
   /**
-   * Styling function for the non-selected rows
+   * Applies custom styles to an unselected row in the original page.
    */
-  styleUnselectedRows?(rows: DataRow[]): void;
+  styleUnselectedRow?(els: HTMLElement[]): void;
 }
 
 /** The main method for creating a Wildcard site adapter.
@@ -683,8 +683,8 @@ const createTable = (options: SiteAdapterOptions) => {
 
     if (rows.length > 1) {
       // For multiple rows, we apply styling on the whole row
-      if(options.styleSelectedRow){
-        options.styleSelectedRow(row);
+      if(options.onRowSelected){
+        options.onRowSelected(row.els);
       }
       else {
         row.els.forEach(el => {
@@ -697,8 +697,8 @@ const createTable = (options: SiteAdapterOptions) => {
 
       // Clear styling on other rows
       let unselectedRows = _.flatten(rows.filter(r => r !== row).map(r => r.els));
-      if(options.styleUnselectedRows){
-        options.styleUnselectedRows(unselectedRows);
+      if(options.styleUnselectedRow){
+        options.styleUnselectedRow(unselectedRows);
       }
       else
       {
