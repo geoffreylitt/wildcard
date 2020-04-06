@@ -12,6 +12,8 @@ Clone this repo locally: `git clone https://github.com/geoffreylitt/wildcard.git
 
 [Follow these instructions](https://developer.chrome.com/extensions/getstarted#manifest) to install the cloned directory as an unpacked chrome extension.
 
+[Follow these instructions](https://docs.microsoft.com/en-us/microsoft-edge/extensions-chromium/getting-started/part1-simple-extension#run-your-extension-locally-in-your-browser-while-developing-it-side-loading) to install the cloned directory as an unpacked Edge extension.
+
 To test whether it's working: try an [Airbnb search](https://www.airbnb.com/s/Miami/homes?checkin=2019-11-14&checkout=2019-11-17&adults=1&children=0&infants=0&place_id=ChIJEcHIDqKw2YgRZU-t3XHylv8&refinement_paths%5B%5D=%2Fhomes&search_type=section_navigation); the table should appear at the bottom and you should be able to sort by price. (You may need to refresh the page once to get the table to appear)
 
 ## To develop Wildcard
