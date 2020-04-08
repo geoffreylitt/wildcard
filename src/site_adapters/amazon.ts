@@ -230,56 +230,40 @@ export const AmazonAdapter = {
   { name: "id", type: "text", hidden: true },
   { name: "total_price", editable: true, type: "numeric" },
   { name: "delivery_detail", editable: true, type: "text" },
-  { name: "seller_rating", editable: true, type: "numeric" }
+  { name: "rating", editable: true, type: "numeric" }
   ],
   getDataRows: () => {
 
     var group = document.getElementById(rowContainerID).getElementsByClassName(rowClass);
 
     return Array.from(group).map(el => {
-
+      console.log(el);
       var price = 0;
       
       var price_el = <HTMLElement> el.getElementsByClassName(priceClass)[0];
       var price_text = price_el.innerText;
 
-      var base_start_idx = price_text.indexOf("$");
-      var base_end_idx = price_text.indexOf("+");
-      var base_price_text = price_text.substring(base_start_idx + 1, base_end_idx);
-      var base_price = parseFloat(base_price_text);
-      // console.log("base:", base_price);
+      var start_idx = price_text.indexOf("$");
+      var end_idx = price_text.indexOf(" ");
 
-      var ship_price = 0;
-      var tax_price = 0;
-      if (price_text.toLowerCase().includes("free shipping")){
-        //check for free shipping
-       var tax_start_idx = price_text.indexOf("$", base_end_idx);
-       var tax_end_idx = price_text.indexOf("e");
-       var tax_price_text = price_text.substring(tax_start_idx + 1, tax_end_idx);
-       tax_price = parseFloat(tax_price_text);
+      //find every "$" sign and add the number behind it to the total_price
+      while(start_idx != -1){
+        price += parseFloat(price_text.substring(start_idx + 1, end_idx));
+        start_idx = price_text.indexOf("$", end_idx);
+        end_idx = price_text.indexOf(" ", start_idx);
       }
 
-      else{
-        //no free shipping - there should be a number
-      var ship_start_idx = price_text.indexOf("$", base_end_idx);
-      var ship_end_idx = price_text.indexOf("s");
-      var ship_price_text = price_text.substring(ship_start_idx + 1, ship_end_idx);
-      ship_price = parseFloat(ship_price_text); 
-      // console.log("ship:", ship_price);
-
-      var tax_start_idx = price_text.indexOf("$", ship_end_idx);
-      var tax_end_idx = price_text.indexOf("e", tax_start_idx);
-      var tax_price_text = price_text.substring(tax_start_idx + 1, tax_end_idx);
-      var tax_price = parseFloat(tax_price_text);
-      // console.log("tax_price:", tax_price);
-    }
-
-
-      //TO-DO: calculate total price 
-      price = base_price + ship_price + tax_price;
 
       var delivery_el = <HTMLElement>el.getElementsByClassName(arrivalClass)[0];
-      var delivery_text = delivery_el.innerText;
+      var delivery_text = "";
+      // console.log(delivery_el);
+      if (!(delivery_el == undefined)){
+        delivery_text = delivery_el.innerText;
+      }
+      else {
+        delivery_text = "Unavailable";
+      }
+      
 
       var rating_el = <HTMLElement> el.getElementsByClassName(sellerClass)[0].getElementsByClassName(ratingClass)[0];
       var rating_text = rating_el.innerText;
@@ -295,7 +279,7 @@ export const AmazonAdapter = {
         dataValues: {
           total_price: price.toFixed(2),
           delivery_detail: delivery_text,
-          seller_rating: rating_text
+          rating: rating_text
         }
       }
     })
