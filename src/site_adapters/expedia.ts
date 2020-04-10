@@ -4,7 +4,7 @@ import { urlContains } from '../utils'
 
 export const ExpediaAdapter = {
   name: "Expedia2",
-  enable: () => urlContains("expedia.com"),
+  enabled: () => urlContains("expedia.com"),
   colSpecs: [
   { name: "id", type: "text", hidden: true },
   { name: "origin", editable: true, type: "text" },

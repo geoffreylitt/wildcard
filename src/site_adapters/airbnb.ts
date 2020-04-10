@@ -11,7 +11,7 @@ const listingLinkClass = "_i24ijs"
 
 export const AirbnbAdapter = {
   name: "Airbnb",
-  enable: () => urlContains("airbnb.com/s/"),
+  enabled: () => urlContains("airbnb.com/s/"),
   colSpecs: [
   { name: "id", type: "text" },
   { name: "name", type: "text" },

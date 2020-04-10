@@ -8,7 +8,7 @@
 
 // export const AmazonAdapter = {
 //   name: "Amazon",
-//   enable: () => urlContains("amazon.com"),
+//   enabled: () => urlContains("amazon.com"),
 //   colSpecs: [
 //   { name: "id", type: "text", hidden: true },
 //   { name: "name", editable: true, type: "text" },
@@ -33,7 +33,7 @@
 //       rows = document.getElementsByClassName("a-row a-spacing-mini olpOffer");
 
 //       //if all tries fail, it is not one of the views we know.
-//       //return empty 
+//       //return empty
 //       if (rows == undefined){
 //         return [{
 //           els: [<HTMLElement> outermost_container[0]],
@@ -44,7 +44,7 @@
 //             rating: "0"
 //           }}];
 //       }
-      
+
 //       //otherwise we are in the other sellers category
 //       //pass array over for manipulation
 //     }
@@ -65,23 +65,23 @@
 //           console.log(el);
 
 //           var node_of_interest = el.getElementsByClassName("sg-col-inner")[0].querySelectorAll("a");
-        
+
 //           pdt_name_el = <HTMLElement> el.getElementsByClassName(nameClass)[0];
 //           pdt_name = pdt_name_el.innerText;
-  
+
 //           if (!(el.getElementsByClassName(priceClass)[0] == undefined)){
 //               price_el = <HTMLElement> el.getElementsByClassName(priceClass)[0].getElementsByClassName("a-offscreen")[0];
 //               let price_text = price_el.innerText
 //               price = parseFloat(price_text.substring(1,price_text.length));
 //           }
-  
+
 //           if (!(el.getElementsByClassName("a-icon-alt")[0] == undefined)){
 //             rating_el = <HTMLElement> el.getElementsByClassName("a-icon-alt")[0];
 //             let rat_text = rating_el.innerText;
-//             let rat_end_idx = rat_text.indexOf("o"); 
+//             let rat_end_idx = rat_text.indexOf("o");
 //             rating = parseFloat(rat_text.substring(0, rat_end_idx));
 //           }
-  
+
 //           return {
 //                 els: [el as HTMLElement],
 //                 dataValues: {
@@ -96,7 +96,7 @@
 
 //       return Array.from(rows).map(el => {
 //         console.log("in grid view");
-        
+
 //         pdt_name_el = <HTMLElement> el.getElementsByClassName(nameClass)[0];
 //         pdt_name = pdt_name_el.innerText;
 
@@ -109,7 +109,7 @@
 //         if (!(el.getElementsByClassName("a-icon-alt")[0] == undefined)){
 //           rating_el = <HTMLElement> el.getElementsByClassName("a-icon-alt")[0];
 //           let rat_text = rating_el.innerText;
-//           let rat_end_idx = rat_text.indexOf("o"); 
+//           let rat_end_idx = rat_text.indexOf("o");
 //           rating = parseFloat(rat_text.substring(0, rat_end_idx));
 //         }
 
@@ -135,7 +135,7 @@
 //       }}];
 
 
-//     // 
+//     //
 //     //   //extract data from div
 //     //   var pdt_name_el;
 //     //   var pdt_name;
@@ -177,7 +177,7 @@
 //     //     let prefix = el.children[0].children[0].children[0];
 //     //     rating_el = <HTMLElement> prefix.getElementsByClassName("a-icon-alt")[0];
 //     //     let rat_text = rating_el.innerText;
-//     //     let rat_end_idx = rat_text.indexOf("o"); 
+//     //     let rat_end_idx = rat_text.indexOf("o");
 //     //     rating = parseFloat(rat_text.substring(0, rat_end_idx));
 //     //   }
 
@@ -225,7 +225,7 @@ var counter = 0;
 
 export const AmazonAdapter = {
   name: "Amazon",
-  enable: () => urlContains("amazon.com"),
+  enabled: () => urlContains("amazon.com"),
   colSpecs: [
   { name: "id", type: "text", hidden: true },
   { name: "total_price", editable: true, type: "numeric" },
@@ -239,7 +239,7 @@ export const AmazonAdapter = {
     return Array.from(group).map(el => {
 
       var price = 0;
-      
+
       var price_el = <HTMLElement> el.getElementsByClassName(priceClass)[0];
       var price_text = price_el.innerText;
 
@@ -264,7 +264,7 @@ export const AmazonAdapter = {
       var ship_start_idx = price_text.indexOf("$", base_end_idx);
       var ship_end_idx = price_text.indexOf("s");
       var ship_price_text = price_text.substring(ship_start_idx + 1, ship_end_idx);
-      ship_price = parseFloat(ship_price_text); 
+      ship_price = parseFloat(ship_price_text);
       // console.log("ship:", ship_price);
 
       var tax_start_idx = price_text.indexOf("$", ship_end_idx);
@@ -275,7 +275,7 @@ export const AmazonAdapter = {
     }
 
 
-      //TO-DO: calculate total price 
+      //TO-DO: calculate total price
       price = base_price + ship_price + tax_price;
 
       var delivery_el = <HTMLElement>el.getElementsByClassName(arrivalClass)[0];

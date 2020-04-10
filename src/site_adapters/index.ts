@@ -1,35 +1,41 @@
 // Registry of all the site adapters
 
-import { ExpediaAdapter } from './expedia';
-import { AirbnbAdapter } from './airbnb';
-import { BloggerAdapter } from "./blogger";
-import { UberEatsAdapter } from "./ubereats";
-import { HNAdapter } from './hackernews';
-import { AmazonAdapter } from './amazon';
-import { WeatherChannelAdapter } from "./weatherchannel";
-import { YoutubeAdapter } from "./youtube";
-import { InstacartAdapter } from "./instacart";
+// import { ExpediaAdapter } from './expedia';
+// import { AirbnbAdapter } from './airbnb';
+// import { BloggerAdapter } from "./blogger";
+// import { UberEatsAdapter } from "./ubereats";
+// // import { HNAdapter } from './hackernews';
+// import { AmazonAdapter } from './amazon';
+// import { WeatherChannelAdapter } from "./weatherchannel";
+// import { YoutubeAdapter } from "./youtube";
+// import { InstacartAdapter } from "./instacart";
+
+// export const oldSiteAdapters = [
+//   ExpediaAdapter,
+//   AirbnbAdapter,
+//   BloggerAdapter,
+//   UberEatsAdapter,
+//   AmazonAdapter,
+//   WeatherChannelAdapter,
+//   YoutubeAdapter,
+//   InstacartAdapter
+// ]
+
+import HNAdapter from './newHN'
 
 export const siteAdapters = [
-  ExpediaAdapter,
-  AirbnbAdapter,
-  BloggerAdapter,
-  HNAdapter,
-  UberEatsAdapter,
-  AmazonAdapter,
-  WeatherChannelAdapter,
-  YoutubeAdapter,
-  InstacartAdapter
+  HNAdapter
 ]
 
-export function getActiveAdapter() {
-  const adaptersForPage = siteAdapters.filter(adapter => adapter.enable())
+export function getActiveAdapter():any {
+  const adaptersForPage = siteAdapters.filter(adapter => adapter.enabled())
 
   if (adaptersForPage.length === 0) { return undefined; }
 
-  const activeAdapter = adaptersForPage[0];
+  const activeAdapter = new adaptersForPage[0]();
 
-  console.log(`Wildcard: activating site adapter: ${activeAdapter.name}`);
+  console.log(`Wildcard: activating site adapter: ${activeAdapter.siteName}`);
+
   return activeAdapter;
 }
 
@@ -150,6 +156,7 @@ interface DataRow {
 *  you can insert console log statements in your getDataRows() function to
 *  start debugging your data extraction.
 */
+
 
 export interface SiteAdapter {
   /** A user visible name for the adapter */

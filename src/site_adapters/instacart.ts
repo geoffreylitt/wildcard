@@ -4,7 +4,7 @@ import {urlContains} from "../utils";
 
 export const InstacartAdapter = {
   name: "Instacart",
-  enable: () => {
+  enabled: () => {
     return urlContains("instacart.com/store/orders")
   },
   colSpecs: [

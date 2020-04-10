@@ -5,7 +5,7 @@ import * as moment from 'moment';
 
 export const WeatherChannelAdapter = {
     name: "Weather Channel",
-    enable: () => {
+    enabled: () => {
         return urlContains("https://weather.com/weather/hourbyhour")
     },
     colSpecs: [

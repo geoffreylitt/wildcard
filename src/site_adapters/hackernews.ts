@@ -11,7 +11,7 @@ const listingLinkClass = "_i24ijs"
 
 export const HNAdapter = {
   name: "Hacker News",
-  enable: () => {
+  enabled: () => {
     return urlExact("news.ycombinator.com/") ||
            urlContains("news.ycombinator.com/news") ||
            urlContains("news.ycombinator.com/newest")

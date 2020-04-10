@@ -3,7 +3,7 @@ import {urlContains} from "../utils";
 
 export const BloggerAdapter = {
     name: "Blogger",
-    enable: () => urlContains("blogger.com"),
+    enabled: () => urlContains("blogger.com"),
     colSpecs: [
         { name: "id", type: "text", hidden: true },
         { name: "document", editable: true, renderer: 'html', type: "text", editor: RichTextEditor },

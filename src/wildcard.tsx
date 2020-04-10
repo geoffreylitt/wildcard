@@ -5,15 +5,15 @@
 
 import React from "react";
 import { render } from "react-dom";
-import { combineReducers, createStore, compose } from "redux";
+import { createStore, compose } from "redux";
 import { Provider } from 'react-redux'
 import { devToolsEnhancer } from 'redux-devtools-extension';
+import { loadRecords, setAppAttributes } from './actions';
+import reducer from './reducers';
 
 import WcPanel from "./components/WcPanel";
 
 import { getActiveAdapter } from "./site_adapters"
-
-import "./wildcard.css";
 
 function htmlToElement(html):HTMLElement {
   var template = document.createElement('template');
@@ -24,43 +24,24 @@ function htmlToElement(html):HTMLElement {
 
 const run = function () {
   const activeAdapter = getActiveAdapter();
-
   if (!activeAdapter) { return; }
 
-  const initialTableState = [
-    { id: 1, text: "hello" },
-    { id: 2, text: "world" },
-  ]
+  const store = createStore(reducer, devToolsEnhancer({}));
 
-  const tableData = (state = initialTableState, action) => {
-    switch(action.type) {
-      case "CHANGE_DATA":
-        console.log('times are a changin');
-        return [
-          { id: 1, text: "new" },
-          { id: 2, text: "data" },
-        ]
+  store.dispatch(setAppAttributes(activeAdapter.colSpecs));
 
-      default:
-        return state;
-    }
-  }
+  // When the active adapter has new records to load,
+  // create a "load records" action and dispatch it to our store
+  activeAdapter.subscribe(records => store.dispatch(loadRecords(records)) )
 
-  const rootReducer = combineReducers({ tableData });
-  const reduxStore = createStore(
-    rootReducer,
-    devToolsEnhancer({})
-  );
-
-  const newDiv = htmlToElement("<div id='wildcard-container'><div id='wc-panel-container'></div></div>") as HTMLElement
-
-  document.body.appendChild(newDiv);
+  document.body.appendChild(
+    htmlToElement(`<div id='wc--root'></div>`) as HTMLElement);
 
   render(
-    <Provider store={ reduxStore }>
+    <Provider store={store}>
       <WcPanel />
     </Provider>,
-    document.getElementById("wc-panel-container")
+    document.getElementById("wc--root")
   );
 
 }

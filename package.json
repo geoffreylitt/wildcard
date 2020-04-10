@@ -27,6 +27,7 @@
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "rollup-plugin-node-builtins": "^2.1.2",
+    "styled-components": "^5.1.0",
     "unfluff": "^3.2.0",
     "url-pattern": "^1.0.3"
   },
