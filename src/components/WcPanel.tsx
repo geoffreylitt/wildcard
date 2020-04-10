@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useRef } from "react";
+import Handsontable from 'handsontable';
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
 
 import { connect } from 'react-redux'
 import * as WcActions from '../actions'
 import { bindActionCreators } from 'redux'
+import { createSelector } from 'reselect'
+import sortBy from 'lodash/sortBy'
 
 import styled from 'styled-components'
 
@@ -34,29 +37,86 @@ const Panel = styled.div`
   bottom: 0;
 `
 
-const WcPanel = ({ appRecords, appAttributes, actions }) => {
+const getRecords = state => state.appRecords
+const getSortOrder = state => state.sortOrder
+
+const getSortedRecords = createSelector(
+  [getRecords, getSortOrder],
+  (records, sortOrder) => {
+    if (!sortOrder) { return records; }
+
+    let sorted = sortBy(records, r => r.attributes[sortOrder.attribute])
+    if (sortOrder.direction === "desc") { sorted = sorted.reverse() }
+    return sorted;
+  }
+);
+
+// Declare our functional React component
+
+const WcPanel = ({ records, attributes, actions }) => {
+  const hotRef = useRef(null);
+  const columns = formatAttributesForHot(attributes);
+
   const hotSettings = {
-    data: formatRecordsForHot(appRecords),
+    data: formatRecordsForHot(records),
     rowHeaders: true,
     contextMenu: true,
-    columns: formatAttributesForHot(appAttributes),
-    colHeaders: appAttributes.map(attr => attr.name)
+    columns: columns,
+    colHeaders: attributes.map(attr => attr.name),
+    columnSorting: true
   }
 
-  if (appRecords) {
+  const getHotInstance = () => {
+    if (hotRef && hotRef.current) { return hotRef.current.hotInstance; }
+    else { return null; }
+  }
+
+  const onBeforeColumnSort = (_, destinationSortConfigs) => {
+    // We suppress HOT's built-in sorting by returning false,
+    // and manually tell HOT that we've taken care of
+    // sorting the table ourselves.
+    // https://handsontable.com/docs/7.4.2/demo-sorting.html#custom-sort-implementation
+    const columnSortPlugin = getHotInstance().getPlugin('columnSorting');
+    columnSortPlugin.setSortConfig(destinationSortConfigs);
+
+    // for the moment we only support single column sort
+    const sortConfig = destinationSortConfigs[0];
+
+    if (sortConfig) {
+      actions.sortRecords({
+        // Sort config gives us a numerical index; convert to attribute
+        attribute: attributes[sortConfig.column].name,
+        direction: sortConfig.sortOrder
+      });
+    } else {
+      actions.sortRecords(null);
+    }
+
+    return false;
+  }
+
+  if (records) {
     return <Panel>
       <HotTable
         licenseKey='non-commercial-and-evaluation'
-        settings = {hotSettings} />
+        beforeColumnSort={onBeforeColumnSort}
+        settings = {hotSettings}
+        ref={hotRef} />
     </Panel>;
   } else {
     return null;
   }
 }
 
+// Hook it up to our Redux store with react-redux
+
 const mapStateToProps = state => ({
-  appRecords: state.appRecords,
-  appAttributes: state.appAttributes
+  // todo: when we have non-app records and attributes,
+  // merge them in the redux state, and pass in merged data here --
+  // this panel view isn't responsible for combining them.
+  // keep this component thin.
+  records: getSortedRecords(state),
+  attributes: state.appAttributes
 })
 
 const mapDispatchToProps = dispatch => ({
