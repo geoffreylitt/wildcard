@@ -1,14 +1,15 @@
 'use strict';
 
 import { extractNumber, urlExact, urlContains } from "../utils"
+import { createDomScrapingAdapter } from "./domScrapingBase"
 import * as moment from 'moment';
 
-export const WeatherChannelAdapter = {
+const WeatherChannelAdapter = createDomScrapingAdapter({
     name: "Weather Channel",
-    enable: () => {
+    enabled: () => {
         return urlContains("https://weather.com/weather/hourbyhour")
     },
-    colSpecs: [
+    attributes: [
         { name: "id", type: "text", hidden: true },
         { name: "Time", type: "time", timeFormat: 'h:mm:ss a',
             correctFormat: true },
@@ -19,14 +20,14 @@ export const WeatherChannelAdapter = {
         { name: "Humidity %", type: "numeric"},
         { name: "Wind", type: "text"}
     ],
-    getDataRows: () => {
+    scrapePage: () => {
         let tableRows = document.querySelector('.twc-table').querySelectorAll("tr");
         //tableRows includes the heading, so we don't want to include that
         let arrayOfRows = Array.from(tableRows);
         arrayOfRows.shift();
         return arrayOfRows.map(el => {
             return {
-                els: [el],
+                rowElements: [el],
                 id: el.querySelector('.dsx-date').textContent,
                 dataValues: {
                     Time: el.querySelector('.dsx-date'),
@@ -41,9 +42,11 @@ export const WeatherChannelAdapter = {
         })
     },
     // Reload data anytime there's a click or keypress on the page
-    setupReloadTriggers: (reload) => {
+    addScrapeTriggers: (reload) => {
         document.addEventListener("click", (e) => { reload() });
         document.addEventListener("keydown", (e) => { reload() });
     }
-};
+});
+
+export default WeatherChannelAdapter;
 

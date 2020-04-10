@@ -1,41 +1,38 @@
 'use strict';
 
-import { extractNumber, urlExact, urlContains } from "../utils"
+// A sample new HN site adapter.
 
-const rowContainerClass = "_fhph4u"
-const rowClass = "_8ssblpx"
-const titleClass = "_1jbo9b6h"
-const priceClass = "_1p7iugi"
-const ratingClass = "_3zgr580"
-const listingLinkClass = "_i24ijs"
+import { urlExact, urlContains, extractNumber } from "../utils";
+import { createDomScrapingAdapter } from "./domScrapingBase"
 
-export const HNAdapter = {
+// Configuration options for the Hacker News adapter
+const HNAdapter = createDomScrapingAdapter({
   name: "Hacker News",
-  enable: () => {
+  enabled () {
     return urlExact("news.ycombinator.com/") ||
            urlContains("news.ycombinator.com/news") ||
            urlContains("news.ycombinator.com/newest")
   },
-  colSpecs: [
-  { name: "id", type: "text" },
-  { name: "rank", type: "numeric" },
-  { name: "title", type: "text" },
-  { name: "link", type: "text" },
-  { name: "points", type: "numeric" },
-  { name: "user", type: "text" },
-  { name: "comments", type: "numeric" }
+  attributes: [
+    { name: "id", type: "text" },
+    { name: "rank", type: "numeric" },
+    { name: "title", type: "text" },
+    { name: "link", type: "text" },
+    { name: "points", type: "numeric" },
+    { name: "user", type: "text" },
+    { name: "comments", type: "numeric" }
   ],
-  getDataRows: () => {
+  scrapePage() {
     return Array.from(document.querySelectorAll("tr.athing")).map(el => {
       let detailsRow = el.nextElementSibling
       let spacerRow = detailsRow.nextElementSibling
 
       return {
         id: String(el.getAttribute("id")),
-        els: [el, detailsRow, spacerRow]
-          // Both of these steps should be handled by the framework...
-          .filter(e => e) // Only include if the element is really there
-          .map(e => (e as HTMLElement)), // Convert to HTMLElement type
+        rowElements: [el, detailsRow, spacerRow],
+          // todo: Both of these steps should be handled by the framework...
+          // .filter(e => e) // Only include if the element is really there
+          // .map(e => (e)), // Convert to HTMLElement type
         dataValues: {
           rank: el.querySelector("span.rank"),
           title: el.querySelector("a.storylink"),
@@ -45,12 +42,13 @@ export const HNAdapter = {
           points: detailsRow.querySelector("span.score"),
           user: detailsRow.querySelector("a.hnuser"),
           comments: extractNumber(Array.from(detailsRow.querySelectorAll("a"))
-        .find(e => e.textContent.indexOf("comments") !== -1), 0)
+            .find(e => e.textContent.indexOf("comment") !== -1), 0)
         },
         annotationContainer: detailsRow.querySelector("td.subtext") as HTMLElement,
         annotationTemplate: `| <span style="color: #f60;">$annotation</span>`
       }
     })
   },
-}
+})
 
+export default HNAdapter;

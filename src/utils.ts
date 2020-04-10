@@ -11,7 +11,7 @@ export function extractNumber(input:any, defaultValue?:number):number {
 
   if (result) {
     return Number(result)
-  } else if (defaultValue) {
+  } else if (defaultValue !== undefined) {
     return defaultValue
   } else {
     return null
@@ -28,4 +28,16 @@ export function urlContains(fragment:string):boolean {
 export function urlExact(url:string):boolean {
   return String(window.location) === url ||
          String(window.location) === "https://" + url
+}
+
+export function htmlToElement(html):HTMLElement {
+  var template = document.createElement('template');
+  html = html.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = html;
+  return template.content.firstChild as HTMLElement;
+}
+
+export function onDomReady(fn) {
+  if (document.readyState!='loading') fn();
+  else document.addEventListener('DOMContentLoaded', fn)
 }

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ColSpec | wildcard</title>
+	<title>ScrapedRow | wildcard</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,13 +56,13 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/_core_.html">&quot;core&quot;</a>
+					<a href="../modules/_site_adapters_domscrapingbase_.html">&quot;site_adapters/domScrapingBase&quot;</a>
 				</li>
 				<li>
-					<a href="_core_.colspec.html">ColSpec</a>
+					<a href="_site_adapters_domscrapingbase_.scrapedrow.html">ScrapedRow</a>
 				</li>
 			</ul>
-			<h1>Interface ColSpec</h1>
+			<h1>Interface ScrapedRow</h1>
 		</div>
 	</div>
 </header>
@@ -72,7 +72,9 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Defines the schema for one column of the table being extracted.</p>
+						<p>A data structure representing a scraped row of data from the page.
+							Must specify both an HTML element and an object containing data values.
+						(The HTML element is used for things like highlighting and sorting rows.)</p>
 					</div>
 				</div>
 			</section>
@@ -80,7 +82,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ColSpec</span>
+						<span class="target">ScrapedRow</span>
 					</li>
 				</ul>
 			</section>
@@ -88,115 +90,102 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section tsd-is-not-exported">
+						<section class="tsd-index-section tsd-is-external tsd-is-not-exported">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.colspec.html#editable" class="tsd-kind-icon">editable</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.colspec.html#editor" class="tsd-kind-icon">editor</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.colspec.html#hidden" class="tsd-kind-icon">hidden</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.colspec.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.colspec.html#renderer" class="tsd-kind-icon">renderer</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_core_.colspec.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="_site_adapters_domscrapingbase_.scrapedrow.html#annotationcontainer" class="tsd-kind-icon">annotation<wbr>Container</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="_site_adapters_domscrapingbase_.scrapedrow.html#annotationtemplate" class="tsd-kind-icon">annotation<wbr>Template</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="_site_adapters_domscrapingbase_.scrapedrow.html#attributes" class="tsd-kind-icon">attributes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="_site_adapters_domscrapingbase_.scrapedrow.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported"><a href="_site_adapters_domscrapingbase_.scrapedrow.html#rowelements" class="tsd-kind-icon">row<wbr>Elements</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+			<section class="tsd-panel-group tsd-member-group tsd-is-external tsd-is-not-exported">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="editable" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> editable</h3>
-					<div class="tsd-signature tsd-kind-icon">editable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+					<a name="annotationcontainer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> annotation<wbr>Container</h3>
+					<div class="tsd-signature tsd-kind-icon">annotation<wbr>Container<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLElement</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L59">core.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/site_adapters/domScrapingBase.ts#L51">site_adapters/domScrapingBase.ts:51</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Allow user to edit this value? Defaults to false.
-							Making a column editable requires extracting <a href="../modules/_core_.html#pagevalue">PageValue</a>s as Elements.</p>
+							<p>A container for adding user annotations</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="editor" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> editor</h3>
-					<div class="tsd-signature tsd-kind-icon">editor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+					<a name="annotationtemplate" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> annotation<wbr>Template</h3>
+					<div class="tsd-signature tsd-kind-icon">annotation<wbr>Template<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L63">core.ts:63</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/site_adapters/domScrapingBase.ts#L56">site_adapters/domScrapingBase.ts:56</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Specify a custom <a href="https://handsontable.com/docs/7.3.0/tutorial-cell-editor.html">Handsontable editor</a>
-							as a class (see Expedia adapter for an example)</p>
+							<p>An HTML template for storing an annotation on this row.
+							should include &quot;$annotation&quot;, which will be replaced by annotation text</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="hidden" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> hidden</h3>
-					<div class="tsd-signature tsd-kind-icon">hidden<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+					<a name="attributes" class="tsd-anchor"></a>
+					<h3>attributes</h3>
+					<div class="tsd-signature tsd-kind-icon">attributes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L71">core.ts:71</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/site_adapters/domScrapingBase.ts#L48">site_adapters/domScrapingBase.ts:48</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Hide this column in the visible table?
-							Eg, useful for hiding an ID column that&#39;s needed for sorting</p>
+							<p>The data values for the row, with column names as keys</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="../modules/_site_adapters_domscrapingbase_.html#pagevalue" class="tsd-signature-type">PageValue</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+					<a name="id" class="tsd-anchor"></a>
+					<h3>id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/site_adapters/domScrapingBase.ts#L45">site_adapters/domScrapingBase.ts:45</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A stable ID for the row</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="name" class="tsd-anchor"></a>
-					<h3>name</h3>
-					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+					<a name="rowelements" class="tsd-anchor"></a>
+					<h3>row<wbr>Elements</h3>
+					<div class="tsd-signature tsd-kind-icon">row<wbr>Elements<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L50">core.ts:50</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/site_adapters/domScrapingBase.ts#L42">site_adapters/domScrapingBase.ts:42</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The name of this data column, to be displayed in the table</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="renderer" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> renderer</h3>
-					<div class="tsd-signature tsd-kind-icon">renderer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L67">core.ts:67</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Specify a custom <a href="https://handsontable.com/docs/7.3.0/demo-custom-renderers.html">Handsontable rendererr</a>
-							as a class (todo: not actually supported yet, but will be soon )</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="type" class="tsd-anchor"></a>
-					<h3>type</h3>
-					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/6f57b3c/src/core.ts#L55">core.ts:55</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The type of this column. Can be any
-								<a href="https://handsontable.com/docs/7.3.0/tutorial-cell-types.html">Handsontable cell type</a>.
-							Examples: text, numeric, date, checkbox.</p>
+							<p>The element(s) representing the row</p>
 						</div>
 					</div>
 				</section>
@@ -211,11 +200,35 @@
 					<li class="label tsd-is-external">
 						<span>Internals</span>
 					</li>
-					<li class="current tsd-kind-external-module">
-						<a href="../modules/_core_.html">&quot;core&quot;</a>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_wildcard_.html">&quot;wildcard&quot;</a>
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_core_actions_.html">&quot;core/actions&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_core_debug_.html">&quot;core/debug&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_core_getfinaltable_.html">&quot;core/get<wbr>Final<wbr>Table&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_core_reducer_.html">&quot;core/reducer&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_core_types_.html">&quot;core/types&quot;</a>
+					</li>
+					<li class="current tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_site_adapters_domscrapingbase_.html">&quot;site_<wbr>adapters/dom<wbr>Scraping<wbr>Base&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_site_adapters_updatemiddleware_.html">&quot;site_<wbr>adapters/update<wbr>Middleware&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="../modules/_ui_wcpanel_.html">&quot;ui/<wbr>WcPanel&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="../modules/_utils_.html">&quot;utils&quot;</a>
@@ -224,56 +237,41 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module tsd-is-external">
+						<a href="../classes/_site_adapters_domscrapingbase_.domscrapingbaseadapter.html" class="tsd-kind-icon">Dom<wbr>Scraping<wbr>Base<wbr>Adapter</a>
+					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_core_.colspec.html" class="tsd-kind-icon">Col<wbr>Spec</a>
+					<li class="current tsd-kind-interface tsd-parent-kind-external-module tsd-is-external tsd-is-not-exported">
+						<a href="_site_adapters_domscrapingbase_.scrapedrow.html" class="tsd-kind-icon">Scraped<wbr>Row</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.colspec.html#editable" class="tsd-kind-icon">editable</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+								<a href="_site_adapters_domscrapingbase_.scrapedrow.html#annotationcontainer" class="tsd-kind-icon">annotation<wbr>Container</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.colspec.html#editor" class="tsd-kind-icon">editor</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+								<a href="_site_adapters_domscrapingbase_.scrapedrow.html#annotationtemplate" class="tsd-kind-icon">annotation<wbr>Template</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.colspec.html#hidden" class="tsd-kind-icon">hidden</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+								<a href="_site_adapters_domscrapingbase_.scrapedrow.html#attributes" class="tsd-kind-icon">attributes</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.colspec.html#name" class="tsd-kind-icon">name</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+								<a href="_site_adapters_domscrapingbase_.scrapedrow.html#id" class="tsd-kind-icon">id</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.colspec.html#renderer" class="tsd-kind-icon">renderer</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_core_.colspec.html#type" class="tsd-kind-icon">type</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-external tsd-is-not-exported">
+								<a href="_site_adapters_domscrapingbase_.scrapedrow.html#rowelements" class="tsd-kind-icon">row<wbr>Elements</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_core_.datarow.html" class="tsd-kind-icon">Data<wbr>Row</a>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-external tsd-is-not-exported">
+						<a href="../modules/_site_adapters_domscrapingbase_.html#datavalue" class="tsd-kind-icon">Data<wbr>Value</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_core_.siteadapteroptions.html" class="tsd-kind-icon">Site<wbr>Adapter<wbr>Options</a>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-external tsd-is-not-exported">
+						<a href="../modules/_site_adapters_domscrapingbase_.html#pagevalue" class="tsd-kind-icon">Page<wbr>Value</a>
 					</li>
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_core_.html#datavalue" class="tsd-kind-icon">Data<wbr>Value</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_core_.html#pagevalue" class="tsd-kind-icon">Page<wbr>Value</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_core_.html#colspecfromprop" class="tsd-kind-icon">col<wbr>Spec<wbr>From<wbr>Prop</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_core_.html#createtable" class="tsd-kind-icon">create<wbr>Table</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_core_.html#createtogglebutton" class="tsd-kind-icon">create<wbr>Toggle<wbr>Button</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_core_.html#htmltoelement" class="tsd-kind-icon">html<wbr>ToElement</a>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-external tsd-is-not-exported">
+						<a href="../modules/_site_adapters_domscrapingbase_.html#ondomready" class="tsd-kind-icon">on<wbr>Dom<wbr>Ready</a>
 					</li>
 				</ul>
 			</nav>
