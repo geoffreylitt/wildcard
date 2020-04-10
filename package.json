@@ -23,7 +23,8 @@
     "pikaday": "^1.8.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "unfluff": "^3.2.0",
-    "url-pattern": "^1.0.3"
+    "url-pattern": "^1.0.3",
+    "web-ext": "^4.1.0"
   },
   "scripts": {
     "rollup": "rollup -c -w",
