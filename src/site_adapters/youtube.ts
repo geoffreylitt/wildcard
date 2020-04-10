@@ -3,7 +3,7 @@
 import { extractNumber, urlExact, urlContains } from "../utils"
 
 export const YoutubeAdapter = {
-    name: "Weather Channel",
+    name: "YouTube",
     enable: () => {
         return urlContains("youtube.com")
     },
