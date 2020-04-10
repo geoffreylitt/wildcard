@@ -2,12 +2,12 @@ import React, { useRef } from "react";
 import Handsontable from 'handsontable';
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
+import keyBy from 'lodash/keyBy'
 
 import { connect } from 'react-redux'
 import * as WcActions from '../actions'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
-import sortBy from 'lodash/sortBy'
 
 import styled from 'styled-components'
 
@@ -36,20 +36,6 @@ const Panel = styled.div`
   z-index: 3000;
   bottom: 0;
 `
-
-const getRecords = state => state.appRecords
-const getSortOrder = state => state.sortOrder
-
-const getSortedRecords = createSelector(
-  [getRecords, getSortOrder],
-  (records, sortOrder) => {
-    if (!sortOrder) { return records; }
-
-    let sorted = sortBy(records, r => r.attributes[sortOrder.attribute])
-    if (sortOrder.direction === "desc") { sorted = sorted.reverse() }
-    return sorted;
-  }
-);
 
 // Declare our functional React component
 
@@ -115,7 +101,7 @@ const mapStateToProps = state => ({
   // merge them in the redux state, and pass in merged data here --
   // this panel view isn't responsible for combining them.
   // keep this component thin.
-  records: getSortedRecords(state),
+  records: state.finalRecords,
   attributes: state.appAttributes
 })
 

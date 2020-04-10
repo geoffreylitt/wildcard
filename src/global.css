@@ -1,0 +1,4 @@
+/*compensate for space the panel takes up*/
+body {
+  margin-bottom: 300px;
+}

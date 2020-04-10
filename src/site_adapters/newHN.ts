@@ -31,7 +31,7 @@ class HNAdapter extends DomScrapingBaseAdapter {
 
       return {
         id: String(el.getAttribute("id")),
-        rowElement: [el, detailsRow, spacerRow]
+        rowElements: [el, detailsRow, spacerRow]
           // todo: Both of these steps should be handled by the framework...
           .filter(e => e) // Only include if the element is really there
           .map(e => (e as HTMLElement)), // Convert to HTMLElement type

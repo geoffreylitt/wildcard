@@ -5,15 +5,16 @@
 
 import React from "react";
 import { render } from "react-dom";
-import { createStore, compose } from "redux";
+import { createStore, compose, applyMiddleware } from "redux";
 import { Provider } from 'react-redux'
-import { devToolsEnhancer } from 'redux-devtools-extension';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import { loadRecords, setAppAttributes } from './actions';
-import reducer from './reducers';
+import reducer from './reducer';
 
 import WcPanel from "./components/WcPanel";
 
 import { getActiveAdapter } from "./site_adapters"
+import "./global.css"
 
 function htmlToElement(html):HTMLElement {
   var template = document.createElement('template');
@@ -22,11 +23,45 @@ function htmlToElement(html):HTMLElement {
   return template.content.firstChild as HTMLElement;
 }
 
+// todo: move middlwares out of this file
+const debugMiddleware = ({ getState }) => next => action => {
+  console.log('will dispatch', action)
+
+  // Call the next dispatch method in the middleware chain.
+  const returnValue = next(action)
+
+  // todo: this is where we're going to update the state in the extension.
+  // (for now, we don't need to do it because the table lives inside the app)
+  console.log('state after dispatch', getState())
+
+  return returnValue
+}
+
+const updateAdapterMiddleware = (adapter) =>
+  ({ getState }) => next => action => {
+
+  // Call the next dispatch method in the middleware chain.
+  const returnValue = next(action)
+
+  const newState = getState();
+
+  if (action.type === "SORT_RECORDS") {
+    adapter.applySort(newState.finalRecords, newState.sortConfig)
+    // for now, we don't care whether it completed or not.
+    // in the future, could async receive success/fail here
+  }
+
+  return returnValue
+}
+
 const run = function () {
   const activeAdapter = getActiveAdapter();
   if (!activeAdapter) { return; }
 
-  const store = createStore(reducer, devToolsEnhancer({}));
+  const store = createStore(reducer, composeWithDevTools(
+    applyMiddleware(debugMiddleware),
+    applyMiddleware(updateAdapterMiddleware(activeAdapter))
+  ));
 
   store.dispatch(setAppAttributes(activeAdapter.colSpecs));
 
