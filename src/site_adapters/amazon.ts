@@ -221,8 +221,6 @@ const sellerClass = "a-column a-span2 olpSellerColumn";
 const sellerName = "a-spacing-none olpSellerName";
 const ratingClass = "a-icon-alt";
 
-var counter = 0;
-
 export const AmazonAdapter = {
   name: "Amazon",
   enable: () => urlContains("amazon.com"),
@@ -256,25 +254,35 @@ export const AmazonAdapter = {
 
       var delivery_el = <HTMLElement>el.getElementsByClassName(arrivalClass)[0];
       var delivery_text = "";
-      // console.log(delivery_el);
-      if (!(delivery_el == undefined)){
-        delivery_text = delivery_el.innerText;
+      if (delivery_el == undefined){
+        delivery_text = "Unavailable";
       }
       else {
-        delivery_text = "Unavailable";
+        delivery_text = delivery_el.innerText;
       }
       
 
       var rating_el = <HTMLElement> el.getElementsByClassName(sellerClass)[0].getElementsByClassName(ratingClass)[0];
-      var rating_text = rating_el.innerText;
+      var rating_text = "";
+      if (rating_el == undefined){
+        rating_text = "Unavailable";
+      }
+      else{
+        rating_text = rating_el.innerText;
+      }
 
       var seller_name = <HTMLElement> el.getElementsByClassName(sellerName)[0];
-      // var link_text = seller_name.querySelectorAll("a").href'
+      var seller_href = "";
+      if (seller_name.querySelector("a") === null){
+        seller_href = "Null";
+      }
+      else{
+        seller_href = seller_name.querySelector("a").href;
+      }
+       
 
-
-      counter += 1;
       return {
-        id: seller_name.querySelector("a").href,
+        id: seller_href,
         els: [el as HTMLElement],
         dataValues: {
           total_price: price.toFixed(2),

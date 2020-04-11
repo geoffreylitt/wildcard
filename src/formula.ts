@@ -22,8 +22,11 @@ Formula {
   NumberLiteral
     = digit+
 
+  ColRefChar
+  	= alnum+ | "_"
+
   ColRef
-    = alnum+
+    = ColRefChar+
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
