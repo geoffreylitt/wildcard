@@ -26,15 +26,26 @@ function formatAttributesForHot(attributes) {
 }
 
 const Panel = styled.div`
-  border-top: solid thin #ddd;
   position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 280px;
+  width: 100vw;
+  z-index: 100;
+
+  box-shadow: 0px -5px 10px 1px rgba(170,170,170,0.5);
+  border-top: solid thin #9d9d9d;
+
   overflow: hidden;
   background-color: white;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 14px;
-  height: 250px;
-  width: 100%;
-  z-index: 3000;
-  bottom: 0;
+`
+
+const ControlBar = styled.div`
+  height: 20px;
+  padding: 5px 10px;
 `
 
 // Declare our functional React component
@@ -49,7 +60,10 @@ const WcPanel = ({ records, attributes, actions }) => {
     contextMenu: true,
     columns: columns,
     colHeaders: attributes.map(attr => attr.name),
-    columnSorting: true
+    columnSorting: true,
+    width: "100%",
+    stretchH: "all" as const,
+    height: 250
   }
 
   const getHotInstance = () => {
@@ -83,6 +97,7 @@ const WcPanel = ({ records, attributes, actions }) => {
 
   if (records) {
     return <Panel>
+      <ControlBar><strong>Wildcard</strong></ControlBar>
       <HotTable
         licenseKey='non-commercial-and-evaluation'
         beforeColumnSort={onBeforeColumnSort}

@@ -11,7 +11,7 @@ export function extractNumber(input:any, defaultValue?:number):number {
 
   if (result) {
     return Number(result)
-  } else if (defaultValue) {
+  } else if (defaultValue !== undefined) {
     return defaultValue
   } else {
     return null

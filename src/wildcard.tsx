@@ -16,6 +16,11 @@ import WcPanel from "./components/WcPanel";
 import { getActiveAdapter } from "./site_adapters"
 import "./global.css"
 
+export interface WcRecord {
+  id: string;
+  attributes: any;
+}
+
 function htmlToElement(html):HTMLElement {
   var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result

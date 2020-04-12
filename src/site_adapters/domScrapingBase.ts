@@ -4,6 +4,7 @@ import { urlExact, urlContains, extractNumber } from "../utils";
 import mapValues from "lodash/mapValues";
 import { SortConfig } from "../actions"
 import keyBy from 'lodash/keyBy'
+import { WcRecord } from '../wildcard'
 
 type DataValue = string | number | boolean
 
@@ -43,7 +44,7 @@ interface ScrapedRow {
   id: string;
 
   /** The data values for the row, with column names as keys */
-  dataValues: { [key: string]: PageValue };
+  attributes: { [key: string]: PageValue };
 
   /** A container for adding user annotations */
   annotationContainer?: HTMLElement;
@@ -59,34 +60,45 @@ interface ScrapedRow {
   annotationTemplate?: string;
 }
 
+/**
+* Defines the schema for one column of the table being extracted.
+*/
+interface ColSpec {
+  /** The name of this data column, to be displayed in the table */
+  name: string;
+
+  /** The type of this column. Can be any
+  * [Handsontable cell type](https://handsontable.com/docs/7.3.0/tutorial-cell-types.html).
+  * Examples: text, numeric, date, checkbox. */
+  type: string;
+
+  /** Allow user to edit this value? Defaults to false.
+  *  Making a column editable requires extracting [[PageValue]]s as Elements.*/
+  editable?: boolean;
+
+  /** Specify a custom [Handsontable editor](https://handsontable.com/docs/7.3.0/tutorial-cell-editor.html)
+  * as a class (see Expedia adapter for an example) */
+  editor?: string;
+
+  /** Specify a custom [Handsontable rendererr](https://handsontable.com/docs/7.3.0/demo-custom-renderers.html)
+  * as a class (todo: not actually supported yet, but will be soon ) */
+  renderer?: string;
+
+  /** Hide this column in the visible table?
+  Eg, useful for hiding an ID column that's needed for sorting */
+  hidden?: boolean;
+}
+
 function onDomReady(fn) {
   if (document.readyState!='loading') fn();
   else document.addEventListener('DOMContentLoaded', fn)
 }
 
-// convert scraper-internal data structure to
-// the standard format for all wildcard adapters
-function convertscrapedRowsToRecords(elements) {
-  // hmm, don't love creating parallel data structures for values + elements;
-  // maybe better:
-  // * user constructs just elements
-  // * base DOMScrapingAdapter constructs elements + values
-  // * base DOMScrapingAdapter uses that to output the "just values" version
-  return elements.map(el => ({
-    id: el.id,
-    attributes: mapValues(el.attributes, value => {
-      if (value instanceof HTMLElement) {
-        return value.textContent;
-      } else {
-        return value;
-      }
-    })
-  }))
-}
-
 class DomScrapingBaseAdapter {
   scrapedRows: Array<ScrapedRow>;
   sortOrder: SortConfig;
+  siteName: string;
+  colSpecs: Array<ColSpec>;
 
   constructor() {
     this.scrapedRows = [];
@@ -95,7 +107,7 @@ class DomScrapingBaseAdapter {
 
   loadRecords() {
     this.scrapedRows = this.scrapePage();
-    return convertscrapedRowsToRecords(this.scrapedRows);
+    return this.recordsInExternalFormat();
   }
 
   // Currently, just load data once on dom ready
@@ -128,9 +140,40 @@ class DomScrapingBaseAdapter {
     }
   }
 
-  scrapePage() {
+  scrapePage():Array<ScrapedRow> {
     throw("Not implemented, child class must override.");
     return null;
+  }
+
+  // convert scraper-internal data structure to
+  // the standard format for all wildcard adapters
+  recordsInExternalFormat():Array<WcRecord> {
+    // hmm, don't love creating parallel data structures for values + elements;
+    // maybe better:
+    // * user constructs just elements
+    // * base DOMScrapingAdapter constructs elements + values
+    // * base DOMScrapingAdapter uses that to output the "just values" version
+    return this.scrapedRows.map(row => ({
+      id: row.id,
+      attributes: mapValues(row.attributes, (value, attrName) => {
+        let extractedValue;
+
+        // extract text from html element
+        if (value instanceof HTMLElement) {
+          extractedValue = value.textContent;
+        } else {
+          extractedValue = value;
+        }
+
+        // do type conversions
+        if (this.colSpecs.find(spec => spec.name === attrName).type === "numeric" &&
+            typeof extractedValue !== "number") {
+          extractedValue = extractNumber(extractedValue);
+        }
+
+        return extractedValue;
+      })
+    }))
   }
 
   // todo: support incoming events like annotate, filter

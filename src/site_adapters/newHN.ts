@@ -44,7 +44,7 @@ class HNAdapter extends DomScrapingBaseAdapter {
           points: detailsRow.querySelector("span.score"),
           user: detailsRow.querySelector("a.hnuser"),
           comments: extractNumber(Array.from(detailsRow.querySelectorAll("a"))
-            .find(e => e.textContent.indexOf("comments") !== -1), 0)
+            .find(e => e.textContent.indexOf("comment") !== -1), 0)
         }
       }
     })
