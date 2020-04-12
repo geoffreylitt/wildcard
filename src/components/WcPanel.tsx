@@ -123,7 +123,7 @@ const WcPanel = ({ records, attributes, actions }) => {
 
   if (records) {
     return <Panel>
-      <ControlBar><strong>Wildcard</strong></ControlBar>
+      <ControlBar><strong>Wildcard v0.2</strong></ControlBar>
       <HotTable
         licenseKey='non-commercial-and-evaluation'
         beforeColumnSort={onBeforeColumnSort}

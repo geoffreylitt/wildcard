@@ -17,7 +17,6 @@ import { htmlToElement } from './utils'
 import WcPanel from "./components/WcPanel";
 
 import { getActiveAdapter } from "./site_adapters"
-import "./global.css"
 
 // todo: move typedefs out of this main file
 export interface WcRecord {
@@ -57,6 +56,9 @@ export interface AttrSpec {
 const run = function () {
   const activeAdapter = getActiveAdapter();
   if (!activeAdapter) { return; }
+
+  // Add extra space to the bottom of the page for the wildcard panel
+  document.querySelector("body").style["margin-bottom"] = "300px";
 
   const store = createStore(reducer, composeWithDevTools(
     applyMiddleware(debugMiddleware),
