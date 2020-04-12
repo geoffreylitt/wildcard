@@ -23,7 +23,8 @@ function formatRecordsForHot(records) {
 function formatAttributesForHot(attributes) {
   return attributes.map(attribute => ({
     data: attribute.name,
-    type: attribute.type
+    type: attribute.type,
+    readOnly: !attribute.editable
   }))
 }
 
@@ -54,12 +55,11 @@ const ControlBar = styled.div`
 
 const WcPanel = ({ records, attributes, actions }) => {
   const hotRef = useRef(null);
-  const columns = formatAttributesForHot(attributes);
 
   const hotSettings = {
     data: formatRecordsForHot(records),
     rowHeaders: true,
-    columns: columns,
+    columns: formatAttributesForHot(attributes),
     colHeaders: attributes.map(attr => attr.name),
     columnSorting: true,
     width: "100%",
@@ -113,12 +113,21 @@ const WcPanel = ({ records, attributes, actions }) => {
     return false;
   }
 
+  const onBeforeChange = (changes, source) => {
+    for (const [rowIndex, propName, prevValue, nextValue] of changes) {
+      actions.editUserRecord(records[rowIndex].id, {[propName]: nextValue});
+    }
+
+    return false;
+  }
+
   if (records) {
     return <Panel>
       <ControlBar><strong>Wildcard</strong></ControlBar>
       <HotTable
         licenseKey='non-commercial-and-evaluation'
         beforeColumnSort={onBeforeColumnSort}
+        beforeChange={onBeforeChange}
         settings = {hotSettings}
         ref={hotRef} />
     </Panel>;

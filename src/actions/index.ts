@@ -8,3 +8,4 @@ export const loadRecords = (records:Array<WcRecord>) => ({ type: "LOAD_RECORDS",
 export const setAppAttributes = (appAttributes:Array<AttrSpec>) => ({ type: "SET_APP_ATTRIBUTES", appAttributes })
 export const sortRecords = (sortConfig:SortConfig) =>  ({ type: "SORT_RECORDS", sortConfig })
 export const addUserAttribute = () => ({ type: "ADD_USER_ATTRIBUTE" })
+export const editUserRecord = (id, updates) => ({ type: "EDIT_USER_RECORD", id, updates })

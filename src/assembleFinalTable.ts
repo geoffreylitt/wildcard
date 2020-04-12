@@ -8,7 +8,8 @@
 // tables and attributes.
 
 import { createSelector } from 'reselect'
-import sortBy from 'lodash/sortBy'
+import sortBy from 'lodash/sortBy';
+import keyBy from 'lodash/keyBy';
 
 const getAppRecords = state => state.appRecords
 const getUserRecords = state => state.userRecords
@@ -30,7 +31,15 @@ export const getFinalRecords = createSelector(
       }
     }
 
-    return sortedRecords;
+    // left join user records to app records
+    const userRecordsById = keyBy(userRecords, r => r.id);
+    return sortedRecords.map(r => ({
+      id: r.id,
+      attributes: {
+        ...r.attributes,
+        ...(userRecordsById[r.id] || {}).attributes
+      }
+    }));
   }
 )
 

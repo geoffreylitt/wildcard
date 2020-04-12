@@ -10,6 +10,7 @@ import { Provider } from 'react-redux'
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { loadRecords, setAppAttributes } from './actions';
 import reducer from './reducer';
+import { getFinalRecords, getFinalAttributes } from './assembleFinalTable'
 
 import WcPanel from "./components/WcPanel";
 
@@ -68,6 +69,8 @@ const debugMiddleware = ({ getState }) => next => action => {
   // todo: this is where we're going to update the state in the extension.
   // (for now, we don't need to do it because the table lives inside the app)
   console.log('state after dispatch', getState())
+
+  console.log('final records', getFinalRecords(getState()))
 
   return returnValue
 }
