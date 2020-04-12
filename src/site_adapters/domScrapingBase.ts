@@ -108,7 +108,7 @@ class DomScrapingBaseAdapter {
   }
 
   // newvalues = key value pairs of user record
-  editUserRecord(id, newValues, userAttributes) {
+  annotateRecordInSite(id, newValues, userAttributes) {
     const scrapedRow = this.scrapedRows.find(r => r.id === id);
 
     if (!scrapedRow.annotationContainer) return;
@@ -124,12 +124,13 @@ class DomScrapingBaseAdapter {
       scrapedRow.annotationContainer.appendChild(annotationTarget)
     }
 
-    // do the annotating
-    // todo: only show non-hidden attributes
+    // add the actual annotations to the page
     let annotationsHTML =
-      values(newValues)
-      .map(value => scrapedRow.annotationTemplate
-      .replace("$annotation", value))
+      userAttributes
+        .filter(attr => !attr.hideInPage) // hide columns hidden in page
+        .map(attr => newValues[attr.name])
+        .filter(value => value)
+        .map(value => scrapedRow.annotationTemplate.replace("$annotation", value));
     annotationTarget.innerHTML = annotationsHTML.join(" ")
   }
 
