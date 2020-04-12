@@ -1,38 +1,23 @@
-import sortBy from 'lodash/sortBy'
+import { AttrSpec } from './types'
 
 const initialState = {
+  // todo: maybe app and user are each a "table" in the same shape?
   appRecords: null,
   appAttributes: null,
   sortConfig: null,
-  finalRecords: null, // joined, filtered, sorted records for the table view
-}
-
-function sortedRecords(records, sortConfig) {
-  let sortedRecords = records.slice();
-
-  if (sortConfig) {
-    sortedRecords = sortBy(sortedRecords, r => r.attributes[sortConfig.attribute])
-
-    if (sortConfig.direction === "desc") {
-      sortedRecords = sortedRecords.reverse()
-    }
-  }
-
-  return sortedRecords;
+  userRecords: [],
+  userAttributes: []
 }
 
 const rootReducer = (state = initialState, action) => {
   switch(action.type) {
     case "LOAD_RECORDS":
-      console.log("new records loaded", action.records);
       return {
         ...state,
-        appRecords: action.records,
-        finalRecords: sortedRecords(action.records, state.sortConfig)
+        appRecords: action.records
       }
 
     case "SET_APP_ATTRIBUTES":
-      console.log("setting attributes", action.appAttributes)
       return {
         ...state,
         appAttributes: action.appAttributes
@@ -41,8 +26,18 @@ const rootReducer = (state = initialState, action) => {
     case "SORT_RECORDS":
       return {
         ...state,
-        sortConfig: action.sortConfig,
-        finalRecords: sortedRecords(state.appRecords, action.sortConfig)
+        sortConfig: action.sortConfig
+      }
+
+    case "ADD_USER_ATTRIBUTE":
+      const newAttribute : AttrSpec = {
+        name: "user" + (state.userAttributes.length + 1),
+        type: "text"
+      }
+
+      return {
+        ...state,
+        userAttributes: [...state.userAttributes, newAttribute]
       }
 
     default:

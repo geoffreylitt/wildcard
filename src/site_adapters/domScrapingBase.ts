@@ -2,9 +2,8 @@
 
 import { urlExact, urlContains, extractNumber } from "../utils";
 import mapValues from "lodash/mapValues";
-import { SortConfig } from "../actions"
 import keyBy from 'lodash/keyBy'
-import { WcRecord } from '../wildcard'
+import { WcRecord, AttrSpec, SortConfig } from '../types'
 
 type DataValue = string | number | boolean
 
@@ -60,35 +59,6 @@ interface ScrapedRow {
   annotationTemplate?: string;
 }
 
-/**
-* Defines the schema for one column of the table being extracted.
-*/
-interface ColSpec {
-  /** The name of this data column, to be displayed in the table */
-  name: string;
-
-  /** The type of this column. Can be any
-  * [Handsontable cell type](https://handsontable.com/docs/7.3.0/tutorial-cell-types.html).
-  * Examples: text, numeric, date, checkbox. */
-  type: string;
-
-  /** Allow user to edit this value? Defaults to false.
-  *  Making a column editable requires extracting [[PageValue]]s as Elements.*/
-  editable?: boolean;
-
-  /** Specify a custom [Handsontable editor](https://handsontable.com/docs/7.3.0/tutorial-cell-editor.html)
-  * as a class (see Expedia adapter for an example) */
-  editor?: string;
-
-  /** Specify a custom [Handsontable rendererr](https://handsontable.com/docs/7.3.0/demo-custom-renderers.html)
-  * as a class (todo: not actually supported yet, but will be soon ) */
-  renderer?: string;
-
-  /** Hide this column in the visible table?
-  Eg, useful for hiding an ID column that's needed for sorting */
-  hidden?: boolean;
-}
-
 function onDomReady(fn) {
   if (document.readyState!='loading') fn();
   else document.addEventListener('DOMContentLoaded', fn)
@@ -98,7 +68,7 @@ class DomScrapingBaseAdapter {
   scrapedRows: Array<ScrapedRow>;
   sortOrder: SortConfig;
   siteName: string;
-  colSpecs: Array<ColSpec>;
+  colSpecs: Array<AttrSpec>;
 
   constructor() {
     this.scrapedRows = [];

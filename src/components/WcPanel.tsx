@@ -11,6 +11,8 @@ import { createSelector } from 'reselect'
 
 import styled from 'styled-components'
 
+import { getFinalRecords, getFinalAttributes } from '../assembleFinalTable'
+
 function formatRecordsForHot(records) {
   return records.map(record => ({
     id: record.id,
@@ -57,13 +59,29 @@ const WcPanel = ({ records, attributes, actions }) => {
   const hotSettings = {
     data: formatRecordsForHot(records),
     rowHeaders: true,
-    contextMenu: true,
     columns: columns,
     colHeaders: attributes.map(attr => attr.name),
     columnSorting: true,
     width: "100%",
     stretchH: "all" as const,
-    height: 250
+    height: 250,
+    contextMenu: {
+      items: {
+        "insert_user_attribute": {
+          name: 'Insert new column',
+          callback: function(key, selection, clickEvent) {
+            actions.addUserAttribute();
+          }
+        },
+        "rename_user_attribute": {
+          // todo: disable this on site columns
+          name: 'Rename column',
+          callback: function(key, selection, clickEvent) {
+            alert('not implemented yet');
+          }
+        }
+      }
+    }
   }
 
   const getHotInstance = () => {
@@ -116,8 +134,8 @@ const mapStateToProps = state => ({
   // merge them in the redux state, and pass in merged data here --
   // this panel view isn't responsible for combining them.
   // keep this component thin.
-  records: state.finalRecords,
-  attributes: state.appAttributes
+  records: getFinalRecords(state),
+  attributes: getFinalAttributes(state)
 })
 
 const mapDispatchToProps = dispatch => ({

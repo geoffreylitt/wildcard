@@ -1,10 +1,10 @@
 
-// todo: where should this type live?
-export interface SortConfig {
-  attribute: string;
-  direction: "asc" | "desc"
-}
+// todo: define types for these events
+// https://redux.js.org/recipes/usage-with-typescript
 
-export const loadRecords = records => ({ type: "LOAD_RECORDS", records })
-export const setAppAttributes = appAttributes => ({ type: "SET_APP_ATTRIBUTES", appAttributes })
+import { WcRecord, AttrSpec, SortConfig } from '../types'
+
+export const loadRecords = (records:Array<WcRecord>) => ({ type: "LOAD_RECORDS", records })
+export const setAppAttributes = (appAttributes:Array<AttrSpec>) => ({ type: "SET_APP_ATTRIBUTES", appAttributes })
 export const sortRecords = (sortConfig:SortConfig) =>  ({ type: "SORT_RECORDS", sortConfig })
+export const addUserAttribute = () => ({ type: "ADD_USER_ATTRIBUTE" })
