@@ -36,3 +36,8 @@ export function htmlToElement(html):HTMLElement {
   template.innerHTML = html;
   return template.content.firstChild as HTMLElement;
 }
+
+export function onDomReady(fn) {
+  if (document.readyState!='loading') fn();
+  else document.addEventListener('DOMContentLoaded', fn)
+}

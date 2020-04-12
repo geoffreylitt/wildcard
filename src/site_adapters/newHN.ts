@@ -2,7 +2,7 @@
 
 // A sample new HN site adapter.
 
-import { urlExact, urlContains, extractNumber } from "../utils";
+import { urlExact, urlContains, extractNumber, onDomReady } from "../utils";
 import DomScrapingBaseAdapter from "./domScrapingBase"
 
 class HNAdapter extends DomScrapingBaseAdapter {
@@ -51,6 +51,19 @@ class HNAdapter extends DomScrapingBaseAdapter {
       }
     })
   }
+
+  // this isn't necessary for HN,
+  // it's a simple prototype of overriding "subscribe" to reload on every click
+  // subscribe (callback) {
+  //   onDomReady(() => {
+  //     callback(this.loadRecords());
+
+  //     document.addEventListener("click", () => {
+  //       console.log("clicked");
+  //       callback(this.loadRecords());
+  //     })
+  //   });
+  // }
 }
 
 export default HNAdapter;

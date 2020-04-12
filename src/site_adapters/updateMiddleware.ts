@@ -24,6 +24,7 @@ export const updateAdapterMiddleware = (adapter:DomScrapingBaseAdapter) =>
   switch (action.type) {
     case "SORT_RECORDS":
       adapter.applySort(getFinalRecords(newState), newState.sortConfig);
+      break;
 
     case "EDIT_USER_RECORD":
       adapter.annotateRecordInSite(
@@ -31,6 +32,7 @@ export const updateAdapterMiddleware = (adapter:DomScrapingBaseAdapter) =>
         newState.userRecords.find(r => r.id === action.id).attributes,
         newState.userAttributes
       );
+      break;
   }
 
   return returnValue
