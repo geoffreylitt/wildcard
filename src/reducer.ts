@@ -1,60 +1,58 @@
 import { WcRecord, AttrSpec, SortConfig } from './types'
 import includes from 'lodash/includes'
+import { combineReducers } from 'redux'
 
-const initialState = {
-  // todo: maybe app and user are each a "table" in the same shape?
-  appRecords: [],
-  appAttributes: [],
-  sortConfig: null,
-  userRecords: [],
-  userAttributes: [{
-    name: "user1",
-    type: "text",
-    editable: true
-  }]
-}
-
-const rootReducer = (state = initialState, action) => {
+const appTable = (state = { attributes: [], records: [] }, action) => {
   switch(action.type) {
     case "LOAD_RECORDS":
       return {
         ...state,
-        appRecords: action.records
+        records: action.records
       }
 
     case "SET_APP_ATTRIBUTES":
       return {
         ...state,
-        appAttributes: action.appAttributes
+        attributes: action.appAttributes
       }
 
-    case "SORT_RECORDS":
-      return {
-        ...state,
-        sortConfig: action.sortConfig
-      }
+    default:
+      return state;
+  }
+}
 
+
+const initialUserTable = {
+  attributes: [{
+    name: "user1",
+    type: "text",
+    editable: true
+  }],
+  records: []
+}
+const userTable = (state = initialUserTable, action) => {
+  switch(action.type) {
     case "ADD_USER_ATTRIBUTE":
       const newAttribute : AttrSpec = {
-        name: "user" + (state.userAttributes.length + 1),
+        name: "user" + (state.attributes.length + 1),
         type: "text",
         editable: true
       }
 
       return {
         ...state,
-        userAttributes: [...state.userAttributes, newAttribute]
+        attributes: [...state.attributes, newAttribute]
       }
 
     // todo: this seems too specific... instead, generalize to the
     // idea of edits on arbitrary tables?
     case "EDIT_USER_RECORD":
-      let newUserRecords : Array<WcRecord>;
+      let newRecords : Array<WcRecord>;
 
       // todo: this does two passes, inefficient
-      const existingRecord = state.userRecords.find(r => r.id === action.id)
+      const existingRecord = state.records.find(r => r.id === action.id)
       if (existingRecord) {
-        newUserRecords = state.userRecords.map(r => {
+        newRecords = state.records.map(r => {
           if (r.id === action.id) {
             return {
               id: r.id,
@@ -64,15 +62,31 @@ const rootReducer = (state = initialState, action) => {
           else { return r; }
         })
       } else {
-        newUserRecords = [...state.userRecords,
+        newRecords = [...state.records,
           { id: action.id, attributes: action.updates }
         ]
       }
-      return { ...state, userRecords: newUserRecords }
+      return { ...state, records: newRecords }
 
     default:
       return state;
   }
 }
+
+const sortConfig = (state = null, action) => {
+  switch(action.type) {
+    case "SORT_RECORDS":
+      return action.sortConfig
+
+    default:
+      return state;
+  }
+}
+
+const rootReducer = combineReducers({
+  appTable,
+  userTable,
+  sortConfig
+})
 
 export default rootReducer;

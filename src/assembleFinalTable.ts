@@ -11,10 +11,12 @@ import { createSelector } from 'reselect'
 import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
 
-const getAppRecords = state => state.appRecords
-const getUserRecords = state => state.userRecords
-const getAppAttributes = state => state.appAttributes
-const getUserAttributes = state => state.userAttributes
+const getAppRecords = state => state.appTable.records
+const getAppAttributes = state => state.appTable.attributes
+
+const getUserRecords = state => state.userTable.records
+const getUserAttributes = state => state.userTable.attributes
+
 const getSortConfig = state => state.sortConfig
 
 // this selector is just cached on the whole state

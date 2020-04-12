@@ -29,8 +29,8 @@ export const updateAdapterMiddleware = (adapter:DomScrapingBaseAdapter) =>
     case "EDIT_USER_RECORD":
       adapter.annotateRecordInSite(
         action.id,
-        newState.userRecords.find(r => r.id === action.id).attributes,
-        newState.userAttributes
+        newState.userTable.records.find(r => r.id === action.id).attributes,
+        newState.userTable.attributes
       );
       break;
   }
