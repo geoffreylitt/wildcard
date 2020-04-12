@@ -3,7 +3,9 @@
 import { urlExact, urlContains, extractNumber } from "../utils";
 import mapValues from "lodash/mapValues";
 import keyBy from 'lodash/keyBy'
+import values from 'lodash/values'
 import { WcRecord, AttrSpec, SortConfig } from '../types'
+import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
 
@@ -47,11 +49,6 @@ interface ScrapedRow {
 
   /** A container for adding user annotations */
   annotationContainer?: HTMLElement;
-
-  /** The actual div for storing annotations in.
-   *  Maintained internally by the framework, no need to set in the site adapter
-  */
-  annotationTarget?: HTMLElement
 
   /** An HTML template for storing an annotation on this row.
    *  should include "$annotation", which will be replaced by annotation text
@@ -108,6 +105,32 @@ class DomScrapingBaseAdapter {
         })
       })
     }
+  }
+
+  // newvalues = key value pairs of user record
+  editUserRecord(id, newValues, userAttributes) {
+    const scrapedRow = this.scrapedRows.find(r => r.id === id);
+
+    if (!scrapedRow.annotationContainer) return;
+
+    // todo: set a default annotation container + target
+
+    // create the annotation container if it doesn't exist
+    let annotationTarget = scrapedRow.annotationContainer.querySelector(".user-annotations");
+
+    if (!annotationTarget) {
+      annotationTarget =
+        htmlToElement("<span class='user-annotations'></span>")
+      scrapedRow.annotationContainer.appendChild(annotationTarget)
+    }
+
+    // do the annotating
+    // todo: only show non-hidden attributes
+    let annotationsHTML =
+      values(newValues)
+      .map(value => scrapedRow.annotationTemplate
+      .replace("$annotation", value))
+    annotationTarget.innerHTML = annotationsHTML.join(" ")
   }
 
   scrapePage():Array<ScrapedRow> {

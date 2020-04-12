@@ -29,3 +29,10 @@ export function urlExact(url:string):boolean {
   return String(window.location) === url ||
          String(window.location) === "https://" + url
 }
+
+export function htmlToElement(html):HTMLElement {
+  var template = document.createElement('template');
+  html = html.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = html;
+  return template.content.firstChild as HTMLElement;
+}

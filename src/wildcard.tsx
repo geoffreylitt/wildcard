@@ -12,6 +12,7 @@ import { loadRecords, setAppAttributes } from './actions';
 import reducer from './reducer';
 import { debugMiddleware } from './debug'
 import { updateAdapterMiddleware } from './site_adapters/updateMiddleware'
+import { htmlToElement } from './utils'
 
 import WcPanel from "./components/WcPanel";
 
@@ -51,13 +52,6 @@ export interface AttrSpec {
   /** Hide this column in the visible table?
   Eg, useful for hiding an ID column that's needed for sorting */
   hidden?: boolean;
-}
-
-function htmlToElement(html):HTMLElement {
-  var template = document.createElement('template');
-  html = html.trim(); // Never return a text node of whitespace as the result
-  template.innerHTML = html;
-  return template.content.firstChild as HTMLElement;
 }
 
 const run = function () {

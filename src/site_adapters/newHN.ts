@@ -45,7 +45,9 @@ class HNAdapter extends DomScrapingBaseAdapter {
           user: detailsRow.querySelector("a.hnuser"),
           comments: extractNumber(Array.from(detailsRow.querySelectorAll("a"))
             .find(e => e.textContent.indexOf("comment") !== -1), 0)
-        }
+        },
+        annotationContainer: detailsRow.querySelector("td.subtext") as HTMLElement,
+        annotationTemplate: `| <span style="color: #f60;">$annotation</span>`
       }
     })
   }
