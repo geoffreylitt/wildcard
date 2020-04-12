@@ -11,7 +11,7 @@ import { createSelector } from 'reselect'
 
 import styled from 'styled-components'
 
-import { getFinalRecords, getFinalAttributes } from '../assembleFinalTable'
+import { getFinalRecords, getFinalAttributes } from '../getFinalTable'
 
 function formatRecordsForHot(records) {
   return records.map(record => ({

@@ -1,4 +1,5 @@
-// This file contains the logic for assembling a final table to display
+// This file contains the logic for assembling a final table to display:
+//
 // * Join together various tables -- app data, user data
 // * Join together attribute lists -- app, user
 // * Sort / filter the final output
@@ -6,6 +7,10 @@
 // These are implemented as reselect selectors because they're derived state;
 // no need to store in the redux store; just a pure function of the various
 // tables and attributes.
+
+// Whatever gets outputted by these selectors is *exactly* what gets displayed
+// in the final table view
+
 
 import { createSelector } from 'reselect'
 import sortBy from 'lodash/sortBy';

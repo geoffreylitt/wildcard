@@ -1,4 +1,4 @@
-import { getFinalRecords, getFinalAttributes } from './assembleFinalTable'
+import { getFinalRecords, getFinalAttributes } from './getFinalTable'
 
 // this middleware sends redux information to the console.
 // it would be better to get Redux Dev Tools working, but for some reaosn
