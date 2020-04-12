@@ -21,25 +21,30 @@ const getSortConfig = state => state.sortConfig
 export const getFinalRecords = createSelector(
   [getAppRecords, getUserRecords, getSortConfig],
   (appRecords, userRecords, sortConfig) => {
-    let sortedRecords = appRecords.slice();
 
-    if (sortConfig) {
-      sortedRecords = sortBy(sortedRecords, r => r.attributes[sortConfig.attribute])
+    const userRecordsById = keyBy(userRecords, r => r.id);
 
-      if (sortConfig.direction === "desc") {
-        sortedRecords = sortedRecords.reverse()
-      }
-    }
+    let finalRecords = appRecords.slice();
 
     // left join user records to app records
-    const userRecordsById = keyBy(userRecords, r => r.id);
-    return sortedRecords.map(r => ({
+    finalRecords = finalRecords.map(r => ({
       id: r.id,
       attributes: {
         ...r.attributes,
         ...(userRecordsById[r.id] || {}).attributes
       }
     }));
+
+    // sort
+    if (sortConfig) {
+      finalRecords = sortBy(finalRecords, r => r.attributes[sortConfig.attribute])
+
+      if (sortConfig.direction === "desc") {
+        finalRecords = finalRecords.reverse()
+      }
+    }
+
+    return finalRecords;
   }
 )
 
