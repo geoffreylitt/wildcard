@@ -10,7 +10,8 @@ import { Provider } from 'react-redux'
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { loadRecords, setAppAttributes } from './actions';
 import reducer from './reducer';
-import { getFinalRecords, getFinalAttributes } from './assembleFinalTable'
+import { debugMiddleware } from './debug'
+import { updateAdapterMiddleware } from './site_adapters/updateMiddleware'
 
 import WcPanel from "./components/WcPanel";
 
@@ -57,39 +58,6 @@ function htmlToElement(html):HTMLElement {
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
   return template.content.firstChild as HTMLElement;
-}
-
-// todo: move middlwares out of this file
-const debugMiddleware = ({ getState }) => next => action => {
-  console.log('will dispatch', action)
-
-  // Call the next dispatch method in the middleware chain.
-  const returnValue = next(action)
-
-  // todo: this is where we're going to update the state in the extension.
-  // (for now, we don't need to do it because the table lives inside the app)
-  console.log('state after dispatch', getState())
-
-  console.log('final records', getFinalRecords(getState()))
-
-  return returnValue
-}
-
-const updateAdapterMiddleware = (adapter) =>
-  ({ getState }) => next => action => {
-
-  // Call the next dispatch method in the middleware chain.
-  const returnValue = next(action)
-
-  const newState = getState();
-
-  if (action.type === "SORT_RECORDS") {
-    adapter.applySort(newState.finalRecords, newState.sortConfig)
-    // for now, we don't care whether it completed or not.
-    // in the future, could async receive success/fail here
-  }
-
-  return returnValue
 }
 
 const run = function () {
