@@ -5,13 +5,13 @@ import "handsontable/dist/handsontable.full.css";
 import keyBy from 'lodash/keyBy'
 
 import { connect } from 'react-redux'
-import * as WcActions from '../actions'
+import * as WcActions from '../core/actions'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 
 import styled from 'styled-components'
 
-import { getFinalRecords, getFinalAttributes } from '../getFinalTable'
+import { getFinalRecords, getFinalAttributes } from '../core/getFinalTable'
 
 function formatRecordsForHot(records) {
   return records.map(record => ({

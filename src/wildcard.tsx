@@ -8,12 +8,12 @@ import { render } from "react-dom";
 import { createStore, compose, applyMiddleware } from "redux";
 import { Provider } from 'react-redux'
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { loadRecords, setAppAttributes } from './actions';
-import reducer from './reducer';
-import { debugMiddleware } from './debug'
+import { loadRecords, setAppAttributes } from './core/actions';
+import reducer from './core/reducer';
+import { debugMiddleware } from './core/debug'
 import { updateAdapterMiddleware } from './site_adapters/updateMiddleware'
 import { htmlToElement } from './utils'
-import WcPanel from "./components/WcPanel";
+import WcPanel from "./ui/WcPanel";
 import { getActiveAdapter } from "./site_adapters"
 
 const run = function () {

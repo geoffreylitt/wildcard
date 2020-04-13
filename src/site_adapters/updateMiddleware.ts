@@ -6,7 +6,7 @@
 
 // todo: generalize to an abstract adapter interface
 import DomScrapingBaseAdapter from './domScrapingBase'
-import { getFinalRecords } from '../getFinalTable'
+import { getFinalRecords } from '../core/getFinalTable'
 
 export const updateAdapterMiddleware = (adapter:DomScrapingBaseAdapter) =>
   ({ getState }) => next => action => {

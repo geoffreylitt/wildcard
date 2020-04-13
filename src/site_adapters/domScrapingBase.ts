@@ -4,7 +4,7 @@ import { urlExact, urlContains, extractNumber } from "../utils";
 import mapValues from "lodash/mapValues";
 import keyBy from 'lodash/keyBy'
 import values from 'lodash/values'
-import { Record, AttrSpec, SortConfig } from '../types'
+import { Record, AttrSpec, SortConfig } from '../core/types'
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean

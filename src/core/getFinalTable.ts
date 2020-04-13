@@ -12,17 +12,18 @@
 // in the final table view
 
 
-import { createSelector } from 'reselect'
+import { createSelector } from 'reselect';
 import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
+import { RootState } from './reducer';
 
-const getAppRecords = state => state.appTable.records
-const getAppAttributes = state => state.appTable.attributes
+const getAppRecords = (state:RootState) => state.appTable.records
+const getAppAttributes = (state:RootState) => state.appTable.attributes
 
-const getUserRecords = state => state.userTable.records
-const getUserAttributes = state => state.userTable.attributes
+const getUserRecords = (state:RootState) => state.userTable.records
+const getUserAttributes = (state:RootState) => state.userTable.attributes
 
-const getSortConfig = state => state.sortConfig
+const getSortConfig = (state:RootState) => state.query.sortConfig
 
 // this selector is just cached on the whole state
 export const getFinalRecords = createSelector(
