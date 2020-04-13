@@ -67,6 +67,8 @@ It helps to understand the basic ideas of React + Redux to understand this codeb
 
 The code is split into three main modules, each with their own directory inside `src`. Here's a quick overview of the contents of each module.
 
+![](readme-resources/architecture-v02.png)
+
 ### Core
 
 Maintains system state. Defines Redux actions and reducers.
