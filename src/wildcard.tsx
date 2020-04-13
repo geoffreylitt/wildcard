@@ -1,5 +1,6 @@
-// This is the output file that the browser runs on each page.
-// It compiles the framework and all the site adapters into one file.
+/** This is the output file that the browser runs on each page.
+ *   It compiles the framework and all the site adapters into one file.
+ */
 
 'use strict';
 
@@ -16,6 +17,9 @@ import { htmlToElement } from './utils'
 import WcPanel from "./ui/WcPanel";
 import { getActiveAdapter } from "./site_adapters"
 
+/**
+  This is a test
+*/
 const run = function () {
   const activeAdapter = getActiveAdapter();
   if (!activeAdapter) { return; }

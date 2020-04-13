@@ -34,7 +34,7 @@
   },
   "scripts": {
     "rollup": "rollup -c -w",
-    "docs": "typedoc --out docs src/core.ts --ignoreCompilerErrors && touch docs/.nojekyll && open docs/index.html",
+    "docs": "typedoc --out docs src/wildcard.tsx --ignoreCompilerErrors && touch docs/.nojekyll && open docs/index.html",
     "chrome-autoreload": "node chrome-autoreload.js",
     "dev": "concurrently 'node chrome-autoreload.js' 'rollup -c -w'"
   },

@@ -51,15 +51,33 @@ To test if you're able to make changes, try adding a `console.log` statement to 
 Documentation for the Wildcard Core is built with [Typedoc](http://typedoc.org/).
 It has helpful information for e.g. building site adapters.
 
-* [View docs online](https://geoffreylitt.github.io/wildcard/) (hosted on Github pages from the docs directory here)
+* [View docs for the master branch online](https://geoffreylitt.github.io/wildcard/) (hosted on Github pages from the docs directory here)
 * To regenerate docs from the code, run `yarn docs`.
 * To view docs locally, open `docs/index.html`.
 
-### File layout
+## Understanding the codebase
 
-`src/core.ts` contains the core framework.
+### Background
 
-Site adapters are in `src/site_adapters`. Cell editors are in `src/cell_editors`.
+It helps to understand the basic ideas of React + Redux to understand this codebase. Some good introductions:
 
-`src/wildcard.ts` is the final file that pulls everything together and
-injects Wildcard into the page.
+* https://redux.js.org/introduction/core-concepts
+* https://redux.js.org/basics/data-flow
+* https://reactjs.org/docs/thinking-in-react.html
+
+The code is split into three main modules, each with their own directory inside `src`. Here's a quick overview of the contents of each module.
+
+#### Core
+
+Maintains system state. Defines Redux actions and reducers.
+
+#### Site adapters
+
+#### UI
+
+
+
+
+
+
+

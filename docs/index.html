@@ -69,16 +69,18 @@
 				</a>
 				<p>A prototype that maps website data to a table, enabling end users to modify and reprogram the site. For more details, see the <a href="https://www.geoffreylitt.com/wildcard/">project site</a>.</p>
 				<p><a href="https://forms.gle/mpn1Hn8Ln7dmPo6T8">Sign up for the email newsletter</a> to get an email when the project is ready for beta users.</p>
-				<a href="#to-use-wildcard" id="to-use-wildcard" style="color: inherit; text-decoration: none;">
-					<h2>To use Wildcard</h2>
+				<a href="#install-wildcard" id="install-wildcard" style="color: inherit; text-decoration: none;">
+					<h2>Install Wildcard</h2>
 				</a>
-				<p>🚧 This project is an unstable prototype and not ready for real users yet. Install at your own risk and expect breaking changes. 🚧</p>
-				<p>Clone this repo locally.</p>
-				<p><a href="https://developer.chrome.com/getstarted">Follow these instructions</a> to install the cloned directory as an unpacked chrome extension.</p>
-				<p>To test whether it&#39;s working: try an <a href="https://www.airbnb.com/s/Miami/homes?checkin=2019-11-14&amp;checkout=2019-11-17&amp;adults=1&amp;children=0&amp;infants=0&amp;place_id=ChIJEcHIDqKw2YgRZU-t3XHylv8&amp;refinement_paths%5B%5D=%2Fhomes&amp;search_type=section_navigation">Airbnb search</a>; the table should appear at the bottom and you should be able to sort by price.</p>
-				<a href="#to-develop-wildcard" id="to-develop-wildcard" style="color: inherit; text-decoration: none;">
-					<h2>To develop Wildcard</h2>
+				<p>Note: this project is in alpha status. Install at your own risk and don&#39;t be surprised by bugs and breaking changes. 🚧</p>
+				<p>First, clone this repo locally: <code>git clone https://github.com/geoffreylitt/wildcard.git</code></p>
+				<p><strong>To install on Chrome</strong>: <a href="https://developer.chrome.com/extensions/getstarted#manifest">Follow these instructions</a> to install the cloned directory as an unpacked Chrome extension.</p>
+				<p><strong>To install on Edge</strong>: <a href="https://docs.microsoft.com/en-us/microsoft-edge/extensions-chromium/getting-started/part1-simple-extension#run-your-extension-locally-in-your-browser-while-developing-it-side-loading">Follow these instructions</a> to install the cloned directory as an unpacked Edge extension.</p>
+				<p>To test whether it&#39;s working: try an <a href="https://www.airbnb.com/s/Miami/homes?checkin=2019-11-14&amp;checkout=2019-11-17&amp;adults=1&amp;children=0&amp;infants=0&amp;place_id=ChIJEcHIDqKw2YgRZU-t3XHylv8&amp;refinement_paths%5B%5D=%2Fhomes&amp;search_type=section_navigation">Airbnb search</a>; the table should appear at the bottom and you should be able to sort by price. (You may need to refresh the page once to get the table to appear)</p>
+				<a href="#contribute-to-wildcard" id="contribute-to-wildcard" style="color: inherit; text-decoration: none;">
+					<h2>Contribute to Wildcard</h2>
 				</a>
+				<p>If you want to make changes to Wildcard, here are instructions for setting up Wildcard&#39;s development environment locally.</p>
 				<p>Wildcard is built in Typescript and uses yarn and rollup for packages and bundling.</p>
 				<p><a href="https://geoffreylitt.github.io/wildcard/">View code documentation on Github</a></p>
 				<a href="#initial-setup" id="initial-setup" style="color: inherit; text-decoration: none;">
@@ -133,10 +135,31 @@
 						<span>Internals</span>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_core_.html">&quot;core&quot;</a>
+						<a href="modules/_wildcard_.html">&quot;wildcard&quot;</a>
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_core_debug_.html">&quot;core/debug&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_core_getfinaltable_.html">&quot;core/get<wbr>Final<wbr>Table&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_core_reducer_.html">&quot;core/reducer&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_core_types_.html">&quot;core/types&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_site_adapters_domscrapingbase_.html">&quot;site_<wbr>adapters/dom<wbr>Scraping<wbr>Base&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_site_adapters_updatemiddleware_.html">&quot;site_<wbr>adapters/update<wbr>Middleware&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_ui_wcpanel_.html">&quot;ui/<wbr>WcPanel&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="modules/_utils_.html">&quot;utils&quot;</a>
