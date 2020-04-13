@@ -112,17 +112,33 @@
 				<p>Documentation for the Wildcard Core is built with <a href="http://typedoc.org/">Typedoc</a>.
 				It has helpful information for e.g. building site adapters.</p>
 				<ul>
-					<li><a href="https://geoffreylitt.github.io/wildcard/">View docs online</a> (hosted on Github pages from the docs directory here)</li>
+					<li><a href="https://geoffreylitt.github.io/wildcard/">View docs for the master branch online</a> (hosted on Github pages from the docs directory here)</li>
 					<li>To regenerate docs from the code, run <code>yarn docs</code>.</li>
 					<li>To view docs locally, open <code>docs/index.html</code>.</li>
 				</ul>
-				<a href="#file-layout" id="file-layout" style="color: inherit; text-decoration: none;">
-					<h3>File layout</h3>
+				<a href="#understanding-the-codebase" id="understanding-the-codebase" style="color: inherit; text-decoration: none;">
+					<h2>Understanding the codebase</h2>
 				</a>
-				<p><code>src/core.ts</code> contains the core framework.</p>
-				<p>Site adapters are in <code>src/site_adapters</code>. Cell editors are in <code>src/cell_editors</code>.</p>
-				<p><code>src/wildcard.ts</code> is the final file that pulls everything together and
-				injects Wildcard into the page.</p>
+				<a href="#background" id="background" style="color: inherit; text-decoration: none;">
+					<h3>Background</h3>
+				</a>
+				<p>It helps to understand the basic ideas of React + Redux to understand this codebase. Some good introductions:</p>
+				<ul>
+					<li><a href="https://redux.js.org/introduction/core-concepts">https://redux.js.org/introduction/core-concepts</a></li>
+					<li><a href="https://redux.js.org/basics/data-flow">https://redux.js.org/basics/data-flow</a></li>
+					<li><a href="https://reactjs.org/docs/thinking-in-react.html">https://reactjs.org/docs/thinking-in-react.html</a></li>
+				</ul>
+				<p>The code is split into three main modules, each with their own directory inside <code>src</code>. Here&#39;s a quick overview of the contents of each module.</p>
+				<a href="#core" id="core" style="color: inherit; text-decoration: none;">
+					<h4>Core</h4>
+				</a>
+				<p>Maintains system state. Defines Redux actions and reducers.</p>
+				<a href="#site-adapters" id="site-adapters" style="color: inherit; text-decoration: none;">
+					<h4>Site adapters</h4>
+				</a>
+				<a href="#ui" id="ui" style="color: inherit; text-decoration: none;">
+					<h4>UI</h4>
+				</a>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -139,6 +155,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_core_actions_.html">&quot;core/actions&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="modules/_core_debug_.html">&quot;core/debug&quot;</a>

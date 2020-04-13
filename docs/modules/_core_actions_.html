@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;utils&quot; | wildcard</title>
+	<title>&quot;core/actions&quot; | wildcard</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="_utils_.html">&quot;utils&quot;</a>
+					<a href="_core_actions_.html">&quot;core/actions&quot;</a>
 				</li>
 			</ul>
-			<h1>External module &quot;utils&quot;</h1>
+			<h1>External module &quot;core/actions&quot;</h1>
 		</div>
 	</div>
 </header>
@@ -73,11 +73,11 @@
 						<section class="tsd-index-section tsd-is-external">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_utils_.html#extractnumber" class="tsd-kind-icon">extract<wbr>Number</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_utils_.html#htmltoelement" class="tsd-kind-icon">html<wbr>ToElement</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_utils_.html#ondomready" class="tsd-kind-icon">on<wbr>Dom<wbr>Ready</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_utils_.html#urlcontains" class="tsd-kind-icon">url<wbr>Contains</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_utils_.html#urlexact" class="tsd-kind-icon">url<wbr>Exact</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_core_actions_.html#adduserattribute" class="tsd-kind-icon">add<wbr>User<wbr>Attribute</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_core_actions_.html#edituserrecord" class="tsd-kind-icon">edit<wbr>User<wbr>Record</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_core_actions_.html#loadrecords" class="tsd-kind-icon">load<wbr>Records</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_core_actions_.html#setappattributes" class="tsd-kind-icon">set<wbr>App<wbr>Attributes</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module tsd-is-external"><a href="_core_actions_.html#sortrecords" class="tsd-kind-icon">sort<wbr>Records</a></li>
 							</ul>
 						</section>
 					</div>
@@ -86,131 +86,154 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-external">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-					<a name="extractnumber" class="tsd-anchor"></a>
-					<h3>extract<wbr>Number</h3>
+					<a name="adduserattribute" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> add<wbr>User<wbr>Attribute</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">extract<wbr>Number<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, defaultValue<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">add<wbr>User<wbr>Attribute<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/utils.ts#L2">utils.ts:2</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/actions.ts#L10">core/actions.ts:10</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Try to extract the first integer from a text string or HTML element</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
 							<ul class="tsd-parameters">
-								<li>
-									<h5>input: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> defaultValue: <span class="tsd-signature-type">number</span></h5>
+								<li class="tsd-parameter">
+									<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-					<a name="htmltoelement" class="tsd-anchor"></a>
-					<h3>html<wbr>ToElement</h3>
+					<a name="edituserrecord" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> edit<wbr>User<wbr>Record</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">html<wbr>ToElement<span class="tsd-signature-symbol">(</span>html<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span></li>
+						<li class="tsd-signature tsd-kind-icon">edit<wbr>User<wbr>Record<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, updates<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/utils.ts#L33">utils.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/actions.ts#L11">core/actions.ts:11</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>html: <span class="tsd-signature-type">any</span></h5>
+									<h5>id: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>updates: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">HTMLElement</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>updates<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-					<a name="ondomready" class="tsd-anchor"></a>
-					<h3>on<wbr>Dom<wbr>Ready</h3>
+					<a name="loadrecords" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> load<wbr>Records</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Dom<wbr>Ready<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">load<wbr>Records<span class="tsd-signature-symbol">(</span>records<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_core_types_.record.html" class="tsd-signature-type">Record</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/utils.ts#L40">utils.ts:40</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/actions.ts#L7">core/actions.ts:7</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>fn: <span class="tsd-signature-type">any</span></h5>
+									<h5>records: <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_core_types_.record.html" class="tsd-signature-type">Record</a><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>records<span class="tsd-signature-symbol">: </span><a href="../interfaces/_core_types_.record.html" class="tsd-signature-type">Record</a><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-					<a name="urlcontains" class="tsd-anchor"></a>
-					<h3>url<wbr>Contains</h3>
+					<a name="setappattributes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> set<wbr>App<wbr>Attributes</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">url<wbr>Contains<span class="tsd-signature-symbol">(</span>fragment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>App<wbr>Attributes<span class="tsd-signature-symbol">(</span>appAttributes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_core_types_.attrspec.html" class="tsd-signature-type">AttrSpec</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/utils.ts#L24">utils.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/actions.ts#L8">core/actions.ts:8</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns true if current page URL contains given URL as substring.
-									Mainly used in [[SiteAdapterOptions]] enable functions</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>fragment: <span class="tsd-signature-type">string</span></h5>
+									<h5>appAttributes: <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_core_types_.attrspec.html" class="tsd-signature-type">AttrSpec</a><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>app<wbr>Attributes<span class="tsd-signature-symbol">: </span><a href="../interfaces/_core_types_.attrspec.html" class="tsd-signature-type">AttrSpec</a><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-					<a name="urlexact" class="tsd-anchor"></a>
-					<h3>url<wbr>Exact</h3>
+					<a name="sortrecords" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> sort<wbr>Records</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">url<wbr>Exact<span class="tsd-signature-symbol">(</span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">sort<wbr>Records<span class="tsd-signature-symbol">(</span>sortConfig<span class="tsd-signature-symbol">: </span><a href="../interfaces/_core_types_.sortconfig.html" class="tsd-signature-type">SortConfig</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/utils.ts#L28">utils.ts:28</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/actions.ts#L9">core/actions.ts:9</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>url: <span class="tsd-signature-type">string</span></h5>
+									<h5>sortConfig: <a href="../interfaces/_core_types_.sortconfig.html" class="tsd-signature-type">SortConfig</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>sort<wbr>Config<span class="tsd-signature-symbol">: </span><a href="../interfaces/_core_types_.sortconfig.html" class="tsd-signature-type">SortConfig</a></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
@@ -231,7 +254,7 @@
 					<li class="label tsd-is-external">
 						<span>Externals</span>
 					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
+					<li class="current tsd-kind-external-module tsd-is-external">
 						<a href="_core_actions_.html">&quot;core/actions&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
@@ -255,7 +278,7 @@
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="_ui_wcpanel_.html">&quot;ui/<wbr>WcPanel&quot;</a>
 					</li>
-					<li class="current tsd-kind-external-module tsd-is-external">
+					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="_utils_.html">&quot;utils&quot;</a>
 					</li>
 				</ul>
@@ -263,19 +286,19 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<a href="_utils_.html#extractnumber" class="tsd-kind-icon">extract<wbr>Number</a>
+						<a href="_core_actions_.html#adduserattribute" class="tsd-kind-icon">add<wbr>User<wbr>Attribute</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<a href="_utils_.html#htmltoelement" class="tsd-kind-icon">html<wbr>ToElement</a>
+						<a href="_core_actions_.html#edituserrecord" class="tsd-kind-icon">edit<wbr>User<wbr>Record</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<a href="_utils_.html#ondomready" class="tsd-kind-icon">on<wbr>Dom<wbr>Ready</a>
+						<a href="_core_actions_.html#loadrecords" class="tsd-kind-icon">load<wbr>Records</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<a href="_utils_.html#urlcontains" class="tsd-kind-icon">url<wbr>Contains</a>
+						<a href="_core_actions_.html#setappattributes" class="tsd-kind-icon">set<wbr>App<wbr>Attributes</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-external">
-						<a href="_utils_.html#urlexact" class="tsd-kind-icon">url<wbr>Exact</a>
+						<a href="_core_actions_.html#sortrecords" class="tsd-kind-icon">sort<wbr>Records</a>
 					</li>
 				</ul>
 			</nav>

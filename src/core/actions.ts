@@ -4,8 +4,11 @@
 
 import { Record, AttrSpec, SortConfig } from './types'
 
+// Actions from site adapters
 export const loadRecords = (records:Array<Record>) => ({ type: "LOAD_RECORDS", records })
 export const setAppAttributes = (appAttributes:Array<AttrSpec>) => ({ type: "SET_APP_ATTRIBUTES", appAttributes })
+
+// Actions from the UI
 export const sortRecords = (sortConfig:SortConfig) =>  ({ type: "SORT_RECORDS", sortConfig })
 export const addUserAttribute = () => ({ type: "ADD_USER_ATTRIBUTE" })
 export const editUserRecord = (id, updates) => ({ type: "EDIT_USER_RECORD", id, updates })

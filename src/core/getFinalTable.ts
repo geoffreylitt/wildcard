@@ -9,7 +9,7 @@
 // tables and attributes.
 
 // Whatever gets outputted by these selectors is *exactly* what gets displayed
-// in the final table view
+// in the final table view.
 
 
 import { createSelector } from 'reselect';

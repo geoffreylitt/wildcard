@@ -98,7 +98,7 @@
 					<div class="tsd-signature tsd-kind-icon">get<wbr>Final<wbr>Attributes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;createSelector([getAppAttributes, getUserAttributes],(appAttributes, userAttributes) &#x3D;&gt; (appAttributes || []).concat(userAttributes || []))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/a26917e/src/core/getFinalTable.ts#L59">core/getFinalTable.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/getFinalTable.ts#L59">core/getFinalTable.ts:59</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -108,7 +108,7 @@
 					<div class="tsd-signature tsd-kind-icon">get<wbr>Final<wbr>Records<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;createSelector([getAppRecords, getUserRecords, getSortConfig],(appRecords, userRecords, sortConfig) &#x3D;&gt; {const userRecordsById &#x3D; keyBy(userRecords, r &#x3D;&gt; r.id);let finalRecords &#x3D; appRecords.slice();// left join user records to app recordsfinalRecords &#x3D; finalRecords.map(r &#x3D;&gt; ({id: r.id,attributes: {...r.attributes,...(userRecordsById[r.id] || {}).attributes}}));// sortif (sortConfig) {finalRecords &#x3D; sortBy(finalRecords, r &#x3D;&gt; r.attributes[sortConfig.attribute])if (sortConfig.direction &#x3D;&#x3D;&#x3D; &quot;desc&quot;) {finalRecords &#x3D; finalRecords.reverse()}}return finalRecords;})</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/a26917e/src/core/getFinalTable.ts#L29">core/getFinalTable.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/getFinalTable.ts#L29">core/getFinalTable.ts:29</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -125,7 +125,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/a26917e/src/core/getFinalTable.ts#L21">core/getFinalTable.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/getFinalTable.ts#L21">core/getFinalTable.ts:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -148,7 +148,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/a26917e/src/core/getFinalTable.ts#L20">core/getFinalTable.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/getFinalTable.ts#L20">core/getFinalTable.ts:20</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -171,7 +171,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/a26917e/src/core/getFinalTable.ts#L26">core/getFinalTable.ts:26</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/getFinalTable.ts#L26">core/getFinalTable.ts:26</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -194,7 +194,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/a26917e/src/core/getFinalTable.ts#L24">core/getFinalTable.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/getFinalTable.ts#L24">core/getFinalTable.ts:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -217,7 +217,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/a26917e/src/core/getFinalTable.ts#L23">core/getFinalTable.ts:23</a></li>
+									<li>Defined in <a href="https://github.com/geoffreylitt/wildcard/blob/e39a847/src/core/getFinalTable.ts#L23">core/getFinalTable.ts:23</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -246,6 +246,9 @@
 					</li>
 					<li class="label tsd-is-external">
 						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="_core_actions_.html">&quot;core/actions&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="_core_debug_.html">&quot;core/debug&quot;</a>

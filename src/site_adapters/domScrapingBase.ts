@@ -6,6 +6,7 @@ import keyBy from 'lodash/keyBy'
 import values from 'lodash/values'
 import { Record, AttrSpec, SortConfig } from '../core/types'
 import { htmlToElement } from '../utils'
+import { SiteAdapter } from './index'
 
 type DataValue = string | number | boolean
 
@@ -61,11 +62,11 @@ function onDomReady(fn) {
   else document.addEventListener('DOMContentLoaded', fn)
 }
 
-class DomScrapingBaseAdapter {
+abstract class DomScrapingBaseAdapter implements SiteAdapter {
   scrapedRows: Array<ScrapedRow>;
   sortOrder: SortConfig;
-  siteName: string;
-  colSpecs: Array<AttrSpec>;
+  abstract siteName: string;
+  abstract colSpecs: Array<AttrSpec>;
 
   constructor() {
     this.scrapedRows = [];
@@ -134,10 +135,7 @@ class DomScrapingBaseAdapter {
     annotationTarget.innerHTML = annotationsHTML.join(" ")
   }
 
-  scrapePage():Array<ScrapedRow> {
-    throw("Not implemented, child class must override.");
-    return null;
-  }
+  abstract scrapePage():Array<ScrapedRow>;
 
   // convert scraper-internal data structure to
   // the standard format for all wildcard adapters

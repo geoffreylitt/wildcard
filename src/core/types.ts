@@ -2,8 +2,10 @@
 
 // This file defines types used throughout Wildcard
 
+export type id = string;
+
 export interface Record {
-  id: string;
+  id: id;
   attributes: any;
 }
 
