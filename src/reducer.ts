@@ -1,8 +1,8 @@
-import { WcRecord, AttrSpec, SortConfig } from './types'
+import { Record, AttrSpec, QueryState, Table} from './types'
 import includes from 'lodash/includes'
 import { combineReducers } from 'redux'
 
-const appTable = (state = { attributes: [], records: [] }, action) => {
+const appTable = (state = { attributes: [], records: [] }, action):Table => {
   switch(action.type) {
     case "LOAD_RECORDS":
       return {
@@ -30,7 +30,7 @@ const initialUserTable = {
   }],
   records: []
 }
-const userTable = (state = initialUserTable, action) => {
+const userTable = (state = initialUserTable, action):Table => {
   switch(action.type) {
     case "ADD_USER_ATTRIBUTE":
       const newAttribute : AttrSpec = {
@@ -47,7 +47,7 @@ const userTable = (state = initialUserTable, action) => {
     // todo: this seems too specific... instead, generalize to the
     // idea of edits on arbitrary tables?
     case "EDIT_USER_RECORD":
-      let newRecords : Array<WcRecord>;
+      let newRecords : Array<Record>;
 
       // todo: this does two passes, inefficient
       const existingRecord = state.records.find(r => r.id === action.id)
@@ -73,10 +73,13 @@ const userTable = (state = initialUserTable, action) => {
   }
 }
 
-const sortConfig = (state = null, action) => {
+const query = (state = { sortConfig: null }, action):QueryState => {
   switch(action.type) {
     case "SORT_RECORDS":
-      return action.sortConfig
+      return {
+        ...state,
+        sortConfig: action.sortConfig
+      }
 
     default:
       return state;
@@ -86,7 +89,7 @@ const sortConfig = (state = null, action) => {
 const rootReducer = combineReducers({
   appTable,
   userTable,
-  sortConfig
+  query
 })
 
 export default rootReducer;

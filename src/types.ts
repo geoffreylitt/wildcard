@@ -1,9 +1,8 @@
 'use strict';
 
-// these are types that appear directly in the reduced state,
-// but also in actions
+// This file defines types used throughout Wildcard
 
-export interface WcRecord {
+export interface Record {
   id: string;
   attributes: any;
 }
@@ -37,7 +36,17 @@ export interface AttrSpec {
   hidden?: boolean;
 }
 
+
+export interface Table {
+  attributes: Array<AttrSpec>;
+  records: Array<Record>
+}
+
 export interface SortConfig {
   attribute: string;
-  direction: "asc" | "desc"
+  direction: "asc" | "desc";
+}
+
+export interface QueryState {
+  sortConfig: SortConfig
 }

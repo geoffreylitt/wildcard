@@ -4,7 +4,7 @@ import { urlExact, urlContains, extractNumber } from "../utils";
 import mapValues from "lodash/mapValues";
 import keyBy from 'lodash/keyBy'
 import values from 'lodash/values'
-import { WcRecord, AttrSpec, SortConfig } from '../types'
+import { Record, AttrSpec, SortConfig } from '../types'
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
@@ -141,7 +141,7 @@ class DomScrapingBaseAdapter {
 
   // convert scraper-internal data structure to
   // the standard format for all wildcard adapters
-  recordsInExternalFormat():Array<WcRecord> {
+  recordsInExternalFormat():Array<Record> {
     // hmm, don't love creating parallel data structures for values + elements;
     // maybe better:
     // * user constructs just elements
