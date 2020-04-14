@@ -16,6 +16,7 @@
     "@types/chrome": "^0.0.95",
     "@types/greasemonkey": "^4.0.0",
     "@types/jquery": "^3.3.33",
+    "browser": "^0.2.6",
     "handsontable": "^7.2.2",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",

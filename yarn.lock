@@ -124,19 +124,17 @@
   dependencies:
     "@types/node" "*"
 
-<<<<<<< HEAD
 "@types/sizzle@*":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
   integrity sha512-7EJYyKTL7tFR8+gDbB6Wwz/arpGa0Mywk1TJbNzKzHtzbwVmY4HR9WqS5VV7dsBUKQmPNr192jHr/VpBluj/hg==
-=======
+
 abstract-leveldown@~0.12.0, abstract-leveldown@~0.12.1:
   version "0.12.4"
   resolved "https://registry.yarnpkg.com/abstract-leveldown/-/abstract-leveldown-0.12.4.tgz#29e18e632e60e4e221d5810247852a63d7b2e410"
   integrity sha1-KeGOYy5g5OIh1YECR4UqY9ey5BA=
   dependencies:
     xtend "~3.0.0"
->>>>>>> 23cf5972549a23c2a7458fc3a6d25b3860c34ce1
 
 accepts@~1.3.4:
   version "1.3.7"
@@ -274,6 +272,16 @@ brorand@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/brorand/-/brorand-1.1.0.tgz#12c25efe40a45e3c323eb8675a0a0ce57b22371f"
   integrity sha1-EsJe/kCkXjwyPrhnWgoM5XsiNx8=
+
+browser@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/browser/-/browser-0.2.6.tgz#b2bd40539f6d1cafab12b7943954d7e758f6b63e"
+  integrity sha1-sr1AU59tHK+rEreUOVTX51j2tj4=
+  dependencies:
+    cheerio x.x.x
+    junjo ">=0.2.6"
+    termcolor x.x.x
+    u2r x.x.x
 
 browserify-aes@^1.0.0, browserify-aes@^1.0.4:
   version "1.2.0"
@@ -429,7 +437,7 @@ chalk@^2.4.1, chalk@^2.4.2:
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
 
-cheerio@~0.22.0:
+cheerio@x.x.x, cheerio@~0.22.0:
   version "0.22.0"
   resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-0.22.0.tgz#a9baa860a3f9b595a6b81b1a86873121ed3a269e"
   integrity sha1-qbqoYKP5tZWmuBsahocxIe06Jp4=
@@ -1507,6 +1515,11 @@ jsonfile@^4.0.0:
   integrity sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=
   optionalDependencies:
     graceful-fs "^4.1.6"
+
+junjo@>=0.2.6:
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/junjo/-/junjo-0.2.8.tgz#8ab20b8cb51b77e5fc3a8d418774d7975b531fd8"
+  integrity sha1-irILjLUbd+X8Oo1Bh3TXl1tTH9g=
 
 level-blobs@^0.1.7:
   version "0.1.7"
@@ -2980,6 +2993,11 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
+termcolor@x.x.x:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/termcolor/-/termcolor-0.2.0.tgz#283afffd417a49ba730e94d5c120212e0b1fe475"
+  integrity sha1-KDr//UF6SbpzDpTVwSAhLgsf5HU=
+
 timsort@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
@@ -3029,6 +3047,11 @@ typescript@^3.7.4:
   version "3.7.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.4.tgz#1743a5ec5fef6a1fa9f3e4708e33c81c73876c19"
   integrity sha512-A25xv5XCtarLwXpcDNZzCGvW2D1S3/bACratYBx2sax8PefsFhlYmkQicKHvpYflFS8if4zne5zT5kpJ7pzuvw==
+
+u2r@x.x.x:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/u2r/-/u2r-0.1.3.tgz#c5fc79167253209c16a55cd83f478163d6bd0074"
+  integrity sha1-xfx5FnJTIJwWpVzYP0eBY9a9AHQ=
 
 unfluff@^3.2.0:
   version "3.2.0"

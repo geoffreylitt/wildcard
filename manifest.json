@@ -13,11 +13,13 @@
         ]
       }
     ],
-    "background": {"scripts": ["dist/wildcard-background.js"]},
+    "background": {"scripts": ["dist/wildcard-background.js", "src/wildcard-ajax.js"]},
     "permissions": [
       "storage",
       "history",
+      "webRequest",
       "http://*/*",
-      "https://*/*"
+      "https://*/*",
+      "<all_urls>"
     ]
   }
