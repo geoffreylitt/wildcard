@@ -71,7 +71,8 @@ injects Wildcard into the page.
 
 ## To cut a release
 
-Zip the `dist/ folder locally.
-Rename it with a version number.
-Create a new release in the Github UI and upload the zip file.
+* create a new folder named `wildcard-<version>`
+* copy the current dist folder and manifest.json to the new folder
+* zip the folder. Create a new release in the Github UI and upload the zip file.
+
 (In the future we should automate this)
