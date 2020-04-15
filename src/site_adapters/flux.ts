@@ -1,25 +1,5 @@
 'use strict';
 
-import { urlContains, extractNumber } from "../utils"
-
-export const FluxAdapter = {
-  name: "Flux",
-  enable: () => ,
-  colSpecs:
-  getDataRows: () => {
-
-  },
-  setupReloadTriggers: (reload) => {
-    document.addEventListener("click", (e) => { reload() })
-  }
-}
-
-
-
-'use strict';
-
-// A sample new HN site adapter.
-
 import { urlExact, urlContains, extractNumber, onDomReady } from "../utils";
 import DomScrapingBaseAdapter from "./domScrapingBase"
 
@@ -31,29 +11,48 @@ class FluxAdapter extends DomScrapingBaseAdapter {
   siteName = "Flux Table"
 
   colSpecs = [
-    { name: "id", type: "text" },
-    { name: "DataDoPreenchimento", type: "text", editable: true },
-    { name: "FatorDeDiluição", type: "numeric", editable: true },
-  ],
+    { name: "id", type: "text", hidden: true },
+    { name: "0", type: "numeric", editable: true},
+    { name: "1", type: "numeric", editable: true},
+    { name: "2", type: "numeric", editable: true},
+    { name: "3", type: "numeric", editable: true},
+    { name: "4", type: "numeric", editable: true},
+    { name: "5", type: "numeric", editable: true},
+    { name: "6", type: "numeric", editable: true},
+    { name: "7", type: "numeric", editable: true},
+    { name: "8", type: "numeric", editable: true},
+    { name: "9", type: "numeric", editable: true},
+    { name: "10", type: "numeric", editable: true},
+    { name: "11", type: "numeric", editable: true},
+  ]
 
   scrapePage() {
-    let container = document.querySelector("#j_id_7y") as HTMLElement
-    let dateInput = document.querySelector("#dataDoPreenchimento_input") as HTMLElement
-    let fatorInput = document.querySelector("#fatorDeDiluicao") as HTMLElement
+    let result = []
+    let tbody = document.querySelector("#j_id__v_37_j_id33 tbody")
 
-    return [
-      {
-        els: [container],
-        dataValues: {
-          id: "123",
-          "DataDoPreenchimento": dateInput,
-          "FatorDeDiluição": fatorInput
+    for (let i = 0; i < 8; i++) {
+      result.push(
+        {
+          els: [tbody.children[i]],
+          dataValues: {
+            "id": i,
+            "0": document.querySelector(`#valorBrutoAbs--${i}--0`),
+            "1": document.querySelector(`#valorBrutoAbs--${i}--1`),
+            "2": document.querySelector(`#valorBrutoAbs--${i}--2`),
+            "3": document.querySelector(`#valorBrutoAbs--${i}--3`),
+            "4": document.querySelector(`#valorBrutoAbs--${i}--4`),
+            "5": document.querySelector(`#valorBrutoAbs--${i}--5`),
+            "6": document.querySelector(`#valorBrutoAbs--${i}--6`),
+            "7": document.querySelector(`#valorBrutoAbs--${i}--7`),
+          }
         }
-      }
-    ]
+      )
+    }
+
+    return result
   }
 
-  subscribe() {
+  subscribe(callback) {
     onDomReady(() => {
       // todo: this is an antipattern,
       // shouldn't need to load on subscribe.
@@ -61,8 +60,8 @@ class FluxAdapter extends DomScrapingBaseAdapter {
       callback(this.loadRecords());
 
       // todo: find a better trigger for this site
-      document.addEventListener("click", (e) => { reload() })
-    }
+      document.addEventListener("click", (e) => { callback(this.loadRecords()) })
+    })
   }
 }
 

@@ -109,7 +109,7 @@ abstract class DomScrapingBaseAdapter implements SiteAdapter {
   }
 
   // newvalues = key value pairs of user record
-  annotateRecordInSite(id, newValues, userAttributes) {
+  editRecord(id, newValues, userAttributes) {
     const scrapedRow = this.scrapedRows.find(r => r.id === id);
 
     if (!scrapedRow.annotationContainer) return;
@@ -151,9 +151,13 @@ abstract class DomScrapingBaseAdapter implements SiteAdapter {
         let extractedValue;
 
         // extract text from html element
-        if (value instanceof HTMLElement) {
+        if (value instanceof HTMLInputElement) {
+          extractedValue = value.value;
+        }
+        else if (value instanceof HTMLElement) {
           extractedValue = value.textContent;
         } else {
+          console.log('text')
           extractedValue = value;
         }
 

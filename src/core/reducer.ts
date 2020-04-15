@@ -1,5 +1,6 @@
 import { Record, AttrSpec, QueryState, Table} from './types'
 import includes from 'lodash/includes'
+import pick from 'lodash/pick'
 import { combineReducers } from 'redux'
 
 const appTable = (state = { attributes: [], records: [] }, action):Table => {
@@ -23,11 +24,7 @@ const appTable = (state = { attributes: [], records: [] }, action):Table => {
 
 
 const initialUserTable = {
-  attributes: [{
-    name: "user1",
-    type: "text",
-    editable: true
-  }],
+  attributes: [],
   records: []
 }
 const userTable = (state = initialUserTable, action):Table => {
@@ -46,7 +43,12 @@ const userTable = (state = initialUserTable, action):Table => {
 
     // todo: this seems too specific... instead, generalize to the
     // idea of edits on arbitrary tables?
-    case "EDIT_USER_RECORD":
+    case "EDIT_RECORD":
+      // filter the update to only attributes in this table
+      // (todo: need to use attr IDs and not names here, to avoid
+      // issues with attribute name overlaps)
+      const updates = pick(action.updates, state.attributes.map(a => a.name))
+
       let newRecords : Array<Record>;
 
       // todo: this does two passes, inefficient
@@ -56,16 +58,17 @@ const userTable = (state = initialUserTable, action):Table => {
           if (r.id === action.id) {
             return {
               id: r.id,
-              attributes: { ...r.attributes, ...action.updates }
+              attributes: { ...r.attributes, ...updates }
             }
           }
           else { return r; }
         })
       } else {
         newRecords = [...state.records,
-          { id: action.id, attributes: action.updates }
+          { id: action.id, attributes: updates }
         ]
       }
+
       return { ...state, records: newRecords }
 
     default:

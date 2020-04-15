@@ -26,13 +26,14 @@ export const updateAdapterMiddleware = (adapter:DomScrapingBaseAdapter) =>
       adapter.applySort(getFinalRecords(newState), newState.sortConfig);
       break;
 
-    case "EDIT_USER_RECORD":
-      adapter.annotateRecordInSite(
+    case "EDIT_RECORD":
+      adapter.editRecord(
         action.id,
         newState.userTable.records.find(r => r.id === action.id).attributes,
         newState.userTable.attributes
       );
       break;
+
   }
 
   return returnValue

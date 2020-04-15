@@ -1,31 +1,14 @@
 // Registry of all the site adapters
 
-// import { ExpediaAdapter } from './expedia';
-// import { AirbnbAdapter } from './airbnb';
-// import { BloggerAdapter } from "./blogger";
-// import { UberEatsAdapter } from "./ubereats";
-// // import { HNAdapter } from './hackernews';
-// import { AmazonAdapter } from './amazon';
-// import { WeatherChannelAdapter } from "./weatherchannel";
-// import { YoutubeAdapter } from "./youtube";
-// import { InstacartAdapter } from "./instacart";
-
-// export const oldSiteAdapters = [
-//   ExpediaAdapter,
-//   AirbnbAdapter,
-//   BloggerAdapter,
-//   UberEatsAdapter,
-//   AmazonAdapter,
-//   WeatherChannelAdapter,
-//   YoutubeAdapter,
-//   InstacartAdapter
-// ]
-
 import HNAdapter from './newHN'
+import FluxAdapter from './flux'
+import ExpediaAdapter from './expedia'
 import { Table, Record, SortConfig, id, AttrSpec } from '../core/types'
 
 export const siteAdapters = [
-  HNAdapter
+  HNAdapter,
+  FluxAdapter,
+  ExpediaAdapter
 ]
 
 export function getActiveAdapter():any {
@@ -60,7 +43,7 @@ export interface SiteAdapter {
   applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
 
   /** Apply a new annotation to the UI */
-  annotateRecordInSite(id:id, newValues:any, userAttributes:Array<AttrSpec>):void;
+  editRecord(id:id, newValues:any, userAttributes:Array<AttrSpec>):void;
 
   // I'm considering replacing the two functions above with a generalized
   // version that can apply arbitrary table state to the UI:
@@ -68,5 +51,5 @@ export interface SiteAdapter {
   /** Update the UI to match arbitrary table state
    *  (To implement performantly, probably do a diff inside the adapter
    *  and only update the UI where necessary) */
-  update?(table:Table):void;
+  // update?(table:Table):void;
 }

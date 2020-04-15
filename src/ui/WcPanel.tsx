@@ -3,6 +3,7 @@ import Handsontable from 'handsontable';
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
 import keyBy from 'lodash/keyBy'
+import includes from 'lodash/includes'
 
 import { connect } from 'react-redux'
 import * as WcActions from '../core/actions'
@@ -115,7 +116,7 @@ const WcPanel = ({ records, attributes, actions }) => {
 
   const onBeforeChange = (changes, source) => {
     for (const [rowIndex, propName, prevValue, nextValue] of changes) {
-      actions.editUserRecord(records[rowIndex].id, {[propName]: nextValue});
+      actions.editRecord(records[rowIndex].id, {[propName]: nextValue});
     }
 
     return false;
