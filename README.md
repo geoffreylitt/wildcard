@@ -8,13 +8,15 @@ A prototype that maps website data to a table, enabling end users to modify and 
 
 Note: this project is in alpha status. Install at your own risk and don't be surprised by bugs and breaking changes. 🚧
 
-First, clone this repo locally: `git clone https://github.com/geoffreylitt/wildcard.git`
+First, download the latest release from the [releases page](https://github.com/geoffreylitt/wildcard/releases).
 
-**To install on Chrome**: [Follow these instructions](https://developer.chrome.com/extensions/getstarted#manifest) to install the cloned directory as an unpacked Chrome extension.
+Then, unzip the directory and install it in your browser:
 
-**To install on Edge**: [Follow these instructions](https://docs.microsoft.com/en-us/microsoft-edge/extensions-chromium/getting-started/part1-simple-extension#run-your-extension-locally-in-your-browser-while-developing-it-side-loading) to install the cloned directory as an unpacked Edge extension.
+**Chrome**: [Follow these instructions](https://developer.chrome.com/extensions/getstarted#manifest) to install the directory as an unpacked Chrome extension.
 
-**To install on Firefox**: [Follow these instructions](https://github.com/mdn/webextensions-examples) (Installing an example) to install the manifest.json file as a temporary Firefox extension.
+**Edge**: [Follow these instructions](https://docs.microsoft.com/en-us/microsoft-edge/extensions-chromium/getting-started/part1-simple-extension#run-your-extension-locally-in-your-browser-while-developing-it-side-loading) to install the directory as an unpacked Edge extension.
+
+**Firefox**: [Follow these instructions](https://github.com/mdn/webextensions-examples) (Installing an example) to install the manifest.json file as a temporary Firefox extension.
 Note: You may need to unblock trackers in your Firefox preferences because Wildcard stores data in your browser’s local storage for persistence of changes across page loads.
 
 To test whether it's working: try an [Airbnb search](https://www.airbnb.com/s/Miami/homes?checkin=2019-11-14&checkout=2019-11-17&adults=1&children=0&infants=0&place_id=ChIJEcHIDqKw2YgRZU-t3XHylv8&refinement_paths%5B%5D=%2Fhomes&search_type=section_navigation); the table should appear at the bottom and you should be able to sort by price. (You may need to refresh the page once to get the table to appear)
@@ -66,3 +68,10 @@ Site adapters are in `src/site_adapters`. Cell editors are in `src/cell_editors`
 
 `src/wildcard.ts` is the final file that pulls everything together and
 injects Wildcard into the page.
+
+## To cut a release
+
+Zip the `dist/ folder locally.
+Rename it with a version number.
+Create a new release in the Github UI and upload the zip file.
+(In the future we should automate this)
