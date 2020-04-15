@@ -1,6 +1,10 @@
 # Wildcard
 
-A prototype that maps website data to a table, enabling end users to modify and reprogram the site. For more details, see the [project site](https://www.geoffreylitt.com/wildcard/).
+Wildcard is a platform that empowers anyone to build browser extensions and modify websites to meet their own specific needs.
+
+Wildcard shows a simplified view of the data in a web page as a familiar table view. People can directly manipulate the table to sort/filter content, add annotations, and even use spreadsheet-style formulas to pull in data from other websites.
+
+For more details, see the [project site](https://www.geoffreylitt.com/wildcard/), or the [paper](https://www.geoffreylitt.com/wildcard/salon2020/) presented at the Convivial Computing Salon 2020.
 
 [Sign up for the email newsletter](https://forms.gle/mpn1Hn8Ln7dmPo6T8) to get an email when the project is ready for beta users.
 
@@ -69,10 +73,12 @@ Site adapters are in `src/site_adapters`. Cell editors are in `src/cell_editors`
 `src/wildcard.ts` is the final file that pulls everything together and
 injects Wildcard into the page.
 
-## To cut a release
+### To cut a release
 
 * create a new folder named `wildcard-<version>`
 * copy the current dist folder and manifest.json to the new folder
 * zip the folder. Create a new release in the Github UI and upload the zip file.
 
 (In the future we should automate this)
+
+
