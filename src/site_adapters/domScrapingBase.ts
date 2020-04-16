@@ -6,9 +6,8 @@ import keyBy from 'lodash/keyBy'
 import keys from 'lodash/keys'
 import values from 'lodash/values'
 import pick from 'lodash/pick'
-import { Record, AttrSpec, SortConfig } from '../core/types'
+import { Record, AttrSpec, SortConfig, TableStore, Table } from '../core/types'
 import { htmlToElement } from '../utils'
-import { TableStore } from '../core/types'
 
 type DataValue = string | number | boolean
 
@@ -69,21 +68,30 @@ abstract class DomScrapingBaseAdapter implements TableStore {
   sortOrder: SortConfig;
   abstract siteName: string;
   abstract colSpecs: Array<AttrSpec>;
+  subscribers: Array<(Table) => void>;
 
   constructor() {
     this.scrapedRows = [];
     this.sortOrder = null;
+    this.subscribers = [];
   }
 
-  loadRecords() {
+  loadTable() {
     this.scrapedRows = this.scrapePage();
-    return this.recordsInExternalFormat();
+    return this.tableInExternalFormat();
+  }
+
+  notify() {
+    for (const callback of this.subscribers) {
+      callback(this.loadTable());
+    }
   }
 
   // Currently, just load data once on dom ready
   // todo: reload data on different triggers
   subscribe (callback) {
-    onDomReady(() => callback(this.loadRecords()))
+    this.subscribers = [...this.subscribers, callback]
+    onDomReady(() => this.notify())
   }
 
   // Note about DOM scraping + sorting:
@@ -150,13 +158,13 @@ abstract class DomScrapingBaseAdapter implements TableStore {
 
   // convert scraper-internal data structure to
   // the standard format for all wildcard adapters
-  recordsInExternalFormat():Array<Record> {
+  tableInExternalFormat():Table {
     // hmm, don't love creating parallel data structures for values + elements;
     // maybe better:
     // * user constructs just elements
     // * base DOMScrapingAdapter constructs elements + values
     // * base DOMScrapingAdapter uses that to output the "just values" version
-    return this.scrapedRows.map(row => ({
+    const records = this.scrapedRows.map(row => ({
       id: row.id,
       attributes: mapValues(row.attributes, (value, attrName) => {
         let extractedValue;
@@ -180,12 +188,20 @@ abstract class DomScrapingBaseAdapter implements TableStore {
 
         return extractedValue;
       })
-    }))
+    }));
+
+    return {
+      tableId: this.siteName,
+      attributes: this.colSpecs,
+      records: records
+    }
   }
 
   otherTableUpdated(table) {
     console.log("other table updated", table);
   }
+
+  addAttribute() {}
 }
 
 export default DomScrapingBaseAdapter;

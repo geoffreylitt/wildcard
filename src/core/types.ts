@@ -54,6 +54,7 @@ export interface QueryState {
   sortConfig: SortConfig
 }
 
+export type TableCallback = (table:Table) => void;
 
 // Generalizing over the site adapters and user data, among others
 export interface TableStore {
@@ -62,11 +63,11 @@ export interface TableStore {
   // =====================
 
   /** Return latest data */
-  loadRecords():Array<Record>;
+  loadTable():Table;
 
   /** Register a callback function which will be called with a new table
    *  of data anytime the data changes. */
-  subscribe (callback:(table:Table) => void):void;
+  subscribe (callback:TableCallback):void;
 
   // ============================================================
   // Requesting to the TableStore to modify the table in some way
@@ -79,7 +80,7 @@ export interface TableStore {
   applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
 
   /** Edit a record in the table*/
-  editRecord(id:id, newValues:any):void;
+  editRecord(id:id, attribute:string, value:any):void;
 
   /** Update the UI to match arbitrary table state
    *  (To implement performantly, probably do a diff inside the adapter
@@ -91,4 +92,6 @@ export interface TableStore {
   // ============================================================
 
   otherTableUpdated(table:Table):void;
+
+  addAttribute(name?):void;
 }

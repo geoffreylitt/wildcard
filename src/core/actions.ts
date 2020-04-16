@@ -11,4 +11,4 @@ export const setAppAttributes = (appAttributes:Array<AttrSpec>) => ({ type: "SET
 // Actions from the UI
 export const sortRecords = (sortConfig:SortConfig) =>  ({ type: "SORT_RECORDS", sortConfig })
 export const addUserAttribute = () => ({ type: "ADD_USER_ATTRIBUTE" })
-export const editRecord = (id, updates) => ({ type: "EDIT_RECORD", id, updates })
+export const editRecord = (id, attribute, value) => ({ type: "EDIT_RECORD", id, attribute, value })

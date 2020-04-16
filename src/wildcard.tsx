@@ -12,17 +12,18 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { loadRecords, setAppAttributes } from './core/actions';
 import reducer from './core/reducer';
 import { debugMiddleware } from './core/debug'
-import { updateAdapterMiddleware } from './site_adapters/updateMiddleware'
+import { updateTableStoreMiddleware } from './tableStoreMiddleware'
 import { htmlToElement } from './utils'
 import WcPanel from "./ui/WcPanel";
 import { getActiveAdapter } from "./site_adapters"
+import userStore from "./user-store"
 
 /**
   This is a test
 */
 const run = function () {
-  const activeAdapter = getActiveAdapter();
-  if (!activeAdapter) { return; }
+  const activeSiteAdapter = getActiveAdapter();
+  if (!activeSiteAdapter) { return; }
 
   // Add extra space to the bottom of the page for the wildcard panel
   // todo: move this elsewhere?
@@ -31,14 +32,15 @@ const run = function () {
   // Create our redux store
   const store = createStore(reducer, composeWithDevTools(
     applyMiddleware(debugMiddleware),
-    applyMiddleware(updateAdapterMiddleware(activeAdapter))
+    applyMiddleware(updateTableStoreMiddleware(activeSiteAdapter)),
+    applyMiddleware(updateTableStoreMiddleware(userStore))
   ));
 
   // Set attributes on the app table based on the adapter
-  store.dispatch(setAppAttributes(activeAdapter.colSpecs));
+  store.dispatch(setAppAttributes(activeSiteAdapter.colSpecs));
 
   // Subscribe to app data updates from the adapter
-  activeAdapter.subscribe(records => store.dispatch(loadRecords(records)) )
+  activeSiteAdapter.subscribe(records => store.dispatch(loadRecords(records)) )
 
   // Initialize the container for our view
   document.body.appendChild(

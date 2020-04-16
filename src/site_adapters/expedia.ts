@@ -40,9 +40,9 @@ class ExpediaAdapter extends DomScrapingBaseAdapter {
 
   subscribe (callback) {
     onDomReady(() => {
-      callback(this.loadRecords());
-      document.addEventListener("click", (e) => { callback(this.loadRecords()); })
-      document.addEventListener("keydown", (e) => { callback(this.loadRecords()); })
+      this.notify();
+      document.addEventListener("click", (e) => { this.notify(); });
+      document.addEventListener("keydown", (e) => { this.notify(); });
     });
   }
 }

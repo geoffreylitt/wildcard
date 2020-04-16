@@ -54,13 +54,10 @@ class FluxAdapter extends DomScrapingBaseAdapter {
 
   subscribe(callback) {
     onDomReady(() => {
-      // todo: this is an antipattern,
-      // shouldn't need to load on subscribe.
-      // caller should explicitly call load up front
-      callback(this.loadRecords());
+      this.notify()
 
       // todo: find a better trigger for this site
-      document.addEventListener("click", (e) => { callback(this.loadRecords()) })
+      document.addEventListener("click", (e) => { this.notify() })
     })
   }
 }
