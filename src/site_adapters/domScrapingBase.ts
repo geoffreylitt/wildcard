@@ -3,10 +3,12 @@
 import { urlExact, urlContains, extractNumber } from "../utils";
 import mapValues from "lodash/mapValues";
 import keyBy from 'lodash/keyBy'
+import keys from 'lodash/keys'
 import values from 'lodash/values'
+import pick from 'lodash/pick'
 import { Record, AttrSpec, SortConfig } from '../core/types'
 import { htmlToElement } from '../utils'
-import { SiteAdapter } from './index'
+import { TableStore } from '../core/types'
 
 type DataValue = string | number | boolean
 
@@ -62,7 +64,7 @@ function onDomReady(fn) {
   else document.addEventListener('DOMContentLoaded', fn)
 }
 
-abstract class DomScrapingBaseAdapter implements SiteAdapter {
+abstract class DomScrapingBaseAdapter implements TableStore {
   scrapedRows: Array<ScrapedRow>;
   sortOrder: SortConfig;
   abstract siteName: string;
@@ -108,8 +110,17 @@ abstract class DomScrapingBaseAdapter implements SiteAdapter {
     }
   }
 
+  // we receive an edit request with all the attributes
+  // and split it up into two parts:
+  // updates to the original record in the page,
+  // and updates to additional user-added columns which become annotations
+  editRecord(id, newValues) {
+    console.log("editRecord", id, newValues)
+  }
+
+  // unused
   // newvalues = key value pairs of user record
-  editRecord(id, newValues, userAttributes) {
+  updateAnnotations(id, newValues, userAttributes) {
     const scrapedRow = this.scrapedRows.find(r => r.id === id);
 
     if (!scrapedRow.annotationContainer) return;
@@ -172,7 +183,9 @@ abstract class DomScrapingBaseAdapter implements SiteAdapter {
     }))
   }
 
-  // todo: support incoming events like annotate, filter
+  otherTableUpdated(table) {
+    console.log("other table updated", table);
+  }
 }
 
 export default DomScrapingBaseAdapter;

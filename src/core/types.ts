@@ -40,6 +40,7 @@ export interface AttrSpec {
 
 
 export interface Table {
+  tableId: id;
   attributes: Array<AttrSpec>;
   records: Array<Record>
 }
@@ -51,4 +52,43 @@ export interface SortConfig {
 
 export interface QueryState {
   sortConfig: SortConfig
+}
+
+
+// Generalizing over the site adapters and user data, among others
+export interface TableStore {
+  // =====================
+  // Reading data
+  // =====================
+
+  /** Return latest data */
+  loadRecords():Array<Record>;
+
+  /** Register a callback function which will be called with a new table
+   *  of data anytime the data changes. */
+  subscribe (callback:(table:Table) => void):void;
+
+  // ============================================================
+  // Requesting to the TableStore to modify the table in some way
+  // ============================================================
+
+  // todo: should probably update these to return promises
+  // rather than just void and throwing away any return values
+
+  /** Apply a new sort order to the table */
+  applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
+
+  /** Edit a record in the table*/
+  editRecord(id:id, newValues:any):void;
+
+  /** Update the UI to match arbitrary table state
+   *  (To implement performantly, probably do a diff inside the adapter
+   *  and only update the UI where necessary) */
+  // update?(table:Table):void;
+
+  // ============================================================
+  // Notifying the TableStore of changes to other tables
+  // ============================================================
+
+  otherTableUpdated(table:Table):void;
 }

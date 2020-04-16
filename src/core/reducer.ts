@@ -3,7 +3,13 @@ import includes from 'lodash/includes'
 import pick from 'lodash/pick'
 import { combineReducers } from 'redux'
 
-const appTable = (state = { attributes: [], records: [] }, action):Table => {
+const initialAppTable = {
+  // todo: init this from the site adapter with a site name
+  tableId: "site",
+  attributes: [],
+  records: []
+}
+const appTable = (state = initialAppTable, action):Table => {
   switch(action.type) {
     case "LOAD_RECORDS":
       return {
@@ -24,6 +30,7 @@ const appTable = (state = { attributes: [], records: [] }, action):Table => {
 
 
 const initialUserTable = {
+  tableId: "user",
   attributes: [],
   records: []
 }

@@ -29,10 +29,13 @@ export const updateAdapterMiddleware = (adapter:DomScrapingBaseAdapter) =>
     case "EDIT_RECORD":
       adapter.editRecord(
         action.id,
-        newState.userTable.records.find(r => r.id === action.id).attributes,
-        newState.userTable.attributes
+        action.updates,
       );
-      break;
+
+
+    case "LOAD_RECORDS":
+
+
 
   }
 
