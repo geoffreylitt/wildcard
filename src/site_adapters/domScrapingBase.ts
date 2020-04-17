@@ -80,20 +80,24 @@ abstract class DomScrapingBaseAdapter implements TableStore {
 
   loadTable() {
     this.scrapedRows = this.scrapePage();
-    return this.tableInExternalFormat();
+    const table = this.tableInExternalFormat();
+    for (const callback of this.subscribers) {
+      callback(table);
+    }
+    return table;
   }
 
-  notify() {
-    for (const callback of this.subscribers) {
-      callback(this.loadTable());
-    }
+  initialize() {
+    onDomReady(() => this.loadTable())
   }
 
   // Currently, just load data once on dom ready
   // todo: reload data on different triggers
   subscribe (callback) {
     this.subscribers = [...this.subscribers, callback]
-    onDomReady(() => this.notify())
+
+    // trigger a load to catch up this subscriber
+    this.loadTable();
   }
 
   // Note about DOM scraping + sorting:

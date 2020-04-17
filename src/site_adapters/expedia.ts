@@ -22,6 +22,15 @@ class ExpediaAdapter extends DomScrapingBaseAdapter {
     { name: "returnDate", editable: true, type: "text", editor: FullCalendarEditor }
   ]
 
+  initialize () {
+    onDomReady(() => {
+      this.loadTable();
+      document.addEventListener("click", (e) => { this.loadTable() });
+      // add something more performant here than a keydown...
+      // document.addEventListener("keydown", (e) => { this.loadTable() });
+    })
+  }
+
   scrapePage() {
     let form = document.getElementById("gcw-packages-form-hp-package")
     return [
@@ -36,14 +45,6 @@ class ExpediaAdapter extends DomScrapingBaseAdapter {
       }
     }
     ]
-  }
-
-  subscribe (callback) {
-    onDomReady(() => {
-      this.notify();
-      document.addEventListener("click", (e) => { this.notify(); });
-      document.addEventListener("keydown", (e) => { this.notify(); });
-    });
   }
 }
 

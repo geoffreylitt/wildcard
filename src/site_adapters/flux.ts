@@ -8,6 +8,13 @@ class FluxAdapter extends DomScrapingBaseAdapter {
     return urlContains("flux2.luar.dcc.ufmg.br")
   }
 
+  initialize () {
+    onDomReady(() => {
+      this.loadTable();
+      document.addEventListener("click", (e) => { this.loadTable() });
+    })
+  }
+
   siteName = "Flux Table"
 
   colSpecs = [
@@ -50,15 +57,6 @@ class FluxAdapter extends DomScrapingBaseAdapter {
     }
 
     return result
-  }
-
-  subscribe(callback) {
-    onDomReady(() => {
-      this.notify()
-
-      // todo: find a better trigger for this site
-      document.addEventListener("click", (e) => { this.notify() })
-    })
   }
 }
 

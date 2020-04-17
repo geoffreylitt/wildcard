@@ -45,6 +45,8 @@ const run = function () {
   const activeSiteAdapter = getActiveAdapter();
   if (!activeSiteAdapter) { return; }
 
+  activeSiteAdapter.initialize();
+
   const tables = { app: activeSiteAdapter, user: userTableStore }
 
   // pass our TableStore objects into action creators,
