@@ -26,6 +26,7 @@
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "styled-components": "^5.1.0",

@@ -3,7 +3,7 @@
 import HNAdapter from './newHN'
 import FluxAdapter from './flux'
 import ExpediaAdapter from './expedia'
-import { Table, Record, SortConfig, id, AttrSpec } from '../core/types'
+import { Table, Record, SortConfig, recordId, AttrSpec } from '../core/types'
 
 export const siteAdapters = [
   HNAdapter,
@@ -43,7 +43,7 @@ export interface SiteAdapter {
   applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
 
   /** Apply a new annotation to the UI */
-  editRecord(id:id, newValues:any, userAttributes:Array<AttrSpec>):void;
+  editRecord(id:recordId, newValues:any, userAttributes:Array<AttrSpec>):void;
 
   // I'm considering replacing the two functions above with a generalized
   // version that can apply arbitrary table state to the UI:

@@ -191,7 +191,7 @@ abstract class DomScrapingBaseAdapter implements TableStore {
     }));
 
     return {
-      tableId: this.siteName,
+      tableId: "app",
       attributes: this.colSpecs,
       records: records
     }
@@ -201,7 +201,9 @@ abstract class DomScrapingBaseAdapter implements TableStore {
     console.log("other table updated", table);
   }
 
-  addAttribute() {}
+  addAttribute() {
+    return Promise.reject("Can't add attributes to site adapter")
+  }
 }
 
 export default DomScrapingBaseAdapter;

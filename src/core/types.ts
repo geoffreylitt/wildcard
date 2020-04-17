@@ -2,10 +2,13 @@
 
 // This file defines types used throughout Wildcard
 
-export type id = string;
+type id = string;
+
+export type recordId = id;
+export type tableId = id;
 
 export interface Record {
-  id: id;
+  id: recordId;
   attributes: any;
 }
 
@@ -40,7 +43,7 @@ export interface AttrSpec {
 
 
 export interface Table {
-  tableId: id;
+  tableId: tableId;
   attributes: Array<AttrSpec>;
   records: Array<Record>
 }
@@ -93,5 +96,5 @@ export interface TableStore {
 
   otherTableUpdated(table:Table):void;
 
-  addAttribute(name?):void;
+  addAttribute():Promise<Table>;
 }

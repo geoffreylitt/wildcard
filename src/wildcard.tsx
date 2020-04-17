@@ -6,24 +6,49 @@
 
 import React from "react";
 import { render } from "react-dom";
-import { createStore, compose, applyMiddleware } from "redux";
-import { Provider } from 'react-redux'
+import { createStore, compose, applyMiddleware, bindActionCreators } from "redux";
+import { Provider, connect } from 'react-redux'
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { loadRecords, setAppAttributes } from './core/actions';
 import reducer from './core/reducer';
 import { debugMiddleware } from './core/debug'
-import { updateTableStoreMiddleware } from './tableStoreMiddleware'
 import { htmlToElement } from './utils'
 import WcPanel from "./ui/WcPanel";
 import { getActiveAdapter } from "./site_adapters"
-import userStore from "./user-store"
+import userTableStore from "./userTableStore"
+import thunk from 'redux-thunk';
+import { initializeActions } from './core/actions'
+import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
 
-/**
-  This is a test
-*/
+// todo: move this out of this file
+const connectRedux = (component, actions) => {
+  const mapStateToProps = state => ({
+    // todo: when we have non-app records and attributes,
+    // merge them in the redux state, and pass in merged data here --
+    // this panel view isn't responsible for combining them.
+    // keep this component thin.
+    records: getFinalRecords(state),
+    attributes: getFinalAttributes(state)
+  })
+
+  const mapDispatchToProps = dispatch => ({
+    actions: bindActionCreators(actions, dispatch)
+  })
+
+  return connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(component)
+}
+
 const run = function () {
   const activeSiteAdapter = getActiveAdapter();
   if (!activeSiteAdapter) { return; }
+
+  const tables = { app: activeSiteAdapter, user: userTableStore }
+
+  // pass our TableStore objects into action creators,
+  // so action creator functions can access them.
+  const actions = initializeActions(tables)
 
   // Add extra space to the bottom of the page for the wildcard panel
   // todo: move this elsewhere?
@@ -31,24 +56,30 @@ const run = function () {
 
   // Create our redux store
   const store = createStore(reducer, composeWithDevTools(
+    applyMiddleware(thunk),
     applyMiddleware(debugMiddleware),
-    applyMiddleware(updateTableStoreMiddleware(activeSiteAdapter)),
-    applyMiddleware(updateTableStoreMiddleware(userStore))
   ));
 
-  // Set attributes on the app table based on the adapter
-  store.dispatch(setAppAttributes(activeSiteAdapter.colSpecs));
+  // Subscribe to app data updates from the site adapter and user store
+  activeSiteAdapter.subscribe(table =>
+    store.dispatch(actions.tableReloaded(table))
+  )
 
-  // Subscribe to app data updates from the adapter
-  activeSiteAdapter.subscribe(records => store.dispatch(loadRecords(records)) )
+  userTableStore.subscribe(table =>
+    store.dispatch(actions.tableReloaded(table))
+  )
 
   // Initialize the container for our view
   document.body.appendChild(
     htmlToElement(`<div id='wc--root'></div>`) as HTMLElement);
 
+  // in the future, rather than hardcode WcPanel here,
+  // could dynamically choose a table editor instrument
+  const TableEditor = connectRedux(WcPanel, actions)
+
   render(
     <Provider store={store}>
-      <WcPanel />
+      <TableEditor />
     </Provider>,
     document.getElementById("wc--root")
   );

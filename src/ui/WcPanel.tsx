@@ -71,7 +71,7 @@ const WcPanel = ({ records, attributes, actions }) => {
         "insert_user_attribute": {
           name: 'Insert new column',
           callback: function(key, selection, clickEvent) {
-            actions.addUserAttribute();
+            actions.addAttribute("user");
           }
         },
         "rename_user_attribute": {
@@ -137,23 +137,4 @@ const WcPanel = ({ records, attributes, actions }) => {
   }
 }
 
-// Hook it up to our Redux store with react-redux
-
-const mapStateToProps = state => ({
-  // todo: when we have non-app records and attributes,
-  // merge them in the redux state, and pass in merged data here --
-  // this panel view isn't responsible for combining them.
-  // keep this component thin.
-  records: getFinalRecords(state),
-  attributes: getFinalAttributes(state)
-})
-
-const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(WcActions, dispatch)
-})
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WcPanel)
-
+export default WcPanel;

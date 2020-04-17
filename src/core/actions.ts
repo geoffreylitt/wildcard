@@ -2,13 +2,20 @@
 // todo: define types for these events
 // https://redux.js.org/recipes/usage-with-typescript
 
-import { Record, AttrSpec, SortConfig } from './types'
+import { Table, TableStore, tableId } from './types'
 
-// Actions from site adapters
-export const loadRecords = (records:Array<Record>) => ({ type: "LOAD_RECORDS", records })
-export const setAppAttributes = (appAttributes:Array<AttrSpec>) => ({ type: "SET_APP_ATTRIBUTES", appAttributes })
+export const initializeActions = (tableStores:{ [key: string]: TableStore }) => {
+  const tableReloaded = (table:Table) =>
+      ({ type: "TABLE_RELOADED", table });
 
-// Actions from the UI
-export const sortRecords = (sortConfig:SortConfig) =>  ({ type: "SORT_RECORDS", sortConfig })
-export const addUserAttribute = () => ({ type: "ADD_USER_ATTRIBUTE" })
-export const editRecord = (id, attribute, value) => ({ type: "EDIT_RECORD", id, attribute, value })
+  return {
+    tableReloaded: tableReloaded,
+
+    addAttribute: (tableId:tableId) => {
+      return (dispatch) => {
+        const tableStore = tableStores[tableId];
+        tableStore.addAttribute();
+      }
+    }
+  }
+}

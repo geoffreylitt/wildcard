@@ -62,6 +62,8 @@ const userStore:TableStore = {
      table = { ...table, attributes: [...table.attributes, newAttribute] }
 
      notify()
+
+     return Promise.resolve(table);
    }
 }
 
