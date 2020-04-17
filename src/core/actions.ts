@@ -2,22 +2,18 @@
 // todo: define types for these events
 // https://redux.js.org/recipes/usage-with-typescript
 
+// Many of these actions don't directly affect the Redux state,
+// instead they ask a TableStore to do something async,
+// which will update the redux state on completion.
+// We use async redux-thunk action creators for this.
+
 import { Table, TableStore, tableId, recordId } from './types'
 import includes from 'lodash/includes'
 import keys from 'lodash/keys'
 
 export const initializeActions = (tableStores:{ [key: string]: TableStore }) => {
-  const tableReloaded = (table:Table) => {
-
-    // Notify other tables that a table was updated
-    keys(tableStores).forEach(otherTableId => {
-      if (otherTableId !== table.tableId) {
-        tableStores[otherTableId].handleOtherTableUpdated(table)
-      }
-    })
-
-    return { type: "TABLE_RELOADED", table }
-  }
+  const tableReloaded = (table:Table) =>
+    ({ type: "TABLE_RELOADED", table })
 
   return {
     tableReloaded: tableReloaded,
@@ -57,6 +53,10 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
           (err) => { console.error(err) }
         )
       }
+    },
+
+    sortRecords (sortConfig) {
+      return { type: "SORT_RECORDS", sortConfig }
     }
   }
 }

@@ -22,6 +22,7 @@ const notify = () => {
 }
 
 const userStore:TableStore = {
+   tableId: "user",
    loadTable: loadTable,
    subscribe(callback:TableCallback) {
      subscribers = [...subscribers, callback];

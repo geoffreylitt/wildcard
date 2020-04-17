@@ -18,6 +18,7 @@ import userTableStore from "./userTableStore"
 import thunk from 'redux-thunk';
 import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
+import { tableStoreMiddleware } from './tableStoreMiddleware'
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
@@ -57,6 +58,8 @@ const run = function () {
   // Create our redux store
   const store = createStore(reducer, composeWithDevTools(
     applyMiddleware(thunk),
+    applyMiddleware(tableStoreMiddleware(activeSiteAdapter)),
+    applyMiddleware(tableStoreMiddleware(userTableStore)),
     applyMiddleware(debugMiddleware),
   ));
 

@@ -61,6 +61,8 @@ export type TableCallback = (table:Table) => void;
 
 // Generalizing over the site adapters and user data, among others
 export interface TableStore {
+  tableId: tableId;
+
   // =====================
   // Reading data
   // =====================

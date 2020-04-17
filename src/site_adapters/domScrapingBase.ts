@@ -6,7 +6,7 @@ import keyBy from 'lodash/keyBy'
 import keys from 'lodash/keys'
 import values from 'lodash/values'
 import pick from 'lodash/pick'
-import { Record, AttrSpec, SortConfig, TableStore, Table } from '../core/types'
+import { Record, AttrSpec, SortConfig, TableStore, Table, tableId } from '../core/types'
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
@@ -64,6 +64,7 @@ function onDomReady(fn) {
 }
 
 abstract class DomScrapingBaseAdapter implements TableStore {
+  tableId: tableId;
   scrapedRows: Array<ScrapedRow>;
   sortOrder: SortConfig;
   abstract siteName: string;
@@ -71,6 +72,7 @@ abstract class DomScrapingBaseAdapter implements TableStore {
   subscribers: Array<(Table) => void>;
 
   constructor() {
+    this.tableId = "app";
     this.scrapedRows = [];
     this.sortOrder = null;
     this.subscribers = [];
