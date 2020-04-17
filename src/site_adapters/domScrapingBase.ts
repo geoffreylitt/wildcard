@@ -123,7 +123,8 @@ abstract class DomScrapingBaseAdapter implements TableStore {
   // updates to the original record in the page,
   // and updates to additional user-added columns which become annotations
   editRecord(id, newValues) {
-    console.log("editRecord", id, newValues)
+    console.log("editRecord", id, newValues);
+    return Promise.resolve(this.loadTable());
   }
 
   // unused
@@ -176,7 +177,6 @@ abstract class DomScrapingBaseAdapter implements TableStore {
         else if (value instanceof HTMLElement) {
           extractedValue = value.textContent;
         } else {
-          console.log('text')
           extractedValue = value;
         }
 

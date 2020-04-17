@@ -116,7 +116,14 @@ const WcPanel = ({ records, attributes, actions }) => {
 
   const onBeforeChange = (changes, source) => {
     for (const [rowIndex, propName, prevValue, nextValue] of changes) {
-      actions.editRecord(records[rowIndex].id, {[propName]: nextValue});
+
+      const attribute = attributes.find(a => a.name === propName)
+      actions.editRecord(
+        attribute.tableId,
+        records[rowIndex].id,
+        attribute.name,
+        nextValue
+      );
     }
 
     return false;

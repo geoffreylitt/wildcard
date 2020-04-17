@@ -83,7 +83,7 @@ export interface TableStore {
   applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
 
   /** Edit a record in the table*/
-  editRecord(id:id, attribute:string, value:any):void;
+  editRecord(id:id, attribute:string, value:any):Promise<Table>;
 
   /** Update the UI to match arbitrary table state
    *  (To implement performantly, probably do a diff inside the adapter

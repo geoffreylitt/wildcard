@@ -58,5 +58,10 @@ export const getFinalRecords = createSelector(
 
 export const getFinalAttributes = createSelector(
   [getAppAttributes, getUserAttributes],
-  (appAttributes, userAttributes) => (appAttributes || []).concat(userAttributes || [])
+  (appAttributes, userAttributes) => {
+    // annotate attrs with a table id
+    appAttributes = (appAttributes || []).map( a => ({ ...a, tableId: "app" }))
+    userAttributes = (userAttributes || []).map(a => ({ ...a, tableId: "user" }))
+    return appAttributes.concat(userAttributes)
+  }
 )

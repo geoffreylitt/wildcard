@@ -16,6 +16,7 @@ const loadTable = () => {
 
 const notify = () => {
   for (const callback of subscribers) {
+    console.log("notifying...")
     callback(loadTable());
   }
 }
@@ -48,8 +49,11 @@ const userStore:TableStore = {
      }
 
      table = { ...table, records: newRecords }
+     console.log("updated user table", table)
 
      notify()
+
+     return Promise.resolve(table);
    },
    otherTableUpdated() {},
    addAttribute() {
