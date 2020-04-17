@@ -6,7 +6,7 @@ import keyBy from 'lodash/keyBy'
 import keys from 'lodash/keys'
 import values from 'lodash/values'
 import pick from 'lodash/pick'
-import { Record, AttrSpec, SortConfig, TableStore, Table, tableId } from '../core/types'
+import { Record, AttrSpec, SortConfig, TableStore, Table, tableId, RecordEdit } from '../core/types'
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
@@ -37,7 +37,7 @@ type PageValue = Element | DataValue
 *   Must specify both an HTML element and an object containing data values.
 *   (The HTML element is used for things like highlighting and sorting rows.)
 */
-interface ScrapedRow {
+export interface ScrapedRow {
   /** The element(s) representing the row */
   // todo: use the full tagged union style here, rather than bare sum type,
   // to get exhaustiveness checking everywhere
@@ -127,20 +127,27 @@ abstract class DomScrapingBaseAdapter implements TableStore {
   // and split it up into two parts:
   // updates to the original record in the page,
   // and updates to additional user-added columns which become annotations
-  editRecord(recordId, attribute, newValue) {
-    const scrapedRow = this.scrapedRows.find(sr => sr.id === recordId);
-    const scrapedValue = scrapedRow.attributes[attribute];
+  editRecord(recordId, attribute, value) {
+    return this.editRecords([{ recordId, attribute, value }]);
+  }
 
-    if (!(scrapedValue instanceof HTMLElement)) {
-      return Promise.reject("Can't edit scraped value, site adapter must return HTML element to be editable.")
+  editRecords(edits:Array<RecordEdit>) {
+    for (const { recordId, attribute, value } of edits) {
+      const scrapedRow = this.scrapedRows.find(sr => sr.id === recordId);
+      if (!scrapedRow) { continue; }
+
+      const scrapedValue = scrapedRow.attributes[attribute];
+
+      if (!(scrapedValue instanceof HTMLElement)) {
+        return Promise.reject("Can't edit scraped value, site adapter must return HTML element to be editable.")
+      }
+
+      if (scrapedValue instanceof HTMLInputElement) {
+        scrapedValue.value = value;
+      } else {
+        scrapedValue.textContent = value;
+      }
     }
-
-    if (scrapedValue instanceof HTMLInputElement) {
-      scrapedValue.value = newValue;
-    } else {
-      scrapedValue.textContent = newValue;
-    }
-
     return Promise.resolve(this.loadTable());
   }
 

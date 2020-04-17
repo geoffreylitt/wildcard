@@ -1,7 +1,7 @@
 'use strict';
 
 import { urlExact, urlContains, extractNumber, onDomReady } from "../utils";
-import DomScrapingBaseAdapter from "./domScrapingBase"
+import DomScrapingBaseAdapter, { ScrapedRow } from "./domScrapingBase"
 
 class FluxAdapter extends DomScrapingBaseAdapter {
   static enabled () {
@@ -11,14 +11,17 @@ class FluxAdapter extends DomScrapingBaseAdapter {
   initialize () {
     onDomReady(() => {
       this.loadTable();
-      document.addEventListener("click", (e) => { this.loadTable() });
+
+      // listen for clicks or input changes on the table
+      const tbody = document.querySelector("div[xpdlid='valorBrutoAbs'] tbody")
+      tbody.addEventListener("click", (e) => { this.loadTable() });
+      tbody.addEventListener("change", (e) => { this.loadTable() });
     })
   }
 
   siteName = "Flux Table"
 
   colSpecs = [
-    { name: "id", type: "text", hidden: true },
     { name: "0", type: "numeric", editable: true},
     { name: "1", type: "numeric", editable: true},
     { name: "2", type: "numeric", editable: true},
@@ -35,14 +38,14 @@ class FluxAdapter extends DomScrapingBaseAdapter {
 
   scrapePage() {
     let result = []
-    let tbody = document.querySelector("#j_id__v_37_j_id33 tbody")
+    let tbody = document.querySelector("div[xpdlid='valorBrutoAbs'] tbody")
 
     for (let i = 0; i < 8; i++) {
-      result.push(
+      const newScrapedRow:ScrapedRow =
         {
-          els: [tbody.children[i]],
-          dataValues: {
-            "id": i,
+          id: String(i),
+          rowElements: [tbody.children[i] as HTMLElement],
+          attributes: {
             "0": document.querySelector(`#valorBrutoAbs--${i}--0`),
             "1": document.querySelector(`#valorBrutoAbs--${i}--1`),
             "2": document.querySelector(`#valorBrutoAbs--${i}--2`),
@@ -53,7 +56,8 @@ class FluxAdapter extends DomScrapingBaseAdapter {
             "7": document.querySelector(`#valorBrutoAbs--${i}--7`),
           }
         }
-      )
+
+      result.push(newScrapedRow)
     }
 
     return result

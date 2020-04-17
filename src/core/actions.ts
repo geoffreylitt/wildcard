@@ -7,9 +7,12 @@
 // which will update the redux state on completion.
 // We use async redux-thunk action creators for this.
 
-import { Table, TableStore, tableId, recordId } from './types'
+import { Table, TableStore, tableId, recordId, RecordEdit } from './types'
 import includes from 'lodash/includes'
 import keys from 'lodash/keys'
+import groupBy from 'lodash/groupBy'
+import forIn from 'lodash/forIn'
+import pick from 'lodash/pick'
 
 export const initializeActions = (tableStores:{ [key: string]: TableStore }) => {
   const tableReloaded = (table:Table) =>
@@ -34,13 +37,7 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
 
     editRecord (tableId, recordId, attribute, value) {
       return (dispatch) => {
-        dispatch({
-          type: "EDIT_RECORD_REQUESTED",
-          tableId,
-          recordId,
-          attribute,
-          value
-        })
+        dispatch({ type: "EDIT_RECORD_REQUESTED", tableId, recordId, attribute, value })
 
         const tableStore = tableStores[tableId];
         tableStore.editRecord(recordId, attribute, value).then(
@@ -48,6 +45,24 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
           (_table) => { },
           (err) => { console.error(err) }
         )
+      }
+    },
+
+    editRecords(edits) {
+      return (dispatch) => {
+        dispatch({ type: "EDIT_RECORDS_REQUESTED", edits })
+
+        // split up the request edits by table, and ask each table to
+        // do its part of the edits
+
+        const editsByTable = groupBy(edits, e => e.tableId);
+
+        forIn(editsByTable, (edits, tableId) => {
+          const tableStore = tableStores[tableId];
+          const editsForTable:Array<RecordEdit> = edits.map(e => pick(e, "recordId", "attribute", "value"))
+          console.log("edit command to", tableId, editsForTable)
+          tableStore.editRecords(editsForTable);
+        });
       }
     },
 

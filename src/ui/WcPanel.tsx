@@ -115,16 +115,18 @@ const WcPanel = ({ records, attributes, actions }) => {
   }
 
   const onBeforeChange = (changes, source) => {
-    for (const [rowIndex, propName, prevValue, nextValue] of changes) {
-
+    const edits = changes.map(([rowIndex, propName, prevValue, nextValue]) => {
       const attribute = attributes.find(a => a.name === propName)
-      actions.editRecord(
-        attribute.tableId,
-        records[rowIndex].id,
-        attribute.name,
-        nextValue
-      );
-    }
+      return {
+        tableId: attribute.tableId,
+        recordId: records[rowIndex].id,
+        attribute: attribute.name,
+        value: nextValue
+      }
+    })
+
+    console.log("wcpanel edits", edits);
+    actions.editRecords(edits);
 
     return false;
   }

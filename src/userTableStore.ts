@@ -1,6 +1,6 @@
 'use strict';
 
-import { TableStore, Record, AttrSpec, TableCallback } from './core/types'
+import { TableStore, Record, AttrSpec, TableCallback, RecordEdit } from './core/types'
 
 let table = {
   tableId: "user",
@@ -15,6 +15,33 @@ const loadTable = () => {
   return table;
 }
 
+const editRecords = (edits:Array<RecordEdit>) => {
+  for (const { recordId, attribute, value } of edits) {
+    let newRecords : Array<Record>;
+
+    // todo: this does two passes, inefficient
+    const existingRecord = table.records.find(r => r.id === recordId)
+    if (existingRecord) {
+      newRecords = table.records.map(r => {
+        if (r.id === recordId) {
+          return {
+            id: r.id,
+            attributes: { ...r.attributes, [attribute]: value }
+          }
+        }
+        else { return r; }
+      })
+    } else {
+      newRecords = [...table.records,
+        { id: recordId, attributes: { [attribute]: value } }
+      ]
+    }
+
+    table = { ...table, records: newRecords }
+  }
+  return Promise.resolve(loadTable());
+}
+
 const userStore:TableStore = {
    tableId: "user",
    loadTable: loadTable,
@@ -22,33 +49,10 @@ const userStore:TableStore = {
      subscribers = [...subscribers, callback];
    },
    applySort() {},
-   editRecord(id, attribute, value) {
-     let newRecords : Array<Record>;
-
-     // todo: this does two passes, inefficient
-     const existingRecord = table.records.find(r => r.id === id)
-     if (existingRecord) {
-       newRecords = table.records.map(r => {
-         if (r.id === id) {
-           return {
-             id: r.id,
-             attributes: { ...r.attributes, [attribute]: value }
-           }
-         }
-         else { return r; }
-       })
-     } else {
-       newRecords = [...table.records,
-         { id: id, attributes: { [attribute]: value } }
-       ]
-     }
-
-     table = { ...table, records: newRecords }
-
-     loadTable();
-
-     return Promise.resolve(table);
+   editRecord(recordId, attribute, value) {
+     return editRecords([ { recordId, attribute, value } ]);
    },
+   editRecords: editRecords,
    handleOtherTableUpdated() {
      // probably don't care if the site table updates..?
    },

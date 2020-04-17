@@ -12,6 +12,12 @@ export interface Record {
   attributes: any;
 }
 
+export interface RecordEdit {
+  recordId:recordId;
+  attribute:string;
+  value:any;
+}
+
 /**
 * Defines the schema for one column of the table being extracted.
 */
@@ -84,8 +90,10 @@ export interface TableStore {
   /** Apply a new sort order to the table */
   applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
 
-  /** Edit a record in the table*/
-  editRecord(id:id, attribute:string, value:any):Promise<Table>;
+  /** Edit record in the table*/
+  editRecord(id:recordId, attribute:string, value:any):Promise<Table>;
+
+  editRecords(edits:Array<RecordEdit>):Promise<Table>;
 
   /** Update the UI to match arbitrary table state
    *  (To implement performantly, probably do a diff inside the adapter
