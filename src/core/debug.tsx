@@ -13,7 +13,5 @@ export const debugMiddleware = ({ getState }) => next => action => {
   // (for now, we don't need to do it because the table lives inside the app)
   console.log('state after dispatch', getState())
 
-  console.log('final records', getFinalRecords(getState()))
-
   return returnValue
 }

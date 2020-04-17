@@ -124,12 +124,25 @@ abstract class DomScrapingBaseAdapter implements TableStore {
     }
   }
 
+  // todo: does this API really need to be async...?
   // we receive an edit request with all the attributes
   // and split it up into two parts:
   // updates to the original record in the page,
   // and updates to additional user-added columns which become annotations
-  editRecord(id, newValues) {
-    console.log("editRecord", id, newValues);
+  editRecord(recordId, attribute, newValue) {
+    const scrapedRow = this.scrapedRows.find(sr => sr.id === recordId);
+    const scrapedValue = scrapedRow.attributes[attribute];
+
+    if (!(scrapedValue instanceof HTMLElement)) {
+      return Promise.reject("Can't edit scraped value, site adapter must return HTML element to be editable.")
+    }
+
+    if (scrapedValue instanceof HTMLInputElement) {
+      scrapedValue.value = newValue;
+    } else {
+      scrapedValue.textContent = newValue;
+    }
+
     return Promise.resolve(this.loadTable());
   }
 
@@ -138,7 +151,6 @@ abstract class DomScrapingBaseAdapter implements TableStore {
   // if this is too slow, we can get smarter,
   // eg only re-annotate certain rows.
   handleOtherTableUpdated(newTable) {
-    console.log("handling other table updated", newTable)
     for (const record of newTable.records) {
       const scrapedRow = this.scrapedRows.find(sr => sr.id === record.id);
 
