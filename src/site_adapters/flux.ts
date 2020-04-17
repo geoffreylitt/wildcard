@@ -33,7 +33,6 @@ class FluxAdapter extends DomScrapingBaseAdapter {
     { name: "8", type: "numeric", editable: true},
     { name: "9", type: "numeric", editable: true},
     { name: "10", type: "numeric", editable: true},
-    { name: "11", type: "numeric", editable: true},
   ]
 
   scrapePage() {
@@ -54,6 +53,9 @@ class FluxAdapter extends DomScrapingBaseAdapter {
             "5": document.querySelector(`#valorBrutoAbs--${i}--5`),
             "6": document.querySelector(`#valorBrutoAbs--${i}--6`),
             "7": document.querySelector(`#valorBrutoAbs--${i}--7`),
+            "8": document.querySelector(`#valorBrutoAbs--${i}--8`),
+            "9": document.querySelector(`#valorBrutoAbs--${i}--9`),
+            "10": document.querySelector(`#valorBrutoAbs--${i}--10`),
           }
         }
 
