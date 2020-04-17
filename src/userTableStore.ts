@@ -11,14 +11,8 @@ let table = {
 let subscribers:Array<TableCallback> = []
 
 const loadTable = () => {
+  for (const callback of subscribers) { callback(table); }
   return table;
-}
-
-const notify = () => {
-  for (const callback of subscribers) {
-    console.log("notifying...")
-    callback(loadTable());
-  }
 }
 
 const userStore:TableStore = {
@@ -50,9 +44,8 @@ const userStore:TableStore = {
      }
 
      table = { ...table, records: newRecords }
-     console.log("updated user table", table)
 
-     notify()
+     loadTable();
 
      return Promise.resolve(table);
    },
@@ -68,7 +61,7 @@ const userStore:TableStore = {
 
      table = { ...table, attributes: [...table.attributes, newAttribute] }
 
-     notify()
+     loadTable();
 
      return Promise.resolve(table);
    }

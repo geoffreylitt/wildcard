@@ -81,9 +81,7 @@ abstract class DomScrapingBaseAdapter implements TableStore {
   loadTable() {
     this.scrapedRows = this.scrapePage();
     const table = this.tableInExternalFormat();
-    for (const callback of this.subscribers) {
-      callback(table);
-    }
+    for (const callback of this.subscribers) { callback(table); }
     return table;
   }
 

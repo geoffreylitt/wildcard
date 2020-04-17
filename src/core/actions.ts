@@ -24,11 +24,9 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
           type: "ADD_ATTRIBUTE_REQUESTED"
         })
         const tableStore = tableStores[tableId];
-        // this causes a double reload because we're also
-        // subscribed to the table separately...
-        // doesn't seem like a huge problem
         tableStore.addAttribute().then(
-          (table) => dispatch(tableReloaded(table)),
+          // no need to do anything, since we're already subscribed to reloads
+          (_table) => { },
           (err) => { console.error(err) }
         )
       }
@@ -45,11 +43,9 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
         })
 
         const tableStore = tableStores[tableId];
-        // this causes a double reload because we're also
-        // subscribed to the table separately...
-        // doesn't seem like a huge problem
         tableStore.editRecord(recordId, attribute, value).then(
-          (table) => dispatch(tableReloaded(table)),
+          // no need to do anything, since we're already subscribed to reloads
+          (_table) => { },
           (err) => { console.error(err) }
         )
       }
