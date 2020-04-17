@@ -94,7 +94,7 @@ export interface TableStore {
   // Notifying the TableStore of changes to other tables
   // ============================================================
 
-  otherTableUpdated(table:Table):void;
+  handleOtherTableUpdated(table:Table):void;
 
   addAttribute():Promise<Table>;
 }

@@ -55,7 +55,9 @@ const userStore:TableStore = {
 
      return Promise.resolve(table);
    },
-   otherTableUpdated() {},
+   handleOtherTableUpdated() {
+     // probably don't care if the site table updates..?
+   },
    addAttribute() {
      const newAttribute : AttrSpec = {
        name: "user" + (table.attributes.length + 1),

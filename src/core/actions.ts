@@ -4,10 +4,20 @@
 
 import { Table, TableStore, tableId, recordId } from './types'
 import includes from 'lodash/includes'
+import keys from 'lodash/keys'
 
 export const initializeActions = (tableStores:{ [key: string]: TableStore }) => {
-  const tableReloaded = (table:Table) =>
-      ({ type: "TABLE_RELOADED", table });
+  const tableReloaded = (table:Table) => {
+
+    // Notify other tables that a table was updated
+    keys(tableStores).forEach(otherTableId => {
+      if (otherTableId !== table.tableId) {
+        tableStores[otherTableId].handleOtherTableUpdated(table)
+      }
+    })
+
+    return { type: "TABLE_RELOADED", table }
+  }
 
   return {
     tableReloaded: tableReloaded,
@@ -22,7 +32,7 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
         // subscribed to the table separately...
         // doesn't seem like a huge problem
         tableStore.addAttribute().then(
-          (table) => dispatch({ type: "TABLE_RELOADED", table }),
+          (table) => dispatch(tableReloaded(table)),
           (err) => { console.error(err) }
         )
       }
@@ -43,7 +53,7 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
         // subscribed to the table separately...
         // doesn't seem like a huge problem
         tableStore.editRecord(recordId, attribute, value).then(
-          (table) => dispatch({ type: "TABLE_RELOADED", table }),
+          (table) => dispatch(tableReloaded(table)),
           (err) => { console.error(err) }
         )
       }

@@ -127,32 +127,37 @@ abstract class DomScrapingBaseAdapter implements TableStore {
     return Promise.resolve(this.loadTable());
   }
 
-  // unused
-  // newvalues = key value pairs of user record
-  updateAnnotations(id, newValues, userAttributes) {
-    const scrapedRow = this.scrapedRows.find(r => r.id === id);
+  // the simplest thing to do is just handle a whole new table,
+  // and re-annotate everything on the page.
+  // if this is too slow, we can get smarter,
+  // eg only re-annotate certain rows.
+  handleOtherTableUpdated(newTable) {
+    console.log("handling other table updated", newTable)
+    for (const record of newTable.records) {
+      const scrapedRow = this.scrapedRows.find(sr => sr.id === record.id);
 
-    if (!scrapedRow.annotationContainer) return;
+      if (!scrapedRow.annotationContainer) return;
 
-    // todo: set a default annotation container + target
+      // todo: set a default annotation container + target
 
-    // create the annotation container if it doesn't exist
-    let annotationTarget = scrapedRow.annotationContainer.querySelector(".user-annotations");
+      // create the annotation container if it doesn't exist
+      let annotationTarget = scrapedRow.annotationContainer.querySelector(".user-annotations");
 
-    if (!annotationTarget) {
-      annotationTarget =
-        htmlToElement("<span class='user-annotations'></span>")
-      scrapedRow.annotationContainer.appendChild(annotationTarget)
+      if (!annotationTarget) {
+        annotationTarget =
+          htmlToElement("<span class='user-annotations'></span>")
+        scrapedRow.annotationContainer.appendChild(annotationTarget)
+      }
+
+      // add the actual annotations to the page
+      let annotationsHTML =
+        newTable.attributes
+          .filter(attr => !attr.hideInPage) // hide columns hidden in page
+          .map(attr => record.attributes[attr.name])
+          .filter(value => value)
+          .map(value => scrapedRow.annotationTemplate.replace("$annotation", value));
+      annotationTarget.innerHTML = annotationsHTML.join(" ")
     }
-
-    // add the actual annotations to the page
-    let annotationsHTML =
-      userAttributes
-        .filter(attr => !attr.hideInPage) // hide columns hidden in page
-        .map(attr => newValues[attr.name])
-        .filter(value => value)
-        .map(value => scrapedRow.annotationTemplate.replace("$annotation", value));
-    annotationTarget.innerHTML = annotationsHTML.join(" ")
   }
 
   abstract scrapePage():Array<ScrapedRow>;
