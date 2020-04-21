@@ -14,11 +14,11 @@ import { debugMiddleware } from './core/debug'
 import { htmlToElement } from './utils'
 import WcPanel from "./ui/WcPanel";
 import { getActiveAdapter } from "./site_adapters"
-import userTableStore from "./userTableStore"
+import userTableAdapter from "./localStorageAdapter"
 import thunk from 'redux-thunk';
 import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
-import { tableStoreMiddleware } from './tableStoreMiddleware'
+import { TableAdapterMiddleware } from './TableAdapterMiddleware'
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
@@ -47,9 +47,9 @@ const run = function () {
 
   activeSiteAdapter.initialize();
 
-  const tables = { app: activeSiteAdapter, user: userTableStore }
+  const tables = { app: activeSiteAdapter, user: userTableAdapter }
 
-  // pass our TableStore objects into action creators,
+  // pass our TableAdapter objects into action creators,
   // so action creator functions can access them.
   const actions = initializeActions(tables)
 
@@ -60,8 +60,8 @@ const run = function () {
   // Create our redux store
   const store = createStore(reducer, composeWithDevTools(
     applyMiddleware(thunk),
-    applyMiddleware(tableStoreMiddleware(activeSiteAdapter)),
-    applyMiddleware(tableStoreMiddleware(userTableStore)),
+    applyMiddleware(TableAdapterMiddleware(activeSiteAdapter)),
+    applyMiddleware(TableAdapterMiddleware(userTableAdapter)),
     applyMiddleware(debugMiddleware),
   ));
 
@@ -70,7 +70,7 @@ const run = function () {
     store.dispatch(actions.tableReloaded(table))
   )
 
-  userTableStore.subscribe(table =>
+  userTableAdapter.subscribe(table =>
     store.dispatch(actions.tableReloaded(table))
   )
 

@@ -6,9 +6,9 @@
 // handle it in action creators instead.)
 
 import { getFinalRecords } from './core/getFinalTable'
-import { TableStore } from './core/types'
+import { TableAdapter } from './core/types'
 
-export const tableStoreMiddleware = (tableStore: TableStore) =>
+export const TableAdapterMiddleware = (TableAdapter: TableAdapter) =>
   ({ getState }) => next => action => {
 
   // Call the next dispatch method in the middleware chain.
@@ -25,7 +25,7 @@ export const tableStoreMiddleware = (tableStore: TableStore) =>
     // Records were sorted;
     // apply the sort to this adapter
     case "SORT_RECORDS":
-      tableStore.applySort(
+      TableAdapter.applySort(
         getFinalRecords(newState),
         newState.sortConfig
       );
@@ -35,8 +35,8 @@ export const tableStoreMiddleware = (tableStore: TableStore) =>
     // (eg: notify the site that user data has changed,
     // so we need to update annotations)
     case "TABLE_RELOADED":
-      if (action.table.tableId !== tableStore.tableId) {
-        tableStore.handleOtherTableUpdated(action.table)
+      if (action.table.tableId !== TableAdapter.tableId) {
+        TableAdapter.handleOtherTableUpdated(action.table)
       }
 
     // put table reloaded here

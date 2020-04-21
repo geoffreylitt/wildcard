@@ -1,14 +1,14 @@
 // Registry of all the site adapters
 
 import HNAdapter from './newHN'
-import FluxAdapter from './flux'
-import ExpediaAdapter from './expedia'
+// import FluxAdapter from './flux'
+// import ExpediaAdapter from './expedia'
 import { Table, Record, SortConfig, recordId, AttrSpec } from '../core/types'
 
 export const siteAdapters = [
   HNAdapter,
-  FluxAdapter,
-  ExpediaAdapter
+  // FluxAdapter,
+  // ExpediaAdapter
 ]
 
 export function getActiveAdapter():any {
@@ -16,40 +16,9 @@ export function getActiveAdapter():any {
 
   if (adaptersForPage.length === 0) { return undefined; }
 
-  const activeAdapter = new adaptersForPage[0]();
+  const activeAdapter = adaptersForPage[0];
 
-  console.log(`Wildcard: activating site adapter: ${activeAdapter.siteName}`);
+  console.log(`Wildcard: activating site adapter: ${activeAdapter.name}`);
 
   return activeAdapter;
-}
-
-export interface SiteAdapter {
-  // =====================
-  // Reading data from the site
-  // =====================
-
-  /** Return latest data from the site */
-  loadRecords():Array<Record>;
-
-  /** Register a callback function which will be called with a new table
-   *  of data anytime the data changes. */
-  subscribe (callback:(table:Table) => void):void;
-
-  // =====================
-  // Modifying the site UI
-  // =====================
-
-  /** Apply a new sort order to the UI */
-  applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
-
-  /** Apply a new annotation to the UI */
-  editRecord(id:recordId, newValues:any, userAttributes:Array<AttrSpec>):void;
-
-  // I'm considering replacing the two functions above with a generalized
-  // version that can apply arbitrary table state to the UI:
-
-  /** Update the UI to match arbitrary table state
-   *  (To implement performantly, probably do a diff inside the adapter
-   *  and only update the UI where necessary) */
-  // update?(table:Table):void;
 }

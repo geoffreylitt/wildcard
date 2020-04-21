@@ -66,8 +66,16 @@ export interface QueryState {
 export type TableCallback = (table:Table) => void;
 
 // Generalizing over the site adapters and user data, among others
-export interface TableStore {
+export interface TableAdapter {
   tableId: tableId;
+
+  name:string
+
+  /** return true if this adapter should be enabled for this site */
+  enabled():boolean;
+
+  /** start up this TableAdapter */
+  initialize?():void;
 
   // =====================
   // Reading data
@@ -81,7 +89,7 @@ export interface TableStore {
   subscribe (callback:TableCallback):void;
 
   // ============================================================
-  // Requesting to the TableStore to modify the table in some way
+  // Requesting to the TableAdapter to modify the table in some way
   // ============================================================
 
   // todo: should probably update these to return promises
@@ -89,9 +97,6 @@ export interface TableStore {
 
   /** Apply a new sort order to the table */
   applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
-
-  /** Edit record in the table*/
-  editRecord(id:recordId, attribute:string, value:any):Promise<Table>;
 
   editRecords(edits:Array<RecordEdit>):Promise<Table>;
 
@@ -101,7 +106,7 @@ export interface TableStore {
   // update?(table:Table):void;
 
   // ============================================================
-  // Notifying the TableStore of changes to other tables
+  // Notifying the TableAdapter of changes to other tables
   // ============================================================
 
   handleOtherTableUpdated(table:Table):void;

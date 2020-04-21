@@ -3,18 +3,17 @@
 // A sample new HN site adapter.
 
 import { urlExact, urlContains, extractNumber, onDomReady } from "../utils";
-import DomScrapingBaseAdapter from "./domScrapingBase"
+import { createDomScrapingAdapter } from "./domScrapingBase"
 
-class HNAdapter extends DomScrapingBaseAdapter {
-  static enabled () {
+// Configuration options for the Hacker News adapter
+const HNAdapter = createDomScrapingAdapter({
+  name: "Hacker News",
+  enabled () {
     return urlExact("news.ycombinator.com/") ||
            urlContains("news.ycombinator.com/news") ||
            urlContains("news.ycombinator.com/newest")
-  }
-
-  siteName = "Hacker News"
-
-  colSpecs = [
+  },
+  attributes: [
     { name: "id", type: "text" },
     { name: "rank", type: "numeric" },
     { name: "title", type: "text" },
@@ -22,8 +21,7 @@ class HNAdapter extends DomScrapingBaseAdapter {
     { name: "points", type: "numeric" },
     { name: "user", type: "text" },
     { name: "comments", type: "numeric" }
-  ]
-
+  ],
   scrapePage() {
     return Array.from(document.querySelectorAll("tr.athing")).map(el => {
       let detailsRow = el.nextElementSibling
@@ -31,10 +29,10 @@ class HNAdapter extends DomScrapingBaseAdapter {
 
       return {
         id: String(el.getAttribute("id")),
-        rowElements: [el, detailsRow, spacerRow]
+        rowElements: [el, detailsRow, spacerRow],
           // todo: Both of these steps should be handled by the framework...
-          .filter(e => e) // Only include if the element is really there
-          .map(e => (e as HTMLElement)), // Convert to HTMLElement type
+          // .filter(e => e) // Only include if the element is really there
+          // .map(e => (e)), // Convert to HTMLElement type
         attributes: {
           rank: el.querySelector("span.rank"),
           title: el.querySelector("a.storylink"),
@@ -50,7 +48,7 @@ class HNAdapter extends DomScrapingBaseAdapter {
         annotationTemplate: `| <span style="color: #f60;">$annotation</span>`
       }
     })
-  }
-}
+  },
+})
 
 export default HNAdapter;

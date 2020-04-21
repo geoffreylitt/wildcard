@@ -6,7 +6,7 @@ import keyBy from 'lodash/keyBy'
 import keys from 'lodash/keys'
 import values from 'lodash/values'
 import pick from 'lodash/pick'
-import { Record, AttrSpec, SortConfig, TableStore, Table, tableId, RecordEdit } from '../core/types'
+import { Record, AttrSpec, SortConfig, TableAdapter, Table, tableId, RecordEdit } from '../core/types'
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
@@ -41,7 +41,7 @@ export interface ScrapedRow {
   /** The element(s) representing the row */
   // todo: use the full tagged union style here, rather than bare sum type,
   // to get exhaustiveness checking everywhere
-  rowElements: Array<HTMLElement>;
+  rowElements: Array<Element>;
 
   /** A stable ID for the row */
   id: string;
@@ -58,44 +58,70 @@ export interface ScrapedRow {
   annotationTemplate?: string;
 }
 
+// todo: document this config
+export interface ScrapingAdapterConfig {
+  name:string;
+  enabled():boolean;
+  attributes:Array<AttrSpec>;
+  scrapePage():Array<ScrapedRow>;
+}
+
 function onDomReady(fn) {
   if (document.readyState!='loading') fn();
   else document.addEventListener('DOMContentLoaded', fn)
 }
 
-abstract class DomScrapingBaseAdapter implements TableStore {
-  tableId: tableId;
-  scrapedRows: Array<ScrapedRow>;
-  sortOrder: SortConfig;
-  abstract siteName: string;
-  abstract colSpecs: Array<AttrSpec>;
-  subscribers: Array<(Table) => void>;
+// Takes in as input a site-specific configuration,
+// which
+//
+export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdapter {
+  const attributes = config.attributes;
 
-  constructor() {
-    this.tableId = "app";
-    this.scrapedRows = [];
-    this.sortOrder = null;
-    this.subscribers = [];
+  // Mutable closure state to be managed for this adapter
+  let scrapedRows: Array<ScrapedRow> = [];
+  let sortOrder: SortConfig = null;
+  let subscribers: Array<(Table) => void> = [];
+
+  // Do some light cleanup on the result of the config's scrapePage.
+  // This is to make it easier on site adapter developers to
+  // avoid doing these steps in their scrapePage functions.
+  const scrapePage = () => {
+    let result = config.scrapePage();
+    if (!result) { return result; }
+
+    result = result.map(scrapedRow => (
+      {
+        ...scrapedRow,
+        rowElements:
+          scrapedRow.rowElements
+            // Make typescript happy with these element types
+            .map(el => el as HTMLElement)
+
+            // Don't include a row element if it's not there
+            .filter(el => el)
+      }))
+
+    return result;
   }
 
-  loadTable() {
-    this.scrapedRows = this.scrapePage();
-    const table = this.tableInExternalFormat();
-    for (const callback of this.subscribers) { callback(table); }
+  const loadTable = () => {
+    scrapedRows = scrapePage();
+    const table = tableInExternalFormat();
+    for (const callback of subscribers) { callback(table); }
     return table;
   }
 
-  initialize() {
-    onDomReady(() => this.loadTable())
+  const initialize = () => {
+    onDomReady(() => loadTable())
   }
 
   // Currently, just load data once on dom ready
   // todo: reload data on different triggers
-  subscribe (callback) {
-    this.subscribers = [...this.subscribers, callback]
+  const subscribe  = (callback) => {
+    subscribers = [...subscribers, callback]
 
     // trigger a load to catch up this subscriber
-    this.loadTable();
+    loadTable();
   }
 
   // Note about DOM scraping + sorting:
@@ -105,10 +131,10 @@ abstract class DomScrapingBaseAdapter implements TableStore {
   // But if we scrape again during page load, while the page is sorted,
   // things get weird -- the sorted order becomes our "unsorted" underlying
   // order. Unfortunately not too much we can do about that.
-  applySort(finalRecords, sortConfig) {
-    if (this.scrapedRows.length > 0) {
-      const rowContainer = this.scrapedRows[0].rowElements[0].parentElement;
-      const scrapedRowsById = keyBy(this.scrapedRows, r => r.id);
+  const applySort = (finalRecords, sortConfig) => {
+    if (scrapedRows.length > 0) {
+      const rowContainer = scrapedRows[0].rowElements[0].parentElement;
+      const scrapedRowsById = keyBy(scrapedRows, r => r.id);
 
       // todo: this clears out other non-row content, which isn't ideal.
       // but there's not a super great way to keep it in the right place...
@@ -127,13 +153,9 @@ abstract class DomScrapingBaseAdapter implements TableStore {
   // and split it up into two parts:
   // updates to the original record in the page,
   // and updates to additional user-added columns which become annotations
-  editRecord(recordId, attribute, value) {
-    return this.editRecords([{ recordId, attribute, value }]);
-  }
-
-  editRecords(edits:Array<RecordEdit>) {
+  const editRecords = (edits:Array<RecordEdit>) => {
     for (const { recordId, attribute, value } of edits) {
-      const scrapedRow = this.scrapedRows.find(sr => sr.id === recordId);
+      const scrapedRow = scrapedRows.find(sr => sr.id === recordId);
       if (!scrapedRow) { continue; }
 
       const scrapedValue = scrapedRow.attributes[attribute];
@@ -148,16 +170,16 @@ abstract class DomScrapingBaseAdapter implements TableStore {
         scrapedValue.textContent = value;
       }
     }
-    return Promise.resolve(this.loadTable());
+    return Promise.resolve(loadTable());
   }
 
   // the simplest thing to do is just handle a whole new table,
   // and re-annotate everything on the page.
   // if this is too slow, we can get smarter,
   // eg only re-annotate certain rows.
-  handleOtherTableUpdated(newTable) {
+  const handleOtherTableUpdated = (newTable) => {
     for (const record of newTable.records) {
-      const scrapedRow = this.scrapedRows.find(sr => sr.id === record.id);
+      const scrapedRow = scrapedRows.find(sr => sr.id === record.id);
 
       if (!scrapedRow.annotationContainer) return;
 
@@ -183,17 +205,15 @@ abstract class DomScrapingBaseAdapter implements TableStore {
     }
   }
 
-  abstract scrapePage():Array<ScrapedRow>;
-
   // convert scraper-internal data structure to
   // the standard format for all wildcard adapters
-  tableInExternalFormat():Table {
+  const tableInExternalFormat = ():Table => {
     // hmm, don't love creating parallel data structures for values + elements;
     // maybe better:
     // * user constructs just elements
     // * base DOMScrapingAdapter constructs elements + values
     // * base DOMScrapingAdapter uses that to output the "just values" version
-    const records = this.scrapedRows.map(row => ({
+    const records = scrapedRows.map(row => ({
       id: row.id,
       attributes: mapValues(row.attributes, (value, attrName) => {
         let extractedValue;
@@ -209,7 +229,7 @@ abstract class DomScrapingBaseAdapter implements TableStore {
         }
 
         // do type conversions
-        if (this.colSpecs.find(spec => spec.name === attrName).type === "numeric" &&
+        if (attributes.find(spec => spec.name === attrName).type === "numeric" &&
             typeof extractedValue !== "number") {
           extractedValue = extractNumber(extractedValue);
         }
@@ -220,19 +240,33 @@ abstract class DomScrapingBaseAdapter implements TableStore {
 
     return {
       tableId: "app",
-      attributes: this.colSpecs,
+      attributes: attributes,
       records: records
     }
   }
 
-  otherTableUpdated(table) {
+  const otherTableUpdated = (table) => {
     console.log("other table updated", table);
   }
 
-  addAttribute() {
+  const addAttribute = () => {
     return Promise.reject("Can't add attributes to site adapter")
   }
-}
 
-export default DomScrapingBaseAdapter;
+  return {
+    name: config.name,
+    enabled: config.enabled,
+
+    // todo: maybe have different table ids for each adapter,
+    // rather than make them all "app"?
+    tableId: "app",
+    loadTable,
+    initialize,
+    subscribe,
+    applySort,
+    editRecords,
+    handleOtherTableUpdated,
+    addAttribute
+  }
+}
 

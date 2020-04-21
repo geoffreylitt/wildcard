@@ -3,18 +3,18 @@
 // https://redux.js.org/recipes/usage-with-typescript
 
 // Many of these actions don't directly affect the Redux state,
-// instead they ask a TableStore to do something async,
+// instead they ask a TableAdapter to do something async,
 // which will update the redux state on completion.
 // We use async redux-thunk action creators for this.
 
-import { Table, TableStore, tableId, recordId, RecordEdit } from './types'
+import { Table, TableAdapter, tableId, recordId, RecordEdit } from './types'
 import includes from 'lodash/includes'
 import keys from 'lodash/keys'
 import groupBy from 'lodash/groupBy'
 import forIn from 'lodash/forIn'
 import pick from 'lodash/pick'
 
-export const initializeActions = (tableStores:{ [key: string]: TableStore }) => {
+export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter }) => {
   const tableReloaded = (table:Table) =>
     ({ type: "TABLE_RELOADED", table })
 
@@ -26,21 +26,8 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
         dispatch({
           type: "ADD_ATTRIBUTE_REQUESTED"
         })
-        const tableStore = tableStores[tableId];
-        tableStore.addAttribute().then(
-          // no need to do anything, since we're already subscribed to reloads
-          (_table) => { },
-          (err) => { console.error(err) }
-        )
-      }
-    },
-
-    editRecord (tableId, recordId, attribute, value) {
-      return (dispatch) => {
-        dispatch({ type: "EDIT_RECORD_REQUESTED", tableId, recordId, attribute, value })
-
-        const tableStore = tableStores[tableId];
-        tableStore.editRecord(recordId, attribute, value).then(
+        const TableAdapter = TableAdapters[tableId];
+        TableAdapter.addAttribute().then(
           // no need to do anything, since we're already subscribed to reloads
           (_table) => { },
           (err) => { console.error(err) }
@@ -58,10 +45,10 @@ export const initializeActions = (tableStores:{ [key: string]: TableStore }) => 
         const editsByTable = groupBy(edits, e => e.tableId);
 
         forIn(editsByTable, (edits, tableId) => {
-          const tableStore = tableStores[tableId];
+          const TableAdapter = TableAdapters[tableId];
           const editsForTable:Array<RecordEdit> = edits.map(e => pick(e, "recordId", "attribute", "value"))
           console.log("edit command to", tableId, editsForTable)
-          tableStore.editRecords(editsForTable);
+          TableAdapter.editRecords(editsForTable);
         });
       }
     },

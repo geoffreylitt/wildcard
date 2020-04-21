@@ -1,6 +1,6 @@
 'use strict';
 
-import { TableStore, Record, AttrSpec, TableCallback, RecordEdit } from './core/types'
+import { TableAdapter, Record, AttrSpec, TableCallback, RecordEdit } from './core/types'
 
 let table = {
   tableId: "user",
@@ -42,16 +42,15 @@ const editRecords = (edits:Array<RecordEdit>) => {
   return Promise.resolve(loadTable());
 }
 
-const userStore:TableStore = {
+const userStore:TableAdapter = {
    tableId: "user",
+   name: "User Local Storage",
+   enabled: () => true , // user store is always enabled
    loadTable: loadTable,
    subscribe(callback:TableCallback) {
      subscribers = [...subscribers, callback];
    },
    applySort() {},
-   editRecord(recordId, attribute, value) {
-     return editRecords([ { recordId, attribute, value } ]);
-   },
    editRecords: editRecords,
    handleOtherTableUpdated() {
      // probably don't care if the site table updates..?
