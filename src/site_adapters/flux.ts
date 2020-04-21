@@ -7,7 +7,7 @@ const FluxAdapter = createDomScrapingAdapter({
   name: "Flux Valor Bruto Absorbância",
 
   enabled () {
-    return urlContains("flux2.luar.dcc.ufmg.br")
+    return urlContains("flux2.luar.dcc.ufmg.br/workflow")
   },
 
   attributes: [
