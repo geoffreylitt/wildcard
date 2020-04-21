@@ -21,7 +21,7 @@ export interface RecordEdit {
 /**
 * Defines the schema for one column of the table being extracted.
 */
-export interface AttrSpec {
+export interface Attribute {
   /** The name of this data column, to be displayed in the table */
   name: string;
 
@@ -50,7 +50,7 @@ export interface AttrSpec {
 
 export interface Table {
   tableId: tableId;
-  attributes: Array<AttrSpec>;
+  attributes: Array<Attribute>;
   records: Array<Record>
 }
 

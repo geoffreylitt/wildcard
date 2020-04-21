@@ -1,4 +1,4 @@
-import { Record, AttrSpec, QueryState, Table} from './types'
+import { Record, Attribute, QueryState, Table} from './types'
 import includes from 'lodash/includes'
 import pick from 'lodash/pick'
 import { combineReducers } from 'redux'

@@ -1,6 +1,6 @@
 'use strict';
 
-import { TableAdapter, Record, AttrSpec, TableCallback, RecordEdit } from './core/types'
+import { TableAdapter, Record, Attribute, TableCallback, RecordEdit } from './core/types'
 
 let table = {
   tableId: "user",
@@ -56,7 +56,7 @@ const userStore:TableAdapter = {
      // probably don't care if the site table updates..?
    },
    addAttribute() {
-     const newAttribute : AttrSpec = {
+     const newAttribute : Attribute = {
        name: "user" + (table.attributes.length + 1),
        type: "text",
        editable: true

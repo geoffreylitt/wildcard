@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import Handsontable from 'handsontable';
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
+
 import keyBy from 'lodash/keyBy'
 import includes from 'lodash/includes'
 
@@ -25,7 +26,8 @@ function formatAttributesForHot(attributes) {
   return attributes.map(attribute => ({
     data: attribute.name,
     type: attribute.type,
-    readOnly: !attribute.editable
+    readOnly: !attribute.editable,
+    editor: attribute.editor,
   }))
 }
 

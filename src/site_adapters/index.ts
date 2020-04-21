@@ -2,13 +2,13 @@
 
 import HNAdapter from './newHN'
 // import FluxAdapter from './flux'
-// import ExpediaAdapter from './expedia'
-import { Table, Record, SortConfig, recordId, AttrSpec } from '../core/types'
+import ExpediaAdapter from './expedia'
+import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
 export const siteAdapters = [
   HNAdapter,
   // FluxAdapter,
-  // ExpediaAdapter
+  ExpediaAdapter
 ]
 
 export function getActiveAdapter():any {

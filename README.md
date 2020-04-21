@@ -151,7 +151,7 @@ export interface SiteAdapter {
   applySort(finalRecords:Array<Record>, sortConfig:SortConfig):void;
 
   /** Apply a new annotation to the UI */
-  annotateRecordInSite(id:id, newValues:any, userAttributes:Array<AttrSpec>):void;
+  annotateRecordInSite(id:id, newValues:any, userAttributes:Array<Attribute>):void;
 
   // I'm considering replacing the two functions above with a generalized
   // version that can apply arbitrary table state to the UI:

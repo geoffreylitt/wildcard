@@ -6,7 +6,7 @@ import keyBy from 'lodash/keyBy'
 import keys from 'lodash/keys'
 import values from 'lodash/values'
 import pick from 'lodash/pick'
-import { Record, AttrSpec, SortConfig, TableAdapter, Table, tableId, RecordEdit } from '../core/types'
+import { Record, Attribute, SortConfig, TableAdapter, Table, tableId, RecordEdit } from '../core/types'
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
@@ -58,12 +58,15 @@ export interface ScrapedRow {
   annotationTemplate?: string;
 }
 
-// todo: document this config
+// todo: document this config;
+// it's the main thing people need to understand to
+// build a site adapter
 export interface ScrapingAdapterConfig {
   name:string;
   enabled():boolean;
-  attributes:Array<AttrSpec>;
+  attributes:Array<Attribute>;
   scrapePage():Array<ScrapedRow>;
+  addScrapeTriggers?(any):void;
 }
 
 function onDomReady(fn) {
@@ -112,7 +115,12 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   }
 
   const initialize = () => {
-    onDomReady(() => loadTable())
+    onDomReady(() => {
+      loadTable();
+      if (config.addScrapeTriggers) {
+        config.addScrapeTriggers(loadTable);
+      }
+    })
   }
 
   // Currently, just load data once on dom ready
