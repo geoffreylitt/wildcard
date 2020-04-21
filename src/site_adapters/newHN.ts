@@ -2,7 +2,7 @@
 
 // A sample new HN site adapter.
 
-import { urlExact, urlContains, extractNumber, onDomReady } from "../utils";
+import { urlExact, urlContains, extractNumber } from "../utils";
 import { createDomScrapingAdapter } from "./domScrapingBase"
 
 // Configuration options for the Hacker News adapter
