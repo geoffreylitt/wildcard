@@ -85,6 +85,12 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   let sortOrder: SortConfig = null;
   let subscribers: Array<(Table) => void> = [];
 
+  let scrapedAjaxRows;
+
+  browser.onAjaxRequest((request) => {
+    scrapedAjaxRows = config.scrapeAjax(request)
+  })
+
   // Do some light cleanup on the result of the config's scrapePage.
   // This is to make it easier on site adapter developers to
   // avoid doing these steps in their scrapePage functions.
@@ -110,6 +116,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   const loadTable = () => {
     scrapedRows = scrapePage();
     const table = tableInExternalFormat();
+    // join together dom scraped + ajax scraped data
     for (const callback of subscribers) { callback(table); }
     return table;
   }
@@ -221,7 +228,11 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     // * user constructs just elements
     // * base DOMScrapingAdapter constructs elements + values
     // * base DOMScrapingAdapter uses that to output the "just values" version
-    const records = scrapedRows.map(row => ({
+
+    let combinedTable = join(scrapedAjaxRows, scrapedRows);
+
+    // extract data out of DOM elements, convert to data
+    const records = combinedTable.map(row => ({
       id: row.id,
       attributes: mapValues(row.attributes, (value, attrName) => {
         let extractedValue;
