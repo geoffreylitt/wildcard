@@ -109,9 +109,19 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
 
   const loadTable = () => {
     scrapedRows = scrapePage();
-    const table = tableInExternalFormat();
-    for (const callback of subscribers) { callback(table); }
-    return table;
+
+    if (scrapedRows && scrapedRows.length > 0) {
+      // We got some data! Convert it to the external Table format...
+      const table = tableInExternalFormat();
+
+      // Notify all subscribers that we have new data
+      for (const callback of subscribers) { callback(table); }
+      return table;
+    } else {
+      // If we couldn't load data from the page, try again in 1 second
+      setTimeout(loadTable, 1000);
+      return null;
+    }
   }
 
   const initialize = () => {

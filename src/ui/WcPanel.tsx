@@ -133,7 +133,7 @@ const WcPanel = ({ records, attributes, actions }) => {
     return false;
   }
 
-  if (records) {
+  if (records && records.length > 0) {
     return <Panel>
       <ControlBar><strong>Wildcard v0.2</strong></ControlBar>
       <HotTable

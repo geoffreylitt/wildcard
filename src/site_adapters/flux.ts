@@ -28,6 +28,8 @@ const FluxAdapter = createDomScrapingAdapter({
     let result = []
     let tbody = document.querySelector("div[xpdlid='valorBrutoAbs'] tbody")
 
+    if (!tbody) { return null; }
+
     for (let i = 0; i < 8; i++) {
       const newScrapedRow:ScrapedRow =
         {
@@ -57,6 +59,7 @@ const FluxAdapter = createDomScrapingAdapter({
   addScrapeTriggers (loadTable) {
     // listen for input changes on the table
     const tbody = document.querySelector("div[xpdlid='valorBrutoAbs'] tbody")
+    if (!tbody) return;
     tbody.addEventListener("change", (e) => { loadTable() });
   },
 });
