@@ -1,13 +1,13 @@
 // Registry of all the site adapters
 
 import HNAdapter from './newHN'
-// import FluxAdapter from './flux'
+import FluxAdapter from './flux'
 import ExpediaAdapter from './expedia'
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
 export const siteAdapters = [
   HNAdapter,
-  // FluxAdapter,
+  FluxAdapter,
   ExpediaAdapter
 ]
 
