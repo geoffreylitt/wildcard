@@ -14,6 +14,8 @@ import {WeatherChannelAdapter} from "./site_adapters/weatherchannel";
 import {YoutubeAdapter} from "./site_adapters/youtube";
 import { InstacartAdapter } from "./site_adapters/instacart";
 
+declare const browser: any;
+
 const siteAdapters = [
 ExpediaAdapter,
 AirbnbAdapter,
@@ -35,6 +37,11 @@ const run = function () {
     let activeAdapter = adaptersForPage[0]
     console.log(`Wildcard: Multiple adapters matched this site: ${adaptersForPage.map(a => a.name)}`)
   }
+
+    browser.runtime.onMessage.addListener(request => {
+        console.log("Message from the background script:");
+        console.log(request);
+    });
 
   let activeAdapter = adaptersForPage[0]
   console.log(`Wildcard: activating site adapter: ${activeAdapter.name}`)
