@@ -67,6 +67,7 @@ export interface ScrapingAdapterConfig {
   attributes:Array<Attribute>;
   scrapePage():Array<ScrapedRow>;
   addScrapeTriggers?(any):void;
+  iframe?:boolean;
 }
 
 function onDomReady(fn) {

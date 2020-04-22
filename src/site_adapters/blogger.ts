@@ -1,9 +1,10 @@
-import { RichTextEditor } from '../cell_editors/richTextEditor.js'
+import { RichTextEditor } from '../ui/cell_editors/richTextEditor.js'
+import { createDomScrapingAdapter } from "./domScrapingBase"
 import {urlContains} from "../utils";
 
 const BloggerAdapter = createDomScrapingAdapter({
     name: "Blogger",
-    enabled () => urlContains("blogger.com"),
+    enabled: () => urlContains("blogger.com"),
     attributes: [
         { name: "id", type: "text", hidden: true },
         { name: "document", editable: true, renderer: 'html', type: "text", editor: RichTextEditor },
@@ -15,7 +16,7 @@ const BloggerAdapter = createDomScrapingAdapter({
         let doc = iframeLoaded ? document.querySelectorAll('iframe')[2].contentDocument.body : container.querySelector("#postingComposeBox");
         return [
             {
-                id: 1,
+                id: "1",
                 rowElements: [container],
                 dataValues: {
                     document: doc,

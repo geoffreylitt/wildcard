@@ -14,7 +14,7 @@ const ratingClass = "a-icon-alt";
 
 export const AmazonAdapter = createDomScrapingAdapter({
   name: "Amazon",
-  enabled () => urlContains("amazon.com"),
+  enabled: () => urlContains("amazon.com/gp/offer-listing/"),
   attributes: [
   { name: "id", type: "text", hidden: true },
   { name: "total_price", editable: true, type: "numeric" },
@@ -26,7 +26,6 @@ export const AmazonAdapter = createDomScrapingAdapter({
     var group = document.getElementById(rowContainerID).getElementsByClassName(rowClass);
 
     return Array.from(group).map(el => {
-      console.log(el);
       var price = 0;
 
       var price_el = <HTMLElement> el.getElementsByClassName(priceClass)[0];
@@ -82,11 +81,6 @@ export const AmazonAdapter = createDomScrapingAdapter({
         }
       }
     })
-  },
-  // Reload data anytime there's a click or keypress on the page
-  addScrapeTriggers: (reload) => {
-    document.addEventListener("click", (e) => { reload() })
-    document.addEventListener("keydown", (e) => { reload() })
   }
 });
 

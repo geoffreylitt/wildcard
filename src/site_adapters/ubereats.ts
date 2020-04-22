@@ -1,10 +1,11 @@
 'use strict';
 
 import { extractNumber, urlExact, urlContains } from "../utils"
+import { createDomScrapingAdapter } from "./domScrapingBase"
 
 const UberEatsAdapter = createDomScrapingAdapter({
   name: "Uber Eats",
-  enabled () => {
+  enabled: () => {
     return urlContains("ubereats.com")
   },
   attributes: [

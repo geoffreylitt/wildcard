@@ -4,7 +4,7 @@ import { extractNumber, urlExact, urlContains } from "../utils"
 
 const YoutubeAdapter = createDomScrapingAdapter({
     name: "YouTube",
-    enabled () => {
+    enabled: () => {
         return urlContains("youtube.com")
     },
     attributes: [

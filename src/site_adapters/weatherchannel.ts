@@ -5,7 +5,7 @@ import * as moment from 'moment';
 
 const WeatherChannelAdapter = createDomScrapingAdapter({
     name: "Weather Channel",
-    enabled () => {
+    enabled: () => {
         return urlContains("https://weather.com/weather/hourbyhour")
     },
     attributes: [

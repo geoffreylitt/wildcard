@@ -28,7 +28,7 @@ function formatAttributesForHot(attributes:Array<Attribute>) {
     data: attribute.name,
     type: attribute.type,
     readOnly: !attribute.editable,
-    editor: attribute.editor,
+    editor: attribute.editor
   }))
 }
 
@@ -69,6 +69,9 @@ const WcPanel = ({ records, attributes, actions }) => {
     width: "100%",
     stretchH: "all" as const,
     height: 250,
+    hiddenColumns: {
+      columns: attributes.map((attr, idx) => attr.hidden ? idx : null).filter(e => Number.isInteger(e))
+    },
     contextMenu: {
       items: {
         "insert_user_attribute": {

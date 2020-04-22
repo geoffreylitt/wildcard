@@ -4,13 +4,22 @@ import HNAdapter from './hackerNews'
 import FluxAdapter from './flux'
 import ExpediaAdapter from './expedia'
 import AirbnbAdapter from './airbnb'
+import AmazonAdapter from './amazon'
+import InstacartAdapter from './instacart'
+
+// Avoid dealing with iFrame for the moment
+// import BloggerAdapter from './blogger'
+
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
 export const siteAdapters = [
   HNAdapter,
   FluxAdapter,
   ExpediaAdapter,
-  AirbnbAdapter
+  AirbnbAdapter,
+  AmazonAdapter,
+  InstacartAdapter,
+  // BloggerAdapter
 ]
 
 export function getActiveAdapter():any {
