@@ -1,6 +1,7 @@
 'use strict';
 
 import { extractNumber, urlExact, urlContains } from "../utils"
+import { createDomScrapingAdapter } from "./domScrapingBase"
 
 const YoutubeAdapter = createDomScrapingAdapter({
     name: "YouTube",

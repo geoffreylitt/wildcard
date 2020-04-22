@@ -6,9 +6,10 @@ import ExpediaAdapter from './expedia'
 import AirbnbAdapter from './airbnb'
 import AmazonAdapter from './amazon'
 import InstacartAdapter from './instacart'
-
-// Avoid dealing with iFrame for the moment
-// import BloggerAdapter from './blogger'
+import UberEatsAdapter from './ubereats'
+import BloggerAdapter from './blogger'
+import WeatherChannelAdapter from './weatherchannel'
+import YoutubeAdapter from './youtube'
 
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
@@ -19,7 +20,10 @@ export const siteAdapters = [
   AirbnbAdapter,
   AmazonAdapter,
   InstacartAdapter,
-  // BloggerAdapter
+  UberEatsAdapter,
+  BloggerAdapter,
+  WeatherChannelAdapter,
+  YoutubeAdapter
 ]
 
 export function getActiveAdapter():any {

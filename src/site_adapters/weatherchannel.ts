@@ -1,6 +1,7 @@
 'use strict';
 
 import { extractNumber, urlExact, urlContains } from "../utils"
+import { createDomScrapingAdapter } from "./domScrapingBase"
 import * as moment from 'moment';
 
 const WeatherChannelAdapter = createDomScrapingAdapter({

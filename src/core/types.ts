@@ -45,6 +45,10 @@ export interface Attribute {
   /** Hide this column in the visible table?
   Eg, useful for hiding an ID column that's needed for sorting */
   hidden?: boolean;
+
+  // todo: move these into a metadata sub-object or something
+  timeFormat?: string;
+  correctFormat?: boolean;
 }
 
 
