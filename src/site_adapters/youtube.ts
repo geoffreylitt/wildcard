@@ -4,17 +4,17 @@ import { extractNumber, urlExact, urlContains } from "../utils"
 
 const YoutubeAdapter = createDomScrapingAdapter({
     name: "YouTube",
-    enable: () => {
+    enabled () => {
         return urlContains("youtube.com")
     },
-    colSpecs: [
+    attributes: [
         { name: "id", type: "text", hidden: true },
         { name: "Title", type: "text" },
         { name: "Time", type: "text"},
         { name: "Uploader", type: "text"},
         { name: "% Watched", type: "numeric"}
     ],
-    getDataRows: () => {
+    scrapePage: () => {
         let tableRows = document.querySelector('#contents').children;
         return Array.from(tableRows).map((el, index) => {
             let elAsHTMLElement : HTMLElement = <HTMLElement>el;
@@ -31,7 +31,7 @@ const YoutubeAdapter = createDomScrapingAdapter({
                     : 0;
 
                 return {
-                    els: [elAsHTMLElement],
+                    rowElements: [elAsHTMLElement],
                     id: el.querySelector('#video-title-link').getAttribute("href"),
                     dataValues: {
                         Title: el.querySelector('#video-title'),
@@ -49,7 +49,7 @@ const YoutubeAdapter = createDomScrapingAdapter({
         }).filter(el => el !== null)
     },
     // Reload data anytime there's a click or keypress on the page
-    setupReloadTriggers: (reload) => {
+    addScrapeTriggers: (reload) => {
         document.addEventListener("click", (e) => { reload() });
         document.addEventListener("keydown", (e) => { reload() });
     }

@@ -4,16 +4,16 @@ import {urlContains} from "../utils";
 
 export const InstacartAdapter = createDomScrapingAdapter({
   name: "Instacart",
-  enable: () => {
+  enabled () => {
     return urlContains("instacart.com/store/orders")
   },
-  colSpecs: [
+  attributes: [
     // { name: "id", type: "text" },
     { name: "name", type: "text" },
     { name: "price", type: "numeric" },
     { name: "quantity", type: "numeric" },
   ],
-  getDataRows: () => {
+  scrapePage: () => {
     return Array.from(document.querySelectorAll("li.order-status-item")).map (el => {
       const itemName = el.querySelector("div.order-status-item-details h5").textContent;
       const itemPrice = el.querySelector("div.order-status-item-price p").textContent.substring(1);
@@ -21,7 +21,7 @@ export const InstacartAdapter = createDomScrapingAdapter({
 
       return {
         id: itemName,
-        els: [el as HTMLElement],
+        rowElements: [el],
         dataValues: {
           name: itemName,
           price: itemPrice,

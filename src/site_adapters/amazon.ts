@@ -14,14 +14,14 @@ const ratingClass = "a-icon-alt";
 
 export const AmazonAdapter = createDomScrapingAdapter({
   name: "Amazon",
-  enable: () => urlContains("amazon.com"),
-  colSpecs: [
+  enabled () => urlContains("amazon.com"),
+  attributes: [
   { name: "id", type: "text", hidden: true },
   { name: "total_price", editable: true, type: "numeric" },
   { name: "delivery_detail", editable: true, type: "text" },
   { name: "rating", editable: true, type: "numeric" }
   ],
-  getDataRows: () => {
+  scrapePage: () => {
 
     var group = document.getElementById(rowContainerID).getElementsByClassName(rowClass);
 
@@ -74,7 +74,7 @@ export const AmazonAdapter = createDomScrapingAdapter({
 
       return {
         id: seller_href,
-        els: [el as HTMLElement],
+        rowElements: [el],
         dataValues: {
           total_price: price.toFixed(2),
           delivery_detail: delivery_text,
@@ -84,7 +84,7 @@ export const AmazonAdapter = createDomScrapingAdapter({
     })
   },
   // Reload data anytime there's a click or keypress on the page
-  setupReloadTriggers: (reload) => {
+  addScrapeTriggers: (reload) => {
     document.addEventListener("click", (e) => { reload() })
     document.addEventListener("keydown", (e) => { reload() })
   }

@@ -4,10 +4,10 @@ import { extractNumber, urlExact, urlContains } from "../utils"
 
 const UberEatsAdapter = createDomScrapingAdapter({
   name: "Uber Eats",
-  enable: () => {
+  enabled () => {
     return urlContains("ubereats.com")
   },
-  colSpecs: [
+  attributes: [
   { name: "id", type: "text", hidden: true },
   { name: "name", type: "text" },
   { name: "notes", type: "text" },
@@ -15,7 +15,7 @@ const UberEatsAdapter = createDomScrapingAdapter({
   { name: "rating", type: "numeric" },
   { name: "fee", type: "numeric" }
   ],
-  getDataRows: () => {
+  scrapePage: () => {
     return Array.from(document.querySelectorAll("a")).map(el => {
       var prefix;
 
@@ -64,7 +64,7 @@ const UberEatsAdapter = createDomScrapingAdapter({
 
           return {
             id: el.getAttribute("href"),
-            els: [el as HTMLElement],
+            rowElements: [el],
             dataValues: {
                 name: r_name,
                 notes: r_category,
@@ -78,7 +78,7 @@ const UberEatsAdapter = createDomScrapingAdapter({
     }).filter(row => row != undefined);
   },
   // Reload data anytime there's a click or keypress on the page
-  setupReloadTriggers: (reload) => {
+  addScrapeTriggers: (reload) => {
     document.addEventListener("click", (e) => {
       console.log("clicked");
       reload() });
