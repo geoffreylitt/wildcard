@@ -37,15 +37,15 @@ export const getFinalRecords = createSelector(
     // left join user records to app records
     finalRecords = finalRecords.map(r => ({
       id: r.id,
-      attributes: {
-        ...r.attributes,
-        ...(userRecordsById[r.id] || {}).attributes
+      values: {
+        ...r.values,
+        ...(userRecordsById[r.id] || {}).values
       }
     }));
 
     // sort
     if (sortConfig) {
-      finalRecords = sortBy(finalRecords, r => r.attributes[sortConfig.attribute])
+      finalRecords = sortBy(finalRecords, r => r.values[sortConfig.attribute])
 
       if (sortConfig.direction === "desc") {
         finalRecords = finalRecords.reverse()

@@ -26,14 +26,14 @@ const editRecords = (edits:Array<RecordEdit>) => {
         if (r.id === recordId) {
           return {
             id: r.id,
-            attributes: { ...r.attributes, [attribute]: value }
+            values: { ...r.values, [attribute]: value }
           }
         }
         else { return r; }
       })
     } else {
       newRecords = [...table.records,
-        { id: recordId, attributes: { [attribute]: value } }
+        { id: recordId, values: { [attribute]: value } }
       ]
     }
 

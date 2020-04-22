@@ -9,7 +9,7 @@ export type tableId = id;
 
 export interface Record {
   id: recordId;
-  attributes: any;
+  values: any;
 }
 
 export interface RecordEdit {

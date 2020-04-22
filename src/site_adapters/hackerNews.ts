@@ -33,7 +33,7 @@ const HNAdapter = createDomScrapingAdapter({
           // todo: Both of these steps should be handled by the framework...
           // .filter(e => e) // Only include if the element is really there
           // .map(e => (e)), // Convert to HTMLElement type
-        attributes: {
+        dataValues: {
           rank: el.querySelector("span.rank"),
           title: el.querySelector("a.storylink"),
           link: el.querySelector("a.storylink").getAttribute("href"),

@@ -47,7 +47,7 @@ export interface ScrapedRow {
   id: string;
 
   /** The data values for the row, with column names as keys */
-  attributes: { [key: string]: PageValue };
+  dataValues: { [key: string]: PageValue };
 
   /** A container for adding user annotations */
   annotationContainer?: HTMLElement;
@@ -176,7 +176,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
       const scrapedRow = scrapedRows.find(sr => sr.id === recordId);
       if (!scrapedRow) { continue; }
 
-      const scrapedValue = scrapedRow.attributes[attribute];
+      const scrapedValue = scrapedRow.dataValues[attribute];
 
       if (!(scrapedValue instanceof HTMLElement)) {
         return Promise.reject("Can't edit scraped value, site adapter must return HTML element to be editable.")
@@ -216,7 +216,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
       let annotationsHTML =
         newTable.attributes
           .filter(attr => !attr.hideInPage) // hide columns hidden in page
-          .map(attr => record.attributes[attr.name])
+          .map(attr => record.values[attr.name])
           .filter(value => value)
           .map(value => scrapedRow.annotationTemplate.replace("$annotation", value));
       annotationTarget.innerHTML = annotationsHTML.join(" ")
@@ -233,7 +233,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     // * base DOMScrapingAdapter uses that to output the "just values" version
     const records = scrapedRows.map(row => ({
       id: row.id,
-      attributes: mapValues(row.attributes, (value, attrName) => {
+      values: mapValues(row.dataValues, (value, attrName) => {
         let extractedValue;
 
         // extract text from html element

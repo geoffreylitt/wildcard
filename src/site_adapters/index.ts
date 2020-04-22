@@ -1,14 +1,16 @@
 // Registry of all the site adapters
 
-import HNAdapter from './newHN'
+import HNAdapter from './hackerNews'
 import FluxAdapter from './flux'
 import ExpediaAdapter from './expedia'
+import AirbnbAdapter from './airbnb'
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
 export const siteAdapters = [
   HNAdapter,
   FluxAdapter,
-  ExpediaAdapter
+  ExpediaAdapter,
+  AirbnbAdapter
 ]
 
 export function getActiveAdapter():any {

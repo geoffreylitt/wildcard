@@ -22,7 +22,7 @@ const ExpediaAdapter = createDomScrapingAdapter({
       {
         id: "1", // only one row so we can just hardcode an ID
         rowElements: [form],
-        attributes: {
+        dataValues: {
           origin: form.querySelector("#package-origin-hp-package"),
           destination: form.querySelector("#package-destination-hp-package"),
           departDate: form.querySelector("#package-departing-hp-package"),

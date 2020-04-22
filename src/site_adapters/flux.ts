@@ -35,7 +35,7 @@ const FluxAdapter = createDomScrapingAdapter({
         {
           id: String(i),
           rowElements: [tbody.children[i]],
-          attributes: {
+          dataValues: {
             "0": document.querySelector(`#valorBrutoAbs--${i}--0`),
             "1": document.querySelector(`#valorBrutoAbs--${i}--1`),
             "2": document.querySelector(`#valorBrutoAbs--${i}--2`),

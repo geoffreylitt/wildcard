@@ -14,15 +14,16 @@ import { createSelector } from 'reselect'
 import styled from 'styled-components'
 
 import { getFinalRecords, getFinalAttributes } from '../core/getFinalTable'
+import { Record, Attribute } from '../core/types'
 
-function formatRecordsForHot(records) {
+function formatRecordsForHot(records:Array<Record>) {
   return records.map(record => ({
     id: record.id,
-    ...record.attributes
+    ...record.values
   }))
 }
 
-function formatAttributesForHot(attributes) {
+function formatAttributesForHot(attributes:Array<Attribute>) {
   return attributes.map(attribute => ({
     data: attribute.name,
     type: attribute.type,
@@ -36,7 +37,7 @@ const Panel = styled.div`
   bottom: 0;
   left: 0;
   height: 280px;
-  width: 100vw;
+  width: 98vw;
   z-index: 100;
 
   box-shadow: 0px -5px 10px 1px rgba(170,170,170,0.5);
