@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Handsontable from 'handsontable';
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
@@ -32,11 +32,34 @@ function formatAttributesForHot(attributes:Array<Attribute>) {
   }))
 }
 
+
+const ToggleButton = styled.div`
+  display: block;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 14px;
+
+  border-radius: 10px;
+  z-index: 10000;
+  padding: 10px;
+  position: fixed;
+  bottom: ${props => props.hidden ? 20 : 300}px;
+  right: 20px;
+  background-color: white;
+  box-shadow: 0px 0px 10px -1px #d5d5d5;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #eee;
+  }
+`
+
 const Panel = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
-  height: 280px;
+  height: ${props => props.hidden ? 0 : 280}px;
   width: 98vw;
   z-index: 100;
 
@@ -59,6 +82,7 @@ const ControlBar = styled.div`
 
 const WcPanel = ({ records, attributes, actions }) => {
   const hotRef = useRef(null);
+  const [hidden, setHidden] = useState(false);
 
   const hotSettings = {
     data: formatRecordsForHot(records),
@@ -131,22 +155,28 @@ const WcPanel = ({ records, attributes, actions }) => {
       }
     })
 
-    console.log("wcpanel edits", edits);
     actions.editRecords(edits);
 
     return false;
   }
 
   if (records && records.length > 0) {
-    return <Panel>
-      <ControlBar><strong>Wildcard v0.2</strong></ControlBar>
-      <HotTable
-        licenseKey='non-commercial-and-evaluation'
-        beforeColumnSort={onBeforeColumnSort}
-        beforeChange={onBeforeChange}
-        settings = {hotSettings}
-        ref={hotRef} />
-    </Panel>;
+    return <>
+      <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}>
+        { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
+      </ToggleButton>
+      <Panel hidden={hidden}>
+        <ControlBar>
+          <strong>Wildcard v0.2</strong>
+        </ControlBar>
+        <HotTable
+          licenseKey='non-commercial-and-evaluation'
+          beforeColumnSort={onBeforeColumnSort}
+          beforeChange={onBeforeChange}
+          settings = {hotSettings}
+          ref={hotRef} />
+      </Panel>
+    </>;
   } else {
     return null;
   }
