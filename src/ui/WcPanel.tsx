@@ -115,11 +115,13 @@ const WcPanel = ({ records, attributes, actions }) => {
     }
   }
 
+  // Get a pointer to the current handsontable instance
   const getHotInstance = () => {
     if (hotRef && hotRef.current) { return hotRef.current.hotInstance; }
     else { return null; }
   }
 
+  // Handle user sorting the table
   const onBeforeColumnSort = (_, destinationSortConfigs) => {
     // We suppress HOT's built-in sorting by returning false,
     // and manually tell HOT that we've taken care of
@@ -141,9 +143,14 @@ const WcPanel = ({ records, attributes, actions }) => {
       actions.sortRecords(null);
     }
 
+    // don't let HOT sort the table
     return false;
   }
 
+  // Handle user making a change to the table.
+  // Similar to sorting, we suppress HOT built-in behavior, and
+  // we handle the edit ourselves by triggering an action and
+  // eventually rendering a totally fresh table from scratch
   const onBeforeChange = (changes, source) => {
     const edits = changes.map(([rowIndex, propName, prevValue, nextValue]) => {
       const attribute = attributes.find(a => a.name === propName)
@@ -157,7 +164,15 @@ const WcPanel = ({ records, attributes, actions }) => {
 
     actions.editRecords(edits);
 
+    // don't let HOT edit the value
     return false;
+  }
+
+  const onAfterSelection = (rowIndex, prop) => {
+    const recordId = records[rowIndex].id;
+    const attribute = prop;
+
+    actions.selectRecord(recordId, attribute)
   }
 
   if (records && records.length > 0) {
@@ -173,6 +188,7 @@ const WcPanel = ({ records, attributes, actions }) => {
           licenseKey='non-commercial-and-evaluation'
           beforeColumnSort={onBeforeColumnSort}
           beforeChange={onBeforeChange}
+          afterSelectionByProp={onAfterSelection}
           settings = {hotSettings}
           ref={hotRef} />
       </Panel>

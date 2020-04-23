@@ -1,5 +1,5 @@
 
-// todo: define types for these events
+// todo: define TS types for these events
 // https://redux.js.org/recipes/usage-with-typescript
 
 // Many of these actions don't directly affect the Redux state,
@@ -55,6 +55,10 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
 
     sortRecords (sortConfig) {
       return { type: "SORT_RECORDS", sortConfig }
+    },
+
+    selectRecord (recordId, attribute) {
+      return { type: "RECORD_SELECTED", recordId, attribute }
     }
   }
 }

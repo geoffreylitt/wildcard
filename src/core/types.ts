@@ -104,6 +104,8 @@ export interface TableAdapter {
 
   editRecords(edits:Array<RecordEdit>):Promise<Table>;
 
+  handleRecordSelected(recordId: recordId, attribute: string);
+
   /** Update the UI to match arbitrary table state
    *  (To implement performantly, probably do a diff inside the adapter
    *  and only update the UI where necessary) */

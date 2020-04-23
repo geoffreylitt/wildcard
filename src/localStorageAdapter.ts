@@ -50,11 +50,7 @@ const userStore:TableAdapter = {
    subscribe(callback:TableCallback) {
      subscribers = [...subscribers, callback];
    },
-   applySort() {},
    editRecords: editRecords,
-   handleOtherTableUpdated() {
-     // probably don't care if the site table updates..?
-   },
    addAttribute() {
      const newAttribute : Attribute = {
        name: "user" + (table.attributes.length + 1),
@@ -67,7 +63,14 @@ const userStore:TableAdapter = {
      loadTable();
 
      return Promise.resolve(table);
-   }
+   },
+
+   // These changes to the table are no-ops
+   // todo: should these move off the generic table adapter interface?
+   // should they only apply to dom adapters?
+   handleRecordSelected() {}, //no-op
+   applySort() {},
+   handleOtherTableUpdated() {},
 }
 
 export default userStore;

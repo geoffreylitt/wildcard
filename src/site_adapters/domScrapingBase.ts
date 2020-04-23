@@ -6,6 +6,7 @@ import keyBy from 'lodash/keyBy'
 import keys from 'lodash/keys'
 import values from 'lodash/values'
 import pick from 'lodash/pick'
+import forIn from 'lodash/forIn'
 import { Record, Attribute, SortConfig, TableAdapter, Table, tableId, RecordEdit } from '../core/types'
 import { htmlToElement } from '../utils'
 
@@ -39,8 +40,10 @@ type PageValue = Element | DataValue
 */
 export interface ScrapedRow {
   /** The element(s) representing the row */
-  // todo: use the full tagged union style here, rather than bare sum type,
-  // to get exhaustiveness checking everywhere
+  // Todo: change this to Array<HTMLElement> to make callers happy
+  // (kind of annoying because we want to allow adapter config to return
+  // Array<Element>, but then handle the typecasting to HTMLElement
+  // here in this file, and the TS bookkeeping is a bit messy)
   rowElements: Array<Element>;
 
   /** A stable ID for the row */
@@ -75,16 +78,19 @@ function onDomReady(fn) {
   else document.addEventListener('DOMContentLoaded', fn)
 }
 
-// Takes in as input a site-specific configuration,
-// which
-//
+// Takes in as input a site-specific DOM scraping configuration;
+// returns a TableAdapter that conforms to the abstract adapter spec.
 export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdapter {
   const attributes = config.attributes;
 
-  // Mutable closure state to be managed for this adapter
+  // Mutable state to be managed for this adapter, as a closure
   let scrapedRows: Array<ScrapedRow> = [];
   let sortOrder: SortConfig = null;
   let subscribers: Array<(Table) => void> = [];
+
+  // todo: another way to store this would be to
+  // create some sort of wrapper type where we add more data to scraped rows
+  let originalBorder;
 
   // Do some light cleanup on the result of the config's scrapePage.
   // This is to make it easier on site adapter developers to
@@ -272,6 +278,37 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     return Promise.reject("Can't add attributes to site adapter")
   }
 
+  // todo: support custom selection styling from the config here
+  const handleRecordSelected = (recordId, attribute) => {
+    for (const sr of scrapedRows) {
+      if (sr.id === recordId) {
+
+        // make the row appear selected in the page
+        sr.rowElements[0].scrollIntoView({ behavior: "smooth", block: "center" })
+        sr.rowElements.forEach((el, index) => {
+          if ((el as HTMLElement).style) {
+
+            // oversimplified way to remember old styles before highlighting --
+            // just remember a single original border value across all rows.
+            // (works OK if all rows share same border styling)
+            if (originalBorder === undefined) {
+              originalBorder = (el as HTMLElement).style.border;
+            }
+
+            (el as HTMLElement).style.border = `solid 2px #c9ebff`
+          }
+        })
+      } else {
+        console.log("unhighlight", originalBorder);
+        sr.rowElements.forEach((el, index) => {
+          if ((el as HTMLElement).style && originalBorder !== undefined) {
+            (el as HTMLElement).style.border = originalBorder;
+          }
+        });
+      }
+    }
+  }
+
   return {
     name: config.name,
     enabled: config.enabled,
@@ -285,6 +322,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     applySort,
     editRecords,
     handleOtherTableUpdated,
+    handleRecordSelected,
     addAttribute
   }
 }

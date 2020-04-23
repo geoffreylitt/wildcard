@@ -8,7 +8,7 @@
 import { getFinalRecords } from './core/getFinalTable'
 import { TableAdapter } from './core/types'
 
-export const TableAdapterMiddleware = (TableAdapter: TableAdapter) =>
+export const TableAdapterMiddleware = (tableAdapter: TableAdapter) =>
   ({ getState }) => next => action => {
 
   // Call the next dispatch method in the middleware chain.
@@ -25,7 +25,7 @@ export const TableAdapterMiddleware = (TableAdapter: TableAdapter) =>
     // Records were sorted;
     // apply the sort to this adapter
     case "SORT_RECORDS":
-      TableAdapter.applySort(
+      tableAdapter.applySort(
         getFinalRecords(newState),
         newState.sortConfig
       );
@@ -35,11 +35,15 @@ export const TableAdapterMiddleware = (TableAdapter: TableAdapter) =>
     // (eg: notify the site that user data has changed,
     // so we need to update annotations)
     case "TABLE_RELOADED":
-      if (action.table.tableId !== TableAdapter.tableId) {
-        TableAdapter.handleOtherTableUpdated(action.table)
+      if (action.table.tableId !== tableAdapter.tableId) {
+        tableAdapter.handleOtherTableUpdated(action.table)
       }
 
-    // put table reloaded here
+    case "RECORD_SELECTED":
+      if (action.recordId) {
+        tableAdapter.handleRecordSelected(action.recordId, action.attribute);
+      }
+
   }
 
   return returnValue
