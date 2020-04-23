@@ -54,7 +54,22 @@ const YoutubeAdapter = createDomScrapingAdapter({
     addScrapeTriggers: (reload) => {
         document.addEventListener("click", (e) => { reload() });
         document.addEventListener("keydown", (e) => { reload() });
-    }
+    },
+    onRowSelected: (row) => {
+        row.rowElements.forEach(el => {
+            if (el.style) {
+                el.style["background-color"] = `#c9ebff`
+            }
+        });
+        row.rowElements[0].scrollIntoView({ behavior: "smooth", block: "center" })
+    },
+    onRowUnselected: (row) => {
+        row.rowElements.forEach(el => {
+            if(el.style) {
+                el.style["background-color"] = ``
+            }
+        })
+    },
 });
 
 function progressToNumber(progress){

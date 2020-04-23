@@ -71,6 +71,11 @@ export interface ScrapingAdapterConfig {
   scrapePage():Array<ScrapedRow>;
   addScrapeTriggers?(any):void;
   iframe?:boolean;
+
+  /** Custom function to modify row elements when row is selected */
+  onRowSelected?(ScrapedRow):void;
+  /** Custom function to modify row elements when row is unselected */
+  onRowUnselected?(ScrapedRow):void;
 }
 
 function onDomReady(fn) {
@@ -281,30 +286,40 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   // todo: support custom selection styling from the config here
   const handleRecordSelected = (recordId, attribute) => {
     for (const sr of scrapedRows) {
+
+      // Handle highlighting
       if (sr.id === recordId) {
+        if (config.onRowSelected) {
+          config.onRowSelected(sr);
+        } else {
+          // make the row appear selected in the page
+          sr.rowElements[0].scrollIntoView({ behavior: "smooth", block: "center" })
+          sr.rowElements.forEach((el, index) => {
+            if ((el as HTMLElement).style) {
 
-        // make the row appear selected in the page
-        sr.rowElements[0].scrollIntoView({ behavior: "smooth", block: "center" })
-        sr.rowElements.forEach((el, index) => {
-          if ((el as HTMLElement).style) {
+              // oversimplified way to remember old styles before highlighting --
+              // just remember a single original border value across all rows.
+              // (works OK if all rows share same border styling)
+              if (originalBorder === undefined) {
+                originalBorder = (el as HTMLElement).style.border;
+              }
 
-            // oversimplified way to remember old styles before highlighting --
-            // just remember a single original border value across all rows.
-            // (works OK if all rows share same border styling)
-            if (originalBorder === undefined) {
-              originalBorder = (el as HTMLElement).style.border;
+              (el as HTMLElement).style.border = `solid 2px #c9ebff`
             }
+          })
+        }
 
-            (el as HTMLElement).style.border = `solid 2px #c9ebff`
-          }
-        })
+      // Handle unhighlighting
       } else {
-        console.log("unhighlight", originalBorder);
-        sr.rowElements.forEach((el, index) => {
-          if ((el as HTMLElement).style && originalBorder !== undefined) {
-            (el as HTMLElement).style.border = originalBorder;
-          }
-        });
+        if (config.onRowUnselected) {
+          config.onRowUnselected(sr);
+        } else {
+          sr.rowElements.forEach((el, index) => {
+            if ((el as HTMLElement).style && originalBorder !== undefined) {
+              (el as HTMLElement).style.border = originalBorder;
+            }
+          });
+        }
       }
     }
   }
