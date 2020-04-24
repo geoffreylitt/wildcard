@@ -13,7 +13,6 @@ import { createSelector } from 'reselect'
 
 import styled from 'styled-components'
 
-import { getFinalRecords, getFinalAttributes } from '../core/getFinalTable'
 import { Record, Attribute } from '../core/types'
 
 function formatRecordsForHot(records:Array<Record>) {
@@ -80,7 +79,7 @@ const ControlBar = styled.div`
 
 // Declare our functional React component
 
-const WcPanel = ({ records, attributes, actions }) => {
+const WcPanel = ({ records, attributes, query, actions }) => {
   const hotRef = useRef(null);
   const [hidden, setHidden] = useState(false);
 
@@ -121,13 +120,39 @@ const WcPanel = ({ records, attributes, actions }) => {
     else { return null; }
   }
 
+  // make sure the HOT reflects the current sort config
+  // of the query in our redux state.
+  // (usually the sort config will be set from within HOT,
+  // but this is needed e.g. to tell HOT when we load sort state from
+  // local storage on initial pageload)
+  const updateHotSortConfig = () => {
+    if (getHotInstance()) {
+      const columnSortPlugin = getHotInstance().getPlugin('columnSorting');
+
+      let newHotSortConfig;
+
+      if (query.sortConfig) {
+        newHotSortConfig = {
+          column: attributes.map(a => a.name).indexOf(query.sortConfig.attribute),
+          sortOrder: query.sortConfig.direction
+        };
+      } else {
+        newHotSortConfig = undefined;
+      }
+      columnSortPlugin.setSortConfig(newHotSortConfig);
+    }
+  }
+
+  // todo: don't define these handlers inside the render funciton?
+  // define outside and parameterize on props?
+
   // Handle user sorting the table
   const onBeforeColumnSort = (_, destinationSortConfigs) => {
+    const columnSortPlugin = getHotInstance().getPlugin('columnSorting');
     // We suppress HOT's built-in sorting by returning false,
     // and manually tell HOT that we've taken care of
     // sorting the table ourselves.
     // https://handsontable.com/docs/7.4.2/demo-sorting.html#custom-sort-implementation
-    const columnSortPlugin = getHotInstance().getPlugin('columnSorting');
     columnSortPlugin.setSortConfig(destinationSortConfigs);
 
     // for the moment we only support single column sort
@@ -189,6 +214,7 @@ const WcPanel = ({ records, attributes, actions }) => {
           beforeColumnSort={onBeforeColumnSort}
           beforeChange={onBeforeChange}
           afterSelectionByProp={onAfterSelection}
+          afterRender={updateHotSortConfig}
           settings = {hotSettings}
           ref={hotRef} />
       </Panel>

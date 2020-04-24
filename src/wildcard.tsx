@@ -28,7 +28,8 @@ const connectRedux = (component, actions) => {
     // this panel view isn't responsible for combining them.
     // keep this component thin.
     records: getFinalRecords(state),
-    attributes: getFinalAttributes(state)
+    attributes: getFinalAttributes(state),
+    query: state.query
   })
 
   const mapDispatchToProps = dispatch => ({
