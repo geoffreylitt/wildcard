@@ -47,6 +47,8 @@ const run = function () {
 
   activeSiteAdapter.initialize();
 
+  userTableAdapter.initialize(activeSiteAdapter.name)
+
   const tables = { app: activeSiteAdapter, user: userTableAdapter }
 
   // pass our TableAdapter objects into action creators,
@@ -73,6 +75,27 @@ const run = function () {
   userTableAdapter.subscribe(table =>
     store.dispatch(actions.tableReloaded(table))
   )
+
+  // todo: wrap storage stuff in a module
+
+  // Load saved query (including sorting)
+  chrome.storage.local.get(`query:${activeSiteAdapter.name}`, (result) => {
+    const query = result[`query:${activeSiteAdapter.name}`]
+    if (query) {
+      console.log("found query", query)
+      store.dispatch(actions.sortRecords(query.sortConfig))
+    } else {
+      console.log("no query")
+    }
+  })
+
+  // save the query in local storage when it updates
+  store.subscribe(() => {
+    const state = store.getState();
+    const queryToStore = { [`query:${activeSiteAdapter.name}`]: state.query }
+    console.log("storing", queryToStore)
+    chrome.storage.local.set(queryToStore)
+  })
 
   // Initialize the container for our view
   document.body.appendChild(

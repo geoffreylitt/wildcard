@@ -39,6 +39,10 @@ export const InstacartAdapter = createDomScrapingAdapter({
       }
     })
   },
+  // Reload data anytime the form changes or there's a click on the page
+  addScrapeTriggers: (loadTable) => {
+    document.addEventListener("click", e => loadTable())
+  }
 });
 
 export default InstacartAdapter;

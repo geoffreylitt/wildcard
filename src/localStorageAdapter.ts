@@ -1,4 +1,5 @@
 'use strict';
+declare const browser;
 
 import { TableAdapter, Record, Attribute, TableCallback, RecordEdit } from './core/types'
 
@@ -8,9 +9,20 @@ let table = {
   records: []
 }
 
+// todo: could we use tableId instead of a separate "namespace" here?
+// especially because we might not always want to launch the same user table
+// for the same site adapter. we should add some indirection somewhere,
+// so a site adapter loads a specific user table by default, but
+// you could install someone else's user table, or even have multiple
+// possible user tables stored within a single adapter, all joined together
+let namespace;
+
 let subscribers:Array<TableCallback> = []
 
+const storageKey = () => `localStorageAdapter:${namespace}`
+
 const loadTable = () => {
+  chrome.storage.local.set({ [storageKey()]: table });
   for (const callback of subscribers) { callback(table); }
   return table;
 }
@@ -45,6 +57,13 @@ const editRecords = (edits:Array<RecordEdit>) => {
 const userStore:TableAdapter = {
    tableId: "user",
    name: "User Local Storage",
+   initialize: (ns) => {
+     namespace = ns;
+     chrome.storage.local.get([storageKey()], (result) => {
+       const tableFromStorage = result[ns];
+       if (tableFromStorage) { table = tableFromStorage; loadTable(); }
+     })
+   },
    enabled: () => true , // user store is always enabled
    loadTable: loadTable,
    subscribe(callback:TableCallback) {

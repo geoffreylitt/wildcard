@@ -73,9 +73,9 @@ export interface ScrapingAdapterConfig {
   iframe?:boolean;
 
   /** Custom function to modify row elements when row is selected */
-  onRowSelected?(ScrapedRow):void;
+  onRowSelected?(ScrapedRow, string?):void;
   /** Custom function to modify row elements when row is unselected */
-  onRowUnselected?(ScrapedRow):void;
+  onRowUnselected?(ScrapedRow, string?):void;
 }
 
 function onDomReady(fn) {
@@ -283,7 +283,8 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     return Promise.reject("Can't add attributes to site adapter")
   }
 
-  // todo: support custom selection styling from the config here
+  // todo: support highlighting individual attributes
+  // within a row (generally when there's one row)
   const handleRecordSelected = (recordId, attribute) => {
     for (const sr of scrapedRows) {
 

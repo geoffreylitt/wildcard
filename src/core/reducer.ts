@@ -8,7 +8,7 @@ const createTableReducer = (tableId) => {
     // todo: init this from the site adapter with a site name?
     tableId: tableId,
     attributes: [],
-    records: []
+    records: [],
   }
 
   return (state = initialTable, action):Table => {

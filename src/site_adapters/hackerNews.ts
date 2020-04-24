@@ -52,7 +52,7 @@ const HNAdapter = createDomScrapingAdapter({
   onRowSelected: (row) => {
       row.rowElements.forEach(el => {
           if (el.style) {
-              el.style["background-color"] = `#c9ebff`
+              el.style["background-color"] = "#def3ff"
           }
       });
       row.rowElements[0].scrollIntoView({ behavior: "smooth", block: "center" })

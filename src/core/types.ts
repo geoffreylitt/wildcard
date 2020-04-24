@@ -79,7 +79,7 @@ export interface TableAdapter {
   enabled():boolean;
 
   /** start up this TableAdapter */
-  initialize?():void;
+  initialize?(namespace?:string):void;
 
   // =====================
   // Reading data
