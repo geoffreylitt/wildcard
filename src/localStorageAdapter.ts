@@ -60,7 +60,7 @@ const userStore:TableAdapter = {
    initialize: (ns) => {
      namespace = ns;
      chrome.storage.local.get([storageKey()], (result) => {
-       const tableFromStorage = result[ns];
+       const tableFromStorage = result[storageKey()];
        if (tableFromStorage) { table = tableFromStorage; loadTable(); }
      })
    },

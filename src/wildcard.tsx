@@ -94,7 +94,6 @@ const run = function () {
   store.subscribe(() => {
     const state = store.getState();
     const queryToStore = { [`query:${activeSiteAdapter.name}`]: state.query }
-    console.log("storing", queryToStore)
     chrome.storage.local.set(queryToStore)
   })
 
