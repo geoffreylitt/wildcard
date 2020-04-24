@@ -7,6 +7,7 @@ var io = require('socket.io');
 console.log("starting Chrome autoreload server...")
 var WEB_SOCKET_PORT = 8890;
 io = io.listen(WEB_SOCKET_PORT);
-watch.watchTree('.', (curr, prev) => {
+watch.watchTree('./dist', (curr, prev) => {
+  console.log("reloading Chrome extension")
   io.emit('file.change', {});
 })
