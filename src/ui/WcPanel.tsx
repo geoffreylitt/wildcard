@@ -89,9 +89,18 @@ const WcPanel = ({ records, attributes, query, actions }) => {
     columns: formatAttributesForHot(attributes),
     colHeaders: attributes.map(attr => attr.name),
     columnSorting: true,
+
+    // Set a low column width,
+    // then let HOT stretch out the columns to match the width
     width: "100%",
+    colWidths: attributes.map(a => 100),
     stretchH: "all" as const,
+    wordWrap: false,
+    manualColumnResize: true,
+
+    // todo: parameterize height, make whole panel stretchable
     height: 250,
+
     hiddenColumns: {
       columns: attributes.map((attr, idx) => attr.hidden ? idx : null).filter(e => Number.isInteger(e))
     },
