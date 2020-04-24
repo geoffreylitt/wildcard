@@ -211,11 +211,10 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     for (const record of newTable.records) {
       const scrapedRow = scrapedRows.find(sr => sr.id === record.id);
 
-      if (!scrapedRow || !scrapedRow.annotationContainer) return;
+      if (!scrapedRow || !scrapedRow.annotationContainer) continue;
 
-      // todo: set a default annotation container + target
-
-      // create the annotation container if it doesn't exist
+      // todo: set a default annotation container + target.
+      // create the annotation target if it doesn't exist
       let annotationTarget = scrapedRow.annotationContainer.querySelector(".user-annotations");
 
       if (!annotationTarget) {
