@@ -36,9 +36,10 @@
   },
   "scripts": {
     "rollup": "rollup -c -w",
-    "docs": "typedoc --out docs src/wildcard.tsx --ignoreCompilerErrors && touch docs/.nojekyll && open docs/index.html",
+    "docs": "docsify serve docs",
     "chrome-autoreload": "node chrome-autoreload.js",
-    "dev": "concurrently 'node chrome-autoreload.js' 'rollup -c -w'"
+    "dev": "concurrently 'node chrome-autoreload.js' 'rollup -c -w'",
+    "build": "rollup -c"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^4.0.2",
@@ -46,6 +47,7 @@
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
     "concurrently": "^5.1.0",
+    "docsify": "^4.11.3",
     "redux-devtools-extension": "^2.13.8",
     "rollup": "^1.27.8",
     "rollup-plugin-commonjs": "^10.1.0",

@@ -1,3 +1,0 @@
-var typedoc = typedoc || {};
-            typedoc.search = typedoc.search || {};
-            typedoc.search.data = {"kinds":{"1":"External module","64":"Function","65536":"Type literal"},"rows":[{"id":0,"kind":65536,"name":"__type","url":"interfaces/_site_adapters_domscrapingbase_.scrapedrow.html#attributes.__type","classes":"tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported","parent":"\"site_adapters/domScrapingBase\".ScrapedRow.attributes"},{"id":1,"kind":1,"name":"\"wildcard\"","url":"modules/_wildcard_.html","classes":"tsd-kind-external-module"},{"id":2,"kind":64,"name":"run","url":"modules/_wildcard_.html#run","classes":"tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported","parent":"\"wildcard\""}]};
