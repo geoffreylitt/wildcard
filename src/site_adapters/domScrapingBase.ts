@@ -11,6 +11,7 @@ import { Record, Attribute, SortConfig, TableAdapter, Table, tableId, RecordEdit
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
+declare const browser : any;
 
 // Todo:
 // There are checks in the code for whether a PageValue is an element;
@@ -61,6 +62,14 @@ export interface ScrapedRow {
   annotationTemplate?: string;
 }
 
+export interface ScrapedAjaxRow {
+  /** A stable ID for the row */
+  id: string;
+
+  /** The data values for the row, with column names as keys */
+  dataValues: { [key: string]: PageValue };
+}
+
 // todo: document this config;
 // it's the main thing people need to understand to
 // build a site adapter
@@ -69,6 +78,7 @@ export interface ScrapingAdapterConfig {
   enabled():boolean;
   attributes:Array<Attribute>;
   scrapePage():Array<ScrapedRow>;
+  scrapeAjax?(request):Array<ScrapedAjaxRow>;
   addScrapeTriggers?(any):void;
   iframe?:boolean;
 
@@ -92,6 +102,15 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   let scrapedRows: Array<ScrapedRow> = [];
   let sortOrder: SortConfig = null;
   let subscribers: Array<(Table) => void> = [];
+  let scrapedAjaxRows;
+
+  // Listen to AJAX Requests
+  browser.runtime.onMessage.addListener(request => {
+    let result = config.scrapeAjax(request);
+    if(result !== undefined && result !== null){
+      scrapedAjaxRows = result;
+    }
+  });
 
   // todo: another way to store this would be to
   // create some sort of wrapper type where we add more data to scraped rows

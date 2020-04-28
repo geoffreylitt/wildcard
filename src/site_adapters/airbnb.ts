@@ -34,6 +34,32 @@ const AirbnbAdapter = createDomScrapingAdapter({
         }
       }
     })
+  },
+  scrapeAjax: (request) => {
+    if(request.url.includes("https://www.airbnb.com/api/v3?")){
+        try{
+          let listings = request.data.data.dora.exploreV3.sections["1"].items;
+          return Object.keys(listings).map(key => {
+            let listing = listings[key].listing;
+
+            return {
+              id: listing.id,
+              dataValues: {
+                lat: listing.lat,
+                long: listing.lng
+              }
+            }
+          });
+
+          //let listings = request.data.data.dora.exploreV3.sections["1"].items["1"].listing;
+
+          //console.log(temp)
+        }
+        catch{
+          console.log("Could not find airbnb listing")
+        }
+    }
+    return undefined;
   }
 });
 
