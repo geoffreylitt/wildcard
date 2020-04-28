@@ -16,6 +16,7 @@
     "background": {"scripts": ["dist/wildcard-background.js", "src/wildcard-ajax.js"]},
     "permissions": [
       "storage",
+      "*://localhost/*",
       "history",
       "http://*/*",
       "https://*/*",
