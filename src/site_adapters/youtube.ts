@@ -24,7 +24,7 @@ const YoutubeAdapter = createDomScrapingAdapter({
             if(el.querySelector('#video-title-link') !== null && el.querySelector('#overlays') != null && el.querySelector('#overlays').children[0] != null){
 
                 let overlayChildrenAmount = el.querySelector('#overlays').children.length;
-                let timeStampExists = el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1] !== undefined;
+                let timeStampExists = overlayChildrenAmount > 1 && el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1] !== undefined;
                 let timeStamp = timeStampExists
                     ? el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1].textContent.replace((/  |\r\n|\n|\r/gm),"")
                     : "N/A";
