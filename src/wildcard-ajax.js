@@ -3,43 +3,40 @@ function onError(error) {
 }
 
 function listener(details) {
-    if(details.method === "GET")
+    let filter = browser.webRequest.filterResponseData(details.requestId);
+
+    let data = [];
+    filter.ondata = event =>
     {
-        let filter = browser.webRequest.filterResponseData(details.requestId);
+        data.push(event.data);
+        filter.write(event.data);
+    };
 
-        let data = [];
-        filter.ondata = event =>
+    filter.onstop = async event =>
+    {
+        let blob = new Blob(data, {type: 'application/json'});
+        let bstr = await blob.text();
+        let obj = undefined;
+        try{
+            obj = JSON.parse(bstr);
+        }
+        catch{
+
+        }
+        if(obj !== undefined)
         {
-            data.push(event.data);
-            filter.write(event.data);
-        };
-
-        filter.onstop = async event =>
-        {
-            let blob = new Blob(data, {type: 'application/json'});
-            let bstr = await blob.text();
-            let obj = undefined;
-            try{
-                obj = JSON.parse(bstr);
-            }
-            catch{
-
-            }
-            if(obj !== undefined)
-            {
-                browser.tabs.sendMessage(
-                    details.tabId,
-                    {
-                        url: details.url,
-                        data: obj
-                    }
-                ).catch(
-                    onError
-                )
-            }
-            filter.close();
-        };
-    }
+            browser.tabs.sendMessage(
+                details.tabId,
+                {
+                    url: details.url,
+                    data: obj
+                }
+            ).catch(
+                onError
+            )
+        }
+        filter.close();
+    };
 }
 
 browser.webRequest.onBeforeRequest.addListener(

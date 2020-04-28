@@ -5,9 +5,9 @@ import { createDomScrapingAdapter } from "./domScrapingBase"
 
 const rowContainerClass = "_fhph4u"
 const rowClass = "_8ssblpx"
-const titleClass = "_1jbo9b6h"
+const titleClass = "_1c2n35az"
 const priceClass = "_1p7iugi"
-const ratingClass = "_3zgr580"
+const ratingClass = "_10fy1f8"
 const listingLinkClass = "_i24ijs"
 
 const AirbnbAdapter = createDomScrapingAdapter({
@@ -17,7 +17,9 @@ const AirbnbAdapter = createDomScrapingAdapter({
   { name: "id", type: "text" },
   { name: "name", type: "text" },
   { name: "price", type: "numeric" },
-  { name: "rating", type: "numeric" }
+  { name: "rating", type: "numeric" },
+    {name: "latitude", type: "numeric"},
+    {name: "longitude", type: "numeric"}
   ],
   scrapePage: () => {
     return Array.from(document.getElementsByClassName(rowClass)).map(el => {
@@ -45,22 +47,18 @@ const AirbnbAdapter = createDomScrapingAdapter({
             return {
               id: listing.id,
               dataValues: {
-                lat: listing.lat,
-                long: listing.lng
+                latitude: listing.lat,
+                longitude: listing.lng
               }
             }
           });
-
-          //let listings = request.data.data.dora.exploreV3.sections["1"].items["1"].listing;
-
-          //console.log(temp)
         }
         catch{
-          console.log("Could not find airbnb listing")
+
         }
     }
     return undefined;
-  }
+  },
 });
 
 export default AirbnbAdapter;

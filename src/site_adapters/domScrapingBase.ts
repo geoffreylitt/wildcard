@@ -103,13 +103,18 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   let sortOrder: SortConfig = null;
   let subscribers: Array<(Table) => void> = [];
   let scrapedAjaxRows;
+  let scrapedAjaxRowDict = {};
 
   // Listen to AJAX Requests
   browser.runtime.onMessage.addListener(request => {
     let result = config.scrapeAjax(request);
     if(result !== undefined && result !== null){
       scrapedAjaxRows = result;
+      result.forEach((item) => {
+        scrapedAjaxRowDict[item.id] = item.dataValues;
+      });
     }
+    loadTable();
   });
 
   // todo: another way to store this would be to
@@ -261,7 +266,13 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     // * user constructs just elements
     // * base DOMScrapingAdapter constructs elements + values
     // * base DOMScrapingAdapter uses that to output the "just values" version
-    const records = scrapedRows.map(row => ({
+
+    let combinedRows = scrapedRows.map(row => {
+      row.dataValues = {...row.dataValues, ...scrapedAjaxRowDict[row.id]};
+      return row;
+    });
+
+    const records = combinedRows.map(row => ({
       id: row.id,
       values: mapValues(row.dataValues, (value, attrName) => {
         let extractedValue;
