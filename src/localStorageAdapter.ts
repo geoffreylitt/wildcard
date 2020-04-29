@@ -1,9 +1,9 @@
 'use strict';
 declare const browser;
 
-import { TableAdapter, Record, Attribute, TableCallback, RecordEdit } from './core/types'
+import { TableAdapter, Record, Attribute, TableCallback, RecordEdit, Table } from './core/types'
 
-let table = {
+let table:Table = {
   tableId: "user",
   attributes: [],
   records: []

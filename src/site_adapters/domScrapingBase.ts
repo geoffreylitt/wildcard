@@ -272,6 +272,8 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
       return row;
     });
 
+    console.log("scrapedRows", scrapedRows, "combinedRows", combinedRows)
+
     const records = combinedRows.map(row => ({
       id: row.id,
       values: mapValues(row.dataValues, (value, attrName) => {

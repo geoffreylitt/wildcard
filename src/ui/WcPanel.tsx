@@ -60,7 +60,7 @@ const Panel = styled.div`
   left: 0;
   height: ${props => props.hidden ? 0 : 280}px;
   width: 98vw;
-  z-index: 3000;
+  z-index: 100;
 
   box-shadow: 0px -5px 10px 1px rgba(170,170,170,0.5);
   border-top: solid thin #9d9d9d;
