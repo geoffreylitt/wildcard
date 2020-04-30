@@ -105,6 +105,8 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   let scrapedAjaxRows;
   let scrapedAjaxRowDict = {};
 
+  let otherTable:Table = null;
+
   // Listen to AJAX Requests
   browser.runtime.onMessage.addListener(request => {
     let result = config.scrapeAjax(request);
@@ -149,6 +151,10 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     if (scrapedRows && scrapedRows.length > 0) {
       // We got some data! Convert it to the external Table format...
       const table = tableInExternalFormat();
+
+      // Apply any annotations from other tables
+      // to the newly loaded data
+      annotate();
 
       // Notify all subscribers that we have new data
       for (const callback of subscribers) { callback(table); }
@@ -232,7 +238,17 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   // if this is too slow, we can get smarter,
   // eg only re-annotate certain rows.
   const handleOtherTableUpdated = (newTable) => {
-    for (const record of newTable.records) {
+    // We store the annotations in our adapter state,
+    // so we can add them later if new DOM rows appear.
+    // todo: this only supports a single table,
+    // should support multiple really.
+    otherTable = newTable;
+    annotate();
+  }
+
+  // Apply annotations from other table to the DOM
+  const annotate = () => {
+    for (const record of otherTable.records) {
       const scrapedRow = scrapedRows.find(sr => sr.id === record.id);
 
       if (!scrapedRow || !scrapedRow.annotationContainer) continue;
@@ -249,8 +265,9 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
 
       // add the actual annotations to the page
       let annotationsHTML =
-        newTable.attributes
-          .filter(attr => !attr.hideInPage) // hide columns hidden in page
+        otherTable.attributes
+          // todo: add hidden user columns
+          // .filter(attr => !attr.hideInPage) // hide columns hidden in page
           .map(attr => record.values[attr.name])
           .filter(value => value)
           .map(value => scrapedRow.annotationTemplate.replace("$annotation", value));
