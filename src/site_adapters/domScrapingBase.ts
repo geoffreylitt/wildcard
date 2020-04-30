@@ -113,8 +113,8 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
       result.forEach((item) => {
         scrapedAjaxRowDict[item.id] = item.dataValues;
       });
+      loadTable();
     }
-    loadTable();
   });
 
   // todo: another way to store this would be to

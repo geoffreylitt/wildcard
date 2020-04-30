@@ -39,6 +39,15 @@ export const TableAdapterMiddleware = (tableAdapter: TableAdapter) =>
         tableAdapter.handleOtherTableUpdated(action.table)
       }
 
+      // Whenever any table updates,
+      // we need to re-apply sorting to all the tables.
+      tableAdapter.applySort(
+        getFinalRecords(newState),
+        newState.sortConfig
+      );
+
+      break;
+
     case "RECORD_SELECTED":
       if (action.recordId) {
         tableAdapter.handleRecordSelected(action.recordId, action.attribute);
