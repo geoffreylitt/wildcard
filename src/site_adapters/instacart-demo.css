@@ -1,0 +1,6 @@
+/* hide sensitive data */
+
+.rmq-db5b060a, .inspectlet-sensitive {
+  color: transparent;
+  text-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
