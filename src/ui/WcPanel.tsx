@@ -42,7 +42,7 @@ const ToggleButton = styled.div`
   z-index: 10000;
   padding: 10px;
   position: fixed;
-  bottom: ${props => props.hidden ? 20 : 300}px;
+  bottom: ${props => props.wcHidden ? 20 : 300}px;
   right: 20px;
   background-color: white;
   box-shadow: 0px 0px 10px -1px #d5d5d5;
@@ -58,7 +58,7 @@ const Panel = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
-  height: ${props => props.hidden ? 0 : 280}px;
+  height: ${props => props.wcHidden ? 0 : 280}px;
   width: 98vw;
   z-index: 100;
 
@@ -73,7 +73,7 @@ const Panel = styled.div`
 `
 
 const ControlBar = styled.div`
-  height: 20px;
+  height: 30px;
   padding: 5px 10px;
 `
 
@@ -211,10 +211,13 @@ const WcPanel = ({ records, attributes, query, actions }) => {
 
   if (records && records.length > 0) {
     return <>
-      <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}>
+{/*      If we use hidden as a prop,
+      it can overlap with existing CSS on sites, so we
+      namespace to wcHidden...*/}
+      <ToggleButton wcHidden={hidden} onClick={ () => setHidden(!hidden)}>
         { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
       </ToggleButton>
-      <Panel hidden={hidden}>
+      <Panel wcHidden={hidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
         </ControlBar>
