@@ -11,6 +11,7 @@ import { Record, Attribute, SortConfig, TableAdapter, Table, tableId, RecordEdit
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
+declare var browser : any;
 
 // Todo:
 // There are checks in the code for whether a PageValue is an element;
@@ -61,6 +62,14 @@ export interface ScrapedRow {
   annotationTemplate?: string;
 }
 
+export interface ScrapedAjaxRow {
+  /** A stable ID for the row */
+  id: string;
+
+  /** The data values for the row, with column names as keys */
+  dataValues: { [key: string]: PageValue };
+}
+
 // todo: document this config;
 // it's the main thing people need to understand to
 // build a site adapter
@@ -69,6 +78,7 @@ export interface ScrapingAdapterConfig {
   enabled():boolean;
   attributes:Array<Attribute>;
   scrapePage():Array<ScrapedRow>;
+  scrapeAjax?(request):Array<ScrapedAjaxRow>;
   addScrapeTriggers?(any):void;
   iframe?:boolean;
 
@@ -92,6 +102,23 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   let scrapedRows: Array<ScrapedRow> = [];
   let sortOrder: SortConfig = null;
   let subscribers: Array<(Table) => void> = [];
+  let scrapedAjaxRows;
+  let scrapedAjaxRowDict = {};
+
+  //Only works for Firefox
+  if(navigator.userAgent.indexOf("Firefox") != -1 ) {
+    // Listen to AJAX Requests
+    browser.runtime.onMessage.addListener(request => {
+      let result = config.scrapeAjax(request);
+      if (result !== undefined && result !== null) {
+        scrapedAjaxRows = result;
+        result.forEach((item) => {
+          scrapedAjaxRowDict[item.id] = item.dataValues;
+        });
+        loadTable();
+      }
+    });
+  }
 
   // todo: another way to store this would be to
   // create some sort of wrapper type where we add more data to scraped rows
@@ -242,7 +269,13 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     // * user constructs just elements
     // * base DOMScrapingAdapter constructs elements + values
     // * base DOMScrapingAdapter uses that to output the "just values" version
-    const records = scrapedRows.map(row => ({
+
+    let combinedRows = scrapedRows.map(row => {
+      row.dataValues = {...row.dataValues, ...scrapedAjaxRowDict[row.id]};
+      return row;
+    });
+
+    const records = combinedRows.map(row => ({
       id: row.id,
       values: mapValues(row.dataValues, (value, attrName) => {
         let extractedValue;

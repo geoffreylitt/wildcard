@@ -17,7 +17,9 @@ const AirbnbAdapter = createDomScrapingAdapter({
   { name: "id", type: "text" },
   { name: "name", type: "text" },
   { name: "price", type: "numeric" },
-  { name: "rating", type: "numeric" }
+  { name: "rating", type: "numeric" },
+    {name: "latitude", type: "numeric"},
+    {name: "longitude", type: "numeric"}
   ],
   scrapePage: () => {
     return Array.from(document.getElementsByClassName(rowClass)).map(el => {
@@ -34,7 +36,29 @@ const AirbnbAdapter = createDomScrapingAdapter({
         }
       }
     })
-  }
+  },
+  scrapeAjax: (request) => {
+    if(request.url.includes("https://www.airbnb.com/api/v3?")){
+        try{
+          let listings = request.data.data.dora.exploreV3.sections["1"].items;
+          return Object.keys(listings).map(key => {
+            let listing = listings[key].listing;
+
+            return {
+              id: listing.id,
+              dataValues: {
+                latitude: listing.lat,
+                longitude: listing.lng
+              }
+            }
+          });
+        }
+        catch{
+
+        }
+    }
+    return undefined;
+  },
 });
 
 export default AirbnbAdapter;

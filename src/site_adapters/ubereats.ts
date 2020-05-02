@@ -9,10 +9,11 @@ const UberEatsAdapter = createDomScrapingAdapter({
     return urlContains("ubereats.com")
   },
   attributes: [
-  { name: "id", type: "text", hidden: true },
+  { name: "id", type: "text"},
   { name: "name", type: "text" },
-  { name: "notes", type: "text" },
-  { name: "priceyness", type: "text" },
+  { name: "eta", type: "text" },
+  { name: "categories", type: "text" },
+  { name: "price_bucket", type: "text" },
   { name: "rating", type: "numeric" },
   { name: "fee", type: "numeric" }
   ],
@@ -22,6 +23,10 @@ const UberEatsAdapter = createDomScrapingAdapter({
 
         //check that el has restaurant
         if (el.getAttribute("href").includes("food-delivery/") == true){
+
+          var url_elts = el.getAttribute("href").split("/");
+          var title = url_elts[url_elts.length-2];
+
           if (el.children[0].children.length == 2){
             prefix = el.children[0].children[1];
           }
@@ -32,62 +37,65 @@ const UberEatsAdapter = createDomScrapingAdapter({
 
           let restaurant = "N/A";
           if (!(prefix.children[0] == undefined)){
-            restaurant = prefix.children[0].innerText;
-          }
-
-          let pricey_text = "N/A";
-          let r_category = "N/A";
-          let r_pricey = "N/A";
-          if (!(prefix.children[1] == undefined)){
-            let pricey_html = <HTMLElement> prefix.children[1];
-            pricey_text = pricey_html.innerText;
-            let bullet_idx = pricey_text.indexOf("•");
-            r_pricey = pricey_text.substring(0, bullet_idx);
-            r_category = pricey_text.substring(bullet_idx+1,pricey_text.length);
-          }          
-
-         
-          let r_rating = 0;
-          let r_fee = 0;
-
-          if (!(prefix.children[2] == undefined || prefix.children[2].children[0] == undefined)){
-              let delivery_metadata = prefix.children[2].children[0];
-              //there are no ratings for the restaurant
-              if (delivery_metadata.children.length == 3){
-
-                let fee_html = <HTMLElement> delivery_metadata.children[2].children[1];
-                let fee_text = fee_html.innerText;
-                let fee_end = fee_text.indexOf("D");
-                r_fee = parseFloat(fee_text.substring(1,fee_end));
-              }
-
-              else if (delivery_metadata.children.length > 3) {
-                let rat_html = <HTMLElement> delivery_metadata.children[2].children[1];
-                let rat_text = rat_html.innerText;
-                let rat_end = rat_text.indexOf("\n");
-                r_rating = parseFloat(rat_text.substring(0,rat_end));
-
-                let fee_html = <HTMLElement> delivery_metadata.children[4].children[1];
-                let fee_text = fee_html.innerText;
-                let fee_end = fee_text.indexOf("D");
-                r_fee = parseFloat(fee_text.substring(1,fee_end));
-              }
+            restaurant = prefix.children[0].innerText.split("\n")[0];
           }
 
           return {
-            id: el.getAttribute("href"),
+            id: title.toString(),
             rowElements: [el],
             dataValues: {
-                name: restaurant,
-                notes: r_category,
-                priceyness: r_pricey,
-                rating: r_rating,
-                fee: r_fee
+                name: restaurant
             },
           }
 
         }
     }).filter(row => row != undefined);
+  },
+
+  scrapeAjax: (request) => {
+    if(request.url.includes("https://www.ubereats.com/api/getFeedV1")){
+      try{
+        let listings = request.data.data.storesMap;
+     
+        return Object.keys(listings).map(key => {
+          let listing = listings[key];
+          let l_eta = "";
+          let l_categories = "";
+          let l_price_bucket = "";
+          let l_rating = 0;
+          let l_fee = 0;
+
+          if (!(listing.etaRange == null)){
+            l_eta = listing.etaRange.text;
+          }
+
+          if (!(listing.meta == null)){
+            l_categories = listing.meta.categories;
+            l_price_bucket = listing.meta.priceBucket;
+            l_fee = listing.meta.deliveryFee.text.split(" ")[0];
+          }
+
+          if (!(listing.feedback == null)){
+            l_rating = listing.feedback.rating;
+          }
+
+          return {
+            id: listing.slug.toString(),
+            dataValues: {
+              eta: l_eta,
+              categories: l_categories,
+              price_bucket: l_price_bucket,
+              rating: l_rating,
+              fee: l_fee
+            }
+          }
+        });
+      }
+      catch(e){
+        console.log(e);
+      }
+  }
+  return undefined;
   },
   // Reload data anytime there's a click or keypress on the page
   addScrapeTriggers: (reload) => {
