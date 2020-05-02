@@ -11,7 +11,7 @@ import { Record, Attribute, SortConfig, TableAdapter, Table, tableId, RecordEdit
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
-declare const browser : any;
+declare var browser : any;
 
 // Todo:
 // There are checks in the code for whether a PageValue is an element;
@@ -105,17 +105,20 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   let scrapedAjaxRows;
   let scrapedAjaxRowDict = {};
 
-  // Listen to AJAX Requests
-  browser.runtime.onMessage.addListener(request => {
-    let result = config.scrapeAjax(request);
-    if(result !== undefined && result !== null){
-      scrapedAjaxRows = result;
-      result.forEach((item) => {
-        scrapedAjaxRowDict[item.id] = item.dataValues;
-      });
-    }
-    loadTable();
-  });
+  //Only works for Firefox
+  if(navigator.userAgent.indexOf("Firefox") != -1 ) {
+    // Listen to AJAX Requests
+    browser.runtime.onMessage.addListener(request => {
+      let result = config.scrapeAjax(request);
+      if (result !== undefined && result !== null) {
+        scrapedAjaxRows = result;
+        result.forEach((item) => {
+          scrapedAjaxRowDict[item.id] = item.dataValues;
+        });
+        loadTable();
+      }
+    });
+  }
 
   // todo: another way to store this would be to
   // create some sort of wrapper type where we add more data to scraped rows
