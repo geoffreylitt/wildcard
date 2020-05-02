@@ -6,8 +6,10 @@ import { createDomScrapingAdapter } from "./domScrapingBase"
 const rowContainerClass = "_fhph4u"
 const rowClass = "_8ssblpx"
 const titleClass = "_1jbo9b6h"
+const titleClassBackup = "_1c2n35az"
 const priceClass = "_1p7iugi"
 const ratingClass = "_3zgr580"
+const ratingClassBackup = "_10fy1f8"
 const listingLinkClass = "_i24ijs"
 
 const AirbnbAdapter = createDomScrapingAdapter({
@@ -25,14 +27,19 @@ const AirbnbAdapter = createDomScrapingAdapter({
     return Array.from(document.getElementsByClassName(rowClass)).map(el => {
       let path = el.querySelector("." + listingLinkClass).getAttribute('href')
       let id = path.match(/\/rooms\/([0-9]*)\?/)[1]
+      let rating = el.querySelector(`.${ratingClass}`) !== null
+          ? el.querySelector(`.${ratingClass}`)
+          : el.querySelector(`.${ratingClassBackup}`);
 
       return {
         id: id,
         rowElements: [el],
         dataValues: {
-          name: el.querySelector(`.${titleClass}`),
+          name: el.querySelector(`.${titleClass}`) !== null
+              ? el.querySelector(`.${titleClass}`)
+              : el.querySelector(`.${titleClassBackup}`),
           price: el.querySelector(`.${priceClass}`).textContent.match(/\$([\d]*)/)[1],
-          rating: extractNumber(el.querySelector(`.${ratingClass}`))
+          rating: extractNumber(rating)
         }
       }
     })
