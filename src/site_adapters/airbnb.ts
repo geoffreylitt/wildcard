@@ -5,9 +5,9 @@ import { createDomScrapingAdapter } from "./domScrapingBase"
 
 const rowContainerClass = "_fhph4u"
 const rowClass = "_8ssblpx"
-const titleClass = "_1c2n35az"
+const titleClass = "_1jbo9b6h"
 const priceClass = "_1p7iugi"
-const ratingClass = "_10fy1f8"
+const ratingClass = "_3zgr580"
 const listingLinkClass = "_i24ijs"
 
 const AirbnbAdapter = createDomScrapingAdapter({
