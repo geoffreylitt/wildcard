@@ -1,11 +1,9 @@
-let browser;
-
 function onError(error) {
     console.error(`Error: ${error}`);
 }
 
 function listener(details) {
-    if(browser !== undefined)
+    if(navigator.userAgent.indexOf("Firefox") != -1 )
     {
         let filter = browser.webRequest.filterResponseData(details.requestId);
 
@@ -45,7 +43,7 @@ function listener(details) {
     }
 }
 
-if(browser !== undefined)
+if(navigator.userAgent.indexOf("Firefox") != -1 )
 {
     browser.webRequest.onBeforeRequest.addListener(
         listener,
