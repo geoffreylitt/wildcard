@@ -15,7 +15,8 @@ const UberEatsAdapter = createDomScrapingAdapter({
   { name: "categories", type: "text" },
   { name: "price_bucket", type: "text" },
   { name: "rating", type: "numeric" },
-  { name: "fee", type: "numeric" }
+  { name: "fee", type: "numeric" },
+  {name: "is_open", type: "text"}
   ],
   scrapePage: () => {
     return Array.from(document.querySelectorAll("a")).map(el => {
@@ -92,10 +93,11 @@ const UberEatsAdapter = createDomScrapingAdapter({
               categories: l_categories,
               price_bucket: l_price_bucket,
               rating: l_rating,
-              fee: l_fee
+              fee: l_fee,
+              is_open: listing.isOpen.toString()
             }
           }
-        });
+        }).filter(row => row.dataValues.is_open === "true");
       }
       catch(e){
         console.log(e);
