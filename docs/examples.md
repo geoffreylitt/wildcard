@@ -17,10 +17,6 @@ When browsing through used products on Amazon, users are not shown the total cos
 <br/>
 <br/>
 <br/>
-<br/>
-<br/>
-<br/>
-<br/>
 
 ![Educated by Tara Westover with Wildcard opened](https://github.com/geoffreylitt/wildcard/blob/gallery/docs/photos/amazon/wildcard_open.png)
 <div align="center"> Wildcard opened on the page. Notice how relevant information has been extracted into the spreadsheet</div>
