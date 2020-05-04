@@ -36,3 +36,9 @@ When browsing through used products on Amazon, users are not shown the total cos
 **<div align="center"> On the other hand, Wildcard can sort price in descending order</div>**
 
 ![Total price sorted in descending order](https://github.com/geoffreylitt/wildcard/blob/gallery/docs/photos/amazon/descended_sort.png)
+<br/>
+<br/>
+
+**<div align="center"> Notice that by sorting the condition of the books, the user will find that the New copy costs only $1.06 more than the used copy. </div>**
+
+![Total price sorted in descending order](https://github.com/geoffreylitt/wildcard/blob/gallery/docs/photos/amazon/descended_sort.png)
