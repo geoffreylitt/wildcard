@@ -18,6 +18,7 @@ export const AmazonAdapter = createDomScrapingAdapter({
   attributes: [
   { name: "id", type: "text", hidden: true },
   { name: "total_price", editable: true, type: "numeric" },
+  { name: "condition", editable: true, type: "text" },
   { name: "delivery_detail", editable: true, type: "text" },
   { name: "rating", editable: true, type: "numeric" }
   ],
@@ -70,12 +71,23 @@ export const AmazonAdapter = createDomScrapingAdapter({
         seller_href = seller_name.querySelector("a").href;
       }
 
+      var condition = <HTMLElement> el.getElementsByClassName(conditionClass)[0];
+      console.log(condition);
+      var cond_text = "";
+      if (condition == undefined){
+        cond_text = "Unavailable";
+      }
+      else{
+        cond_text = condition.innerText;
+      }
+
 
       return {
         id: seller_href,
         rowElements: [el],
         dataValues: {
           total_price: price.toFixed(2),
+          condition: cond_text,
           delivery_detail: delivery_text,
           rating: rating_text
         }

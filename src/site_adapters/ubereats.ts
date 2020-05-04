@@ -69,9 +69,15 @@ const UberEatsAdapter = createDomScrapingAdapter({
             l_eta = listing.etaRange.text;
           }
 
-          if (!(listing.meta == null)){
+          if (!(listing.meta.categories == null)){
             l_categories = listing.meta.categories;
+          }
+
+          if (!(listing.meta.priceBucket == null)){
             l_price_bucket = listing.meta.priceBucket;
+          }
+
+          if (!(listing.meta.deliveryFee == null)){
             l_fee = listing.meta.deliveryFee.text.split(" ")[0];
           }
 
