@@ -1,4 +1,5 @@
-#Amazon Demo
+# Amazon Demo
+
 When browsing through used products on Amazon, users are not shown the total cost of these product. With Wildcard, they can not just see the total cost but also sort the items in the page by price, rating, condition, delivery date, etc.
 
 
