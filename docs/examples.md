@@ -9,7 +9,7 @@ todo:
 When browsing through used products on Amazon, users are not shown the total cost of these product. With Wildcard, they can not just see the total cost but also sort the items in the page by price, rating, condition, delivery date, etc.
 
 ![Educated by Tara Westover without Wildcard](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/amazon/wildcard_closed.png) 
-:-:*The list before Wildcard is opened*:-:
+<div align="center"> *The list before Wildcard is opened*</div>
 
 ![Educated by Tara Westover with Wildcard opened](https://github.com/geoffreylitt/wildcard/blob/gallery/docs/photos/amazon/wildcard_open.png)
 :-:*Wildcard opened on the page. Notice how relevant information has been extracted into the spreadsheet*:-:
