@@ -12,14 +12,12 @@ When browsing through used products on Amazon, users are not shown the total cos
 **<div align="center"> The list before Wildcard is opened </div>**
 
 ![Educated by Tara Westover without Wildcard](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/amazon/wildcard_closed.png) 
-
 <br/>
 <br/>
 
 **<div align="center"> Wildcard opened on the page. Notice how relevant information has been extracted into the spreadsheet</div>**
 
 ![Educated by Tara Westover with Wildcard opened](https://github.com/geoffreylitt/wildcard/blob/gallery/docs/photos/amazon/wildcard_open.png)
-
 <br/>
 <br/>
 
@@ -32,7 +30,6 @@ When browsing through used products on Amazon, users are not shown the total cos
 **<div align="center"> Wildcard computes the total price from the three listed per item, and sorts the total price in ascending order</div>**
 
 ![Total price sorted in ascending order](https://github.com/geoffreylitt/wildcard/blob/gallery/docs/photos/amazon/ascended_sort.png)
-
 <br/>
 <br/>
 
