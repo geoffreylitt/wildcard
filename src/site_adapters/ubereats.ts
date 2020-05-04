@@ -15,7 +15,8 @@ const UberEatsAdapter = createDomScrapingAdapter({
   { name: "categories", type: "text" },
   { name: "price_bucket", type: "text" },
   { name: "rating", type: "numeric" },
-  { name: "fee", type: "numeric" }
+  { name: "fee", type: "numeric" },
+  {name: "is_open", type: "text"}
   ],
   scrapePage: () => {
     return Array.from(document.querySelectorAll("a")).map(el => {
@@ -59,9 +60,9 @@ const UberEatsAdapter = createDomScrapingAdapter({
      
         return Object.keys(listings).map(key => {
           let listing = listings[key];
-          let l_eta = "";
-          let l_categories = "";
-          let l_price_bucket = "";
+          let l_eta = "Unavailable";
+          let l_categories = "Unavailable";
+          let l_price_bucket = "Unavailable";
           let l_rating = 0;
           let l_fee = 0;
 
@@ -69,9 +70,15 @@ const UberEatsAdapter = createDomScrapingAdapter({
             l_eta = listing.etaRange.text;
           }
 
-          if (!(listing.meta == null)){
+          if (!(listing.meta.categories == null)){
             l_categories = listing.meta.categories;
+          }
+
+          if (!(listing.meta.priceBucket == null)){
             l_price_bucket = listing.meta.priceBucket;
+          }
+
+          if (!(listing.meta.deliveryFee == null)){
             l_fee = listing.meta.deliveryFee.text.split(" ")[0];
           }
 
@@ -86,7 +93,8 @@ const UberEatsAdapter = createDomScrapingAdapter({
               categories: l_categories,
               price_bucket: l_price_bucket,
               rating: l_rating,
-              fee: l_fee
+              fee: l_fee,
+              is_open: listing.isOpen
             }
           }
         });

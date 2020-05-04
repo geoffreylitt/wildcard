@@ -271,6 +271,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     // * base DOMScrapingAdapter uses that to output the "just values" version
 
     let combinedRows = scrapedRows.map(row => {
+      console.log("id:",row.id, "length:", row.id.length);
       row.dataValues = {...row.dataValues, ...scrapedAjaxRowDict[row.id]};
       return row;
     });
