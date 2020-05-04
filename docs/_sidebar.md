@@ -4,6 +4,7 @@
 
   - [Quick start](quickstart.md)
   - [Example gallery](examples.md)
+    -[Tallying prices and sorting](amazon.md)
 
 - Customize
   - [Set up dev environment](devenv.md)
