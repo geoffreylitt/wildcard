@@ -18,7 +18,7 @@ Install dependencies :
 
 Build the project: `yarn run build`.  This will compile the Typescript project and create files in the `./dist` folder.
 
-Now, follow [these instructions](http://localhost:3000/#/quickstart?id=install-in-your-browser) to install the built project directory in your browser.
+Now, follow [the quick start instructions](quickstart.md) to install the built project directory in your browser.
 
 If you just want to use the extension, there's no more further steps.
 
