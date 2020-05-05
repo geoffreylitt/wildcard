@@ -315,6 +315,10 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     return Promise.reject("Can't add attributes to site adapter")
   }
 
+  const toggleVisibility = (colName) => {
+    return Promise.reject("Can't hide/show attributes in WildCard")
+  }
+
   // todo: support highlighting individual attributes
   // within a row (generally when there's one row)
   const handleRecordSelected = (recordId, attribute) => {
@@ -371,7 +375,8 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     editRecords,
     handleOtherTableUpdated,
     handleRecordSelected,
-    addAttribute
+    addAttribute,
+    toggleVisibility
   }
 }
 

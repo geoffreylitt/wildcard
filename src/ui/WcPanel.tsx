@@ -122,7 +122,7 @@ const WcPanel = ({ records, attributes, query, actions }) => {
         "toggle_column_visibility":{
           name: 'Toggle visibility',
           callback: function(key, selection, clickEvent) {
-            actions.toggleVisibility("user","title");
+            actions.toggleVisibility("user","user1");
           }
         }
       }
