@@ -16,13 +16,13 @@ When people plan travel, they most likely wanted to find the most budget-friendl
 
 **<div align="center"> Users can sort listings by price </div>**
 
-![AirBnB with listings sorted by price](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/sorted_by_price.png) 
+![AirBnB with listings sorted by price](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/ranked_by_price.png) 
 <br/>
 <br/>
 
 **<div align="center"> Users can also sort listings by rating </div>**
 
-![AirBnB with listings sorted by rating](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/sorted_by_rating.png) 
+![AirBnB with listings sorted by rating](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/ranked_by_rating.png) 
 <br/>
 <br/>
 

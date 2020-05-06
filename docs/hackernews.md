@@ -26,3 +26,9 @@ But sometimes, users want to see content in a different format.
 **<div align="center"> Content presented based on highest level of engagement </div>**
 
 ![Hackernews with content sorted by points](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/hackernews/ranked_by_comments.png) 
+<br/>
+<br/>
+
+**<div align="center"> Users can also add their own annotations to the articles. These annotations persist across page refreshes.</div>**
+
+![Hackernews with annotations](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/hackernews/annotations.png) 
