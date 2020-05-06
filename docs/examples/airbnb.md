@@ -4,28 +4,28 @@ When people plan travel, they most likely wanted to find the most budget-friendl
 
 **<div align="center"> AirBnB Default View </div>**
 
-![AirBnB with Wildcard closed](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/wildcard_closed.png) 
+![AirBnB with Wildcard closed](../docs/photos/airbnb/wildcard_closed.png) 
 <br/>
 <br/>
 
 **<div align="center"> AirBnB Default View with Wildcard Open </div>**
 
-![AirBnB with Wildcard open](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/wildcard_open.PNG) 
+![AirBnB with Wildcard open](../docs/photos/airbnb/wildcard_open.png) 
 <br/>
 <br/>
 
 **<div align="center"> Users can sort listings by price </div>**
 
-![AirBnB with listings sorted by price](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/ranked_by_price.png) 
+![AirBnB with listings sorted by price](../docs/photos/airbnb/ranked_by_price.png) 
 <br/>
 <br/>
 
 **<div align="center"> Users can also sort listings by rating </div>**
 
-![AirBnB with listings sorted by rating](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/ranked_by_rating.png) 
+![AirBnB with listings sorted by rating](../docs/photos/airbnb/ranked_by_rating.png) 
 <br/>
 <br/>
 
 **One really fascinating thing that you can do with Wildcard is to add annotations/comments to different listings. These annotations persist across page refreshes because they are stored in your browser's local storage.**
 
-![AirBnB listings with annotations](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/annotations.png)
+![AirBnB listings with annotations](../docs/photos/airbnb/annotations.png)
