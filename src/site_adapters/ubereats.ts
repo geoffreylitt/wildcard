@@ -60,9 +60,9 @@ const UberEatsAdapter = createDomScrapingAdapter({
      
         return Object.keys(listings).map(key => {
           let listing = listings[key];
-          let l_eta = "";
-          let l_categories = "";
-          let l_price_bucket = "";
+          let l_eta = "Unavailable";
+          let l_categories = "Unavailable";
+          let l_price_bucket = "Unavailable";
           let l_rating = 0;
           let l_fee = 0;
 
