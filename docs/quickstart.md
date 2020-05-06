@@ -7,17 +7,31 @@ You'll be able to use Wildcard with any website that already has built-in suppor
 
 ?> **Note to programmers:** If you know how to program in Javascript, you can write your own bits of scraper code to adapt Wildcard to new websites. If you're interested in doing that in the future, you should skip these steps and follow the slightly more complicated [Dev Install](devenv.md) instructions. (If you're not sure which way to go, you can always try this simple install first and then switch to the dev install later if needed.)
 
-## Download latest release
+## 1. Download latest release
 
 Download the latest Wildcard release as a zip file from the [releases page](https://github.com/geoffreylitt/wildcard/releases). Unzip it to a folder on your computer.
 
-## Install in your browser
+## 2. Install in your browser
 
-**Chrome**: [Follow these instructions](https://developer.chrome.com/extensions/getstarted#manifest) to install the directory as an unpacked Chrome extension.
+**Chrome**: To install the directory as an unpacked Chrome extension:
+    1. Open the Extension Management page by navigating to **chrome://extensions.**
+    2. Enable Developer Mode by clicking the toggle switch next to Developer mode.
+    3. Click the LOAD UNPACKED button and select the **manifest.json** directory.
 
-**Edge**: [Follow these instructions](https://docs.microsoft.com/en-us/microsoft-edge/extensions-chromium/getting-started/part1-simple-extension#run-your-extension-locally-in-your-browser-while-developing-it-side-loading) to install the directory as an unpacked Edge extension.
+**Edge**: To install the directory as an unpacked Edge extension:
+    1. Click on the three dots at the top of your browser. 
+    2. Next, choose **Extensions** from the context menu as shown below.
+    3. When you are on the **Extensions** page, enable the **Developer mode** by enabling the toggle at the bottom left of the page.
+    4. Choose the **Load Unpacked option**. This prompts you for a directory where you have your Extension assets. Open the wildcard directory and select the **manifest.json** extension. 
+    5. After you install your Extension, you may update it by clicking on the Reload button under your Extension listing.
 
-**Firefox**: [Follow these instructions](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/) to install the manifest.json file as a temporary Firefox extension.
+**Firefox**: To install the manifest.json file as a temporary Firefox extension.
+    1. Open Firefox
+    2. Enter “about:debugging” in the URL bar
+    3. Click “This Firefox”
+    4. Click “Load Temporary Add-on”
+    5. Open the wildcard directory and select the **manifest.json** file.
+
 Note: You may need to unblock trackers in your Firefox preferences because Wildcard stores data in your browser’s local storage for persistence of changes across page loads.
 
 Wildcard is most useful when you enable it for all websites.
@@ -26,7 +40,7 @@ available for that website.
 If you want, you can also change the extension settings in your browser
 to only activate it on certain sites, or when you click the icon.
 
-## Test it out!
+## 3. Test it out!
 
 Navigate to [Hacker News](https://news.ycombinator.com/).
 

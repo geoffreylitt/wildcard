@@ -10,7 +10,7 @@ When people plan travel, they most likely wanted to find the most budget-friendl
 
 **<div align="center"> AirBnB Default View with Wildcard Open </div>**
 
-![AirBnB with Wildcard open](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/wildcard_open.PNG) 
+![AirBnB with Wildcard open](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/wildcard_open.png) 
 <br/>
 <br/>
 
