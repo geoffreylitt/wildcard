@@ -16,7 +16,7 @@ const AirbnbAdapter = createDomScrapingAdapter({
   name: "Airbnb",
   enabled: () => urlContains("airbnb.com/s"),
   attributes: [
-  { name: "id", type: "text" },
+  { name: "id", type: "text", hidden: true },
   { name: "name", type: "text" },
   { name: "price", type: "numeric" },
   { name: "rating", type: "numeric" },
@@ -40,7 +40,9 @@ const AirbnbAdapter = createDomScrapingAdapter({
               : el.querySelector(`.${titleClassBackup}`),
           price: el.querySelector(`.${priceClass}`).textContent.match(/\$([\d]*)/)[1],
           rating: extractNumber(rating)
-        }
+        },
+        annotationContainer: el.querySelector("div._kqh46o") as HTMLElement,
+        annotationTemplate: `<span style="color: #f60;"> · $annotation</span>`
       }
     })
   },
