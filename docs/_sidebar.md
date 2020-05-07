@@ -8,5 +8,5 @@
 
 - Customize
   - [Set up dev environment](devenv.md)
-  - [Adding a scraper](add-scraper.md)
+  - [Adding a site adapter](add-scraper.md)
   - [Understanding the codebase](codebase.md)
