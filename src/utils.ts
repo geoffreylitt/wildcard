@@ -30,6 +30,10 @@ export function urlExact(url:string):boolean {
          String(window.location) === "https://" + url
 }
 
+export function urlMatches(regex:RegExp):boolean {
+    return regex.test(String(window.location));
+}
+
 export function htmlToElement(html):HTMLElement {
   var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
