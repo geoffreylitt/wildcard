@@ -18,7 +18,7 @@ import userTableAdapter from "./localStorageAdapter"
 import thunk from 'redux-thunk';
 import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
-import { TableAdapterMiddleware } from './TableAdapterMiddleware'
+import { TableAdapterMiddleware } from './tableAdapterMiddleware'
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
