@@ -4,16 +4,16 @@ Most of us have a weather app that we check daily. It usually has a chart that g
 
 **<div align="center"> Default View </div>**
 
-![Weather Default View](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/weather/wildcard_closed.png) 
+![Weather Default View](_images/weather/wildcard_closed.png) 
 <br/>
 <br/>
 
 **<div align="center"> Default View with Wildcard Open </div>**
 
-![Weather Default View](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/weather/wildcard_open.png) 
+![Weather Default View](_images/weather/wildcard_open.png) 
 <br/>
 <br/>
 
 **<div align="center"> Wildcard showing the warmest hours of the day </div>**
 
-![Weather Default View](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/weather/warmest.png) 
+![Weather Default View](_images/weather/warmest.png) 
