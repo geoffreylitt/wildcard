@@ -7,6 +7,9 @@
 To use a new website in Wildcard you need to write a "site adapter",
 which is a bit of Javascript that scrapes data from a web page.
 
+First, install a [development environment](https://geoffreylitt.github.io/wildcard/#/devenv)
+and run `yarn run dev` to get changes automatically compiling.
+
 1. Copy one of the existing site adapters in `src/site_adapters` as an example template.
 2. Change the name of the adapter to your new adapter name.
 3. Register the new copied adapter in `src/site_adapters/index.ts`.
