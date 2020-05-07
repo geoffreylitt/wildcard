@@ -10,6 +10,7 @@ import UberEatsAdapter from './ubereats'
 import BloggerAdapter from './blogger'
 import WeatherChannelAdapter from './weatherchannel'
 import YoutubeAdapter from './youtube'
+import GithubAdapter from './github'
 
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
@@ -23,7 +24,8 @@ export const siteAdapters = [
   UberEatsAdapter,
   BloggerAdapter,
   WeatherChannelAdapter,
-  YoutubeAdapter
+  YoutubeAdapter,
+  GithubAdapter,
 ]
 
 export function getActiveAdapter():any {
