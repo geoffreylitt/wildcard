@@ -4,7 +4,7 @@ When people plan travel, they most likely wanted to find the most budget-friendl
 
 **<div align="center"> AirBnB Default View </div>**
 
-![AirBnB with Wildcard closed](https://github.com/geoffreylitt/wildcard/blob/master/docs/photos/airbnb/wildcard_closed.png) 
+![AirBnB with Wildcard closed](_images/airbnb/wildcard_closed.png) 
 <br/>
 <br/>
 
