@@ -1,49 +1,47 @@
+let isFirefox = navigator.userAgent.indexOf("Firefox") != -1;
+
 function onError(error) {
     console.error(`Error: ${error}`);
 }
 
+
 function listener(details) {
-    if(navigator.userAgent.indexOf("Firefox") != -1 )
+    let filter = browser.webRequest.filterResponseData(details.requestId);
+
+    let data = [];
+    filter.ondata = event =>
     {
-        let filter = browser.webRequest.filterResponseData(details.requestId);
+        data.push(event.data);
+        filter.write(event.data);
+    };
 
-        let data = [];
-        filter.ondata = event =>
+    let handleEvent = async event =>
+    {
+        let blob = new Blob(data, {type: 'application/json'});
+        let bstr = await blob.text();
+        let obj = undefined;
+        try
         {
-            data.push(event.data);
-            filter.write(event.data);
-        };
-
-        filter.onstop = async event =>
+            obj = JSON.parse(bstr);
+        } catch (e)
         {
-            let blob = new Blob(data, {type: 'application/json'});
-            let bstr = await blob.text();
-            let obj = undefined;
-            try
+            onError(e);
+            return;
+        }
+        browser.tabs.sendMessage(
+            details.tabId,
             {
-                obj = JSON.parse(bstr);
-            } catch
-            {
+                url: details.url,
+                data: obj
+            }
+        ).catch(onError)
+    };
 
-            }
-            if (obj !== undefined)
-            {
-                browser.tabs.sendMessage(
-                    details.tabId,
-                    {
-                        url: details.url,
-                        data: obj
-                    }
-                ).catch(
-                    onError
-                )
-            }
-            filter.close();
-        };
-    }
+    filter.onstop = async event =>
+        handleEvent(event).finally(() => filter.close());
 }
 
-if(navigator.userAgent.indexOf("Firefox") != -1 )
+if (isFirefox)
 {
     browser.webRequest.onBeforeRequest.addListener(
         listener,
