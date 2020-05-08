@@ -47,7 +47,7 @@ if(navigator.userAgent.indexOf("Firefox") != -1 )
 {
     browser.webRequest.onBeforeRequest.addListener(
         listener,
-        {urls: ["<all_urls>"]},
+        {urls: ["<all_urls>"], types: ["main_frame", "xmlhttprequest"]},
         ["blocking"]
     );
 }
