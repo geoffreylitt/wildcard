@@ -14,11 +14,13 @@ Download the latest Wildcard release as a zip file from the [releases page](http
 ## 2. Install in your browser
 
 **Chrome**: To install the directory as an unpacked Chrome extension:
+
     1. Open the Extension Management page by navigating to **chrome://extensions.**
     2. Enable Developer Mode by clicking the toggle switch next to Developer mode.
     3. Click the LOAD UNPACKED button and select the **manifest.json** directory.
 
 **Edge**: To install the directory as an unpacked Edge extension:
+
     1. Click on the three dots at the top of your browser. 
     2. Next, choose **Extensions** from the context menu as shown below.
     3. When you are on the **Extensions** page, enable the **Developer mode** by enabling the toggle at the bottom left of the page.
@@ -26,6 +28,7 @@ Download the latest Wildcard release as a zip file from the [releases page](http
     5. After you install your Extension, you may update it by clicking on the Reload button under your Extension listing.
 
 **Firefox**: To install the manifest.json file as a temporary Firefox extension.
+
     1. Open Firefox
     2. Enter “about:debugging” in the URL bar
     3. Click “This Firefox”
