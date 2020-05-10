@@ -1,6 +1,8 @@
 #  gallery
 
-Wildcard provides a wide variety of flexibility and personalization for users. Here are some examples of how Wildcard can be used: 
+Wildcard provides a wide variety of flexibility and personalization for users. With Wildcard, you can sort elements on a page based on a metric such as price or rating, import your favorite rich text editor, or make annotations on items when shopping. 
+
+Here are some examples of how Wildcard in use on some websites: 
 
 ### [1. Amazon: Tallying prices and sorting](examples/amazon.md)
 
