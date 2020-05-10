@@ -13,24 +13,27 @@ Download the latest Wildcard release as a zip file from the [releases page](http
 
 ## 2. Install in your browser
 
-**Chrome**: To install the directory as an unpacked Chrome extension:
-    1. Open the Extension Management page by navigating to **chrome://extensions.**
-    2. Enable Developer Mode by clicking the toggle switch next to Developer mode.
-    3. Click the LOAD UNPACKED button and select the **manifest.json** directory.
+**GOOGLE CHROME**: To install the directory as an unpacked Chrome extension:
 
-**Edge**: To install the directory as an unpacked Edge extension:
-    1. Click on the three dots at the top of your browser. 
-    2. Next, choose **Extensions** from the context menu as shown below.
-    3. When you are on the **Extensions** page, enable the **Developer mode** by enabling the toggle at the bottom left of the page.
-    4. Choose the **Load Unpacked option**. This prompts you for a directory where you have your Extension assets. Open the wildcard directory and select the **manifest.json** extension. 
-    5. After you install your Extension, you may update it by clicking on the Reload button under your Extension listing.
+1. Open the Extension Management page by navigating to **chrome://extensions.**
+2. Enable Developer Mode by clicking the toggle switch next to Developer mode.
+3. Click the LOAD UNPACKED button and select the **manifest.json** directory.
 
-**Firefox**: To install the manifest.json file as a temporary Firefox extension.
-    1. Open Firefox
-    2. Enter “about:debugging” in the URL bar
-    3. Click “This Firefox”
-    4. Click “Load Temporary Add-on”
-    5. Open the wildcard directory and select the **manifest.json** file.
+**MICROSOFT EDGE**: To install the directory as an unpacked Edge extension:
+
+1. Click on the three dots at the top of your browser. 
+2. Next, choose **Extensions** from the context menu as shown below.
+3. When you are on the **Extensions** page, enable the **Developer mode** by enabling the toggle at the bottom left of the page.
+4. Choose the **Load Unpacked option**. This prompts you for a directory where you have your Extension assets. Open the wildcard directory and select the **manifest.json** extension. 
+5. After you install your Extension, you may update it by clicking on the Reload button under your Extension listing.
+
+**MOZILLA FIREFOX**: To install the manifest.json file as an unpacked Firefox extension:
+
+1. Open Firefox.
+2. Enter “about:debugging” in the URL bar.
+3. Click “This Firefox”.
+4. Click “Load Temporary Add-on”.
+5. Open the wildcard directory and select the **manifest.json** file.
 
 Note: You may need to unblock trackers in your Firefox preferences because Wildcard stores data in your browser’s local storage for persistence of changes across page loads.
 
