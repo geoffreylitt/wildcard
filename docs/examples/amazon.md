@@ -35,4 +35,4 @@ When browsing through used products on Amazon, users are not shown the total cos
 
 **Notice that by sorting the condition of the books, the user will find that the New copy costs only $1.06 more than the used copy**
 
-![Total price sorted in descending order](_images/amazon/cheap_item.png)
+![Books sorted by condition](_images/amazon/cheap_item.png)
