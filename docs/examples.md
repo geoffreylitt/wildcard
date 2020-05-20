@@ -4,6 +4,12 @@ Wildcard provides a wide variety of flexibility and personalization for users. W
 
 Here are some examples of how Wildcard in use on some websites: 
 
+<div class="image-list">
+  <div class="hoverTarget">
+    <img class="imageTarget" width="400" height="200" src="examples/_images/amazon/wildcard_closed.png">
+  </div>
+</div>
+
 ### [1. Amazon: Tallying prices and sorting](examples/amazon.md)
 
 ### [2. AirBnB: Finding the most convenient place to live](examples/airbnb.md)
