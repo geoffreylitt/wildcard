@@ -17,6 +17,14 @@
       loadSidebar: true,
       subMaxLevel: 2
     }
+    var palettifyInstance = window.palettify().init({
+        selector: '.image-list',
+        eventTarget: '.hoverTarget', 
+        image: '.imageTarget', 
+        styleTarget: '.imageTarget',
+        staticStyles: {}, 
+        dynamicStyles: {} 
+    })
   </script>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
   <script src="https://unpkg.com/palettify/dist/palettify.min.js"></script>
