@@ -6,7 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="wildcard extension builder">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
   <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="css/custom.css">  
 </head>
 <body>
   <div id="app"></div>
@@ -15,18 +19,54 @@
       name: 'wildcard',
       repo: 'git@github.com:geoffreylitt/wildcard',
       loadSidebar: true,
-      subMaxLevel: 2
+      subMaxLevel: 2,
+      externalLinkTarget: '_self',
+      pagination: {
+        previousText: 'Previous',
+        nextText: 'Next',
+        crossChapter: true,
+        crossChapterText: true,
+      }
     }
-    var palettifyInstance = window.palettify().init({
-        selector: '.image-list',
-        eventTarget: '.hoverTarget', 
-        image: '.imageTarget', 
-        styleTarget: '.imageTarget',
-        staticStyles: {}, 
-        dynamicStyles: {} 
-    })
-  </script>
+
+    var slideIndex = 1;
+    showFigure(slideIndex);
+    
+    function moveBy(n) {
+      showFigure(slideIndex += n);
+    }
+
+    function moveToFigure(n) {
+      showFigure(slideIndex = n);
+    }
+    
+    function showFigure(n) {
+      var i;
+      var x = document.getElementsByClassName("galleryImages");
+      var y = document.querySelectorAll("figcaption");
+      var dots = document.getElementsByClassName("demo");
+      
+      if (n > x.length) {slideIndex = 1}
+      if (n < 1) {slideIndex = x.length}
+      for (i = 0; i < x.length; i++) {
+        x[i].style.display = "none";
+        y[i].style.display = "none";  
+      }
+
+      for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace("w3-white", "w3-green");
+      }
+      
+      x[slideIndex-1].style.display = "block";  
+      y[slideIndex-1].style.display = "block";  
+      dots[slideIndex-1].className += " w3-white";
+    }
+    
+    </script>
+  
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
-  <script src="https://unpkg.com/palettify/dist/palettify.min.js"></script>
+  <!-- <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <script src="//unpkg.com/docsify-slides/dist/docsify-slides.min.js"></script> -->
+
 </body>
 </html>

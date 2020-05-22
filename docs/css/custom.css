@@ -1,0 +1,49 @@
+.gallery-wrapper{
+  display: grid; 
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 250px);
+  grid-gap: .8rem;
+}
+
+.imageTarget{
+  width: 350px;
+  height: 200px;
+  border: 2px solid #42B983;
+}
+
+
+.w3-display-container{
+  max-width:800px; 
+}
+
+.galleryImages{
+  display: none;
+  width:100%;
+}
+
+figcaption{
+  display: none;
+  text-align: center;
+  padding: 0.5em;
+  font-weight: bold;
+}
+
+.w3-left, .w3-right, .w3-badge {
+  cursor:pointer;
+  color: #42B983;
+}
+
+.w3-left, .w3-right{
+  font-size: 60px;
+  opacity: .8;
+}
+
+.w3-left:hover, .w3-right:hover{
+  color: teal;
+}
+
+.w3-badge {
+  height:13px;
+  width:13px;
+  padding:0;
+}

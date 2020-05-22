@@ -4,46 +4,59 @@ Wildcard provides a wide variety of flexibility and personalization for users. W
 
 Here are some examples of how Wildcard in use on some websites: 
 
-<div class="flex-container" style="display:flex; flex-direction:row; flex-wrap:wrap; justify-content:space-between;">
+<div class="gallery-wrapper">
 
 <div class="img-caption-pair">
 
-[1. Amazon: Tallying prices and sorting](examples/amazon.md)
+#### [1. Amazon: Tallying prices and sorting](examples/amazon.md)
 <div>
-    <img class="imageTarget" width="350" height="180" src="examples/_images/amazon/ascended_sort.png">
+    <a href="/#/examples/amazon.md">
+    <img class="imageTarget" src="examples/_images/amazon/ascended_sort.png">
+    </a>
+</div>
 </div>
 
-</div>
 
 <div class="img-caption-pair">
 
-[2. AirBnB: Finding the most convenient place to live](examples/airbnb.md)
+#### [2. AirBnB: Annotating listings](examples/airbnb.md)
 <div>
-    <img class="imageTarget" width="350" height="180" src="examples/_images/airbnb/annotations.png">
+    <a href="/#/examples/airbnb.md">
+    <img class="imageTarget" src="examples/_images/airbnb/annotations.png">
+    </a>
 </div>
 </div>
+
 
 <div class="img-caption-pair">
 
-[3. Hackernews: Finding the most popular news](examples/hackernews.md)
+#### [3. Hackernews: Finding relevant news](examples/hackernews.md)
 <div>
-    <img class="imageTarget" width="350" height="180" src="examples/_images/hackernews/ranked_by_points.png">
+    <a href="/#/examples/hackernews.md">
+    <img class="imageTarget" src="examples/_images/hackernews/ranked_by_points.png">
+    </a>
 </div>
 </div>
+
 
 <div class="img-caption-pair">
 
-[4. Weather: Finding the warmest hour of the day](examples/weather.md)
+#### [4. Weather: Finding the best weather](examples/weather.md)
 <div>
-    <img class="imageTarget" width="350" height="180" src="examples/_images/weather/warmest.png">
+    <a href="/#/examples/weather.md">
+    <img class="imageTarget" src="examples/_images/weather/warmest.png">
+    </a>
 </div>
 </div>
+
 
 <div class="img-caption-pair">
 
-[5. Youtube: Organizing videos based on length](examples/youtube.md)
+#### [5. Youtube: Organizing videos by watch time](examples/youtube.md)
  <div>
-    <img class="imageTarget" width="350" height="180" src="examples/_images/youtube/ranked_by_watch_time.png">
+    <a href="/#/examples/youtube.md">
+    <img class="imageTarget" src="examples/_images/youtube/ranked_by_watch_time.png">
+    </a>
 </div>
 </div>
 
