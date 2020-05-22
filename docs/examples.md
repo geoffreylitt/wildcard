@@ -10,7 +10,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [1. Amazon: Tallying prices and sorting](examples/amazon.md)
 <div>
-    <a href="/#/examples/amazon.md">
+    <a href="/#/examples/amazon">
     <img class="imageTarget" src="examples/_images/amazon/ascended_sort.png">
     </a>
 </div>
