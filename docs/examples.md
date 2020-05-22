@@ -10,9 +10,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [1. Amazon: Tallying prices and sorting](examples/amazon.md)
 <div>
-    <a href="wildcard/#/examples/amazon">
     <img class="imageTarget" src="examples/_images/amazon/ascended_sort.png">
-    </a>
 </div>
 </div>
 
@@ -21,9 +19,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [2. AirBnB: Annotating listings](examples/airbnb.md)
 <div>
-    <a href="/#/examples/airbnb.md">
     <img class="imageTarget" src="examples/_images/airbnb/annotations.png">
-    </a>
 </div>
 </div>
 
@@ -32,9 +28,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [3. Hackernews: Finding relevant news](examples/hackernews.md)
 <div>
-    <a href="/#/examples/hackernews.md">
     <img class="imageTarget" src="examples/_images/hackernews/ranked_by_points.png">
-    </a>
 </div>
 </div>
 
@@ -43,9 +37,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [4. Weather: Finding the best weather](examples/weather.md)
 <div>
-    <a href="/#/examples/weather.md">
     <img class="imageTarget" src="examples/_images/weather/warmest.png">
-    </a>
 </div>
 </div>
 
@@ -54,9 +46,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [5. Youtube: Organizing videos by watch time](examples/youtube.md)
  <div>
-    <a href="/#/examples/youtube.md">
     <img class="imageTarget" src="examples/_images/youtube/ranked_by_watch_time.png">
-    </a>
 </div>
 </div>
 
