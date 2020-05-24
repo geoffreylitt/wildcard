@@ -9,7 +9,7 @@ const UberEatsAdapter = createDomScrapingAdapter({
     return urlContains("ubereats.com")
   },
   attributes: [
-  { name: "id", type: "text"},
+  { name: "id", type: "text", hidden: true},
   { name: "name", type: "text" },
   { name: "eta", type: "text" },
   { name: "categories", type: "text" },
@@ -27,19 +27,10 @@ const UberEatsAdapter = createDomScrapingAdapter({
 
           var url_elts = el.getAttribute("href").split("/");
           var title = url_elts[url_elts.length-2];
+          console.log(title);
 
-          if (el.children[0].children.length == 2){
-            prefix = el.children[0].children[1];
-          }
-
-          else if (el.children[0].children.length == 3){
-            prefix = el.children[0].children[2];
-          }
-
-          let restaurant = "N/A";
-          if (!(prefix.children[0] == undefined)){
-            restaurant = prefix.children[0].innerText.split("\n")[0];
-          }
+          var restaurant_el = <HTMLElement> el.childNodes[0];
+          var restaurant = restaurant_el.textContent;
 
           return {
             id: title.toString(),
