@@ -8,7 +8,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 <div class="img-caption-pair">
 
-#### [1. Amazon: Tallying prices and sorting](examples/amazon.md)
+#### [1. Amazon: Tally and sort prices](examples/amazon.md)
 <div>
     <img class="imageTarget" src="examples/_images/amazon/ascended_sort.png">
 </div>
@@ -17,7 +17,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 <div class="img-caption-pair">
 
-#### [2. AirBnB: Annotating listings](examples/airbnb.md)
+#### [2. AirBnB: Annotate listings](examples/airbnb.md)
 <div>
     <img class="imageTarget" src="examples/_images/airbnb/annotations.png">
 </div>
@@ -26,7 +26,16 @@ Here are some examples of how Wildcard in use on some websites:
 
 <div class="img-caption-pair">
 
-#### [3. Hackernews: Finding relevant news](examples/hackernews.md)
+#### [3. Blogger: Import rich text editors](examples/blogger.md)
+ <div>
+    <img class="imageTarget" src="examples/_images/blogger/edited_text.png">
+</div>
+</div>
+
+
+<div class="img-caption-pair">
+
+#### [4. Hackernews: Find popular news](examples/hackernews.md)
 <div>
     <img class="imageTarget" src="examples/_images/hackernews/ranked_by_points.png">
 </div>
@@ -35,7 +44,7 @@ Here are some examples of how Wildcard in use on some websites:
 
 <div class="img-caption-pair">
 
-#### [4. Weather: Finding the best weather](examples/weather.md)
+#### [5. Weather: Find the best weather](examples/weather.md)
 <div>
     <img class="imageTarget" src="examples/_images/weather/warmest.png">
 </div>
@@ -44,17 +53,9 @@ Here are some examples of how Wildcard in use on some websites:
 
 <div class="img-caption-pair">
 
-#### [5. Youtube: Organizing videos by watch time](examples/youtube.md)
+#### [6. Youtube: Sort videos by watch time](examples/youtube.md)
  <div>
     <img class="imageTarget" src="examples/_images/youtube/ranked_by_watch_time.png">
-</div>
-</div>
-
-<div class="img-caption-pair">
-
-#### [6. Blogger: Importing rich text editors](examples/blogger.md)
- <div>
-    <img class="imageTarget" src="examples/_images/blogger/edited_text.png">
 </div>
 </div>
 
