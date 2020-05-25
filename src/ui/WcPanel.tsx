@@ -118,6 +118,16 @@ const WcPanel = ({ records, attributes, query, actions }) => {
           callback: function(key, selection, clickEvent) {
             alert('not implemented yet');
           }
+        },
+        "toggle_column_visibility":{
+          name: 'Toggle visibility',
+          callback: function(key, selection, clickEvent) {
+            var allCols = attributes.map(attr => attr.name);
+            var idx = selection[0].start.col;
+
+            // NOTE! idx assumes that id is hidden.
+            actions.toggleVisibility("user", allCols[idx]);
+          }
         }
       }
     }

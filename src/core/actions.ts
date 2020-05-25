@@ -35,6 +35,16 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
       }
     },
 
+    toggleVisibility (tableId:tableId, colName:string) {
+      return (dispatch) => {
+        dispatch({
+          type: "HIDE_COL_REQUESTED"
+        })
+        const TableAdapter = TableAdapters[tableId];
+        TableAdapter.toggleVisibility(colName);
+      }
+    },
+
     editRecords(edits) {
       return (dispatch) => {
         dispatch({ type: "EDIT_RECORDS_REQUESTED", edits })

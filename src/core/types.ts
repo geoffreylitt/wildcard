@@ -49,6 +49,8 @@ export interface Attribute {
   // todo: move these into a metadata sub-object or something
   timeFormat?: string;
   correctFormat?: boolean;
+
+  hideInPage?: boolean;
 }
 
 
@@ -118,4 +120,6 @@ export interface TableAdapter {
   handleOtherTableUpdated(table:Table):void;
 
   addAttribute():Promise<Table>;
+
+  toggleVisibility(colName: string):void;
 }

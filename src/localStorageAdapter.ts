@@ -74,7 +74,8 @@ const userStore:TableAdapter = {
      const newAttribute : Attribute = {
        name: "user" + (table.attributes.length + 1),
        type: "text",
-       editable: true
+       editable: true,
+       hideInPage: false
      }
 
      table = { ...table, attributes: [...table.attributes, newAttribute] }
@@ -83,6 +84,15 @@ const userStore:TableAdapter = {
 
      return Promise.resolve(table);
    },
+   toggleVisibility(colName) {
+
+    var curr = table.attributes.find((attribute) => (attribute.name === colName));
+    curr.hideInPage = !curr.hideInPage;
+
+    loadTable();
+
+    return;
+  },
 
    // These changes to the table are no-ops
    // todo: should these move off the generic table adapter interface?
