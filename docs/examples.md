@@ -50,4 +50,12 @@ Here are some examples of how Wildcard in use on some websites:
 </div>
 </div>
 
+<div class="img-caption-pair">
+
+#### [6. Blogger: Importing rich text editors](examples/blogger.md)
+ <div>
+    <img class="imageTarget" src="examples/_images/blogger/edited_text.png">
+</div>
+</div>
+
 </div>
