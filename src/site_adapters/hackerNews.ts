@@ -14,7 +14,7 @@ const HNAdapter = createDomScrapingAdapter({
            urlContains("news.ycombinator.com/newest")
   },
   attributes: [
-    { name: "id", type: "text" },
+    { name: "id", type: "text", hidden: true },
     { name: "rank", type: "numeric" },
     { name: "title", type: "text" },
     { name: "link", type: "text" },
