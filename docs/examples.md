@@ -10,7 +10,9 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [1. Amazon: Tally and sort prices](examples/amazon.md)
 <div>
+    <a href="https://geoffreylitt.github.io/wildcard/#/examples/amazon">
     <img class="imageTarget" src="examples/_images/amazon/ascended_sort.png">
+    </a>
 </div>
 </div>
 
@@ -19,7 +21,9 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [2. AirBnB: Annotate listings](examples/airbnb.md)
 <div>
+    <a href="https://geoffreylitt.github.io/wildcard/#/examples/airbnb">
     <img class="imageTarget" src="examples/_images/airbnb/annotations.png">
+    </a>
 </div>
 </div>
 
@@ -28,7 +32,9 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [3. Blogger: Import rich text editors](examples/blogger.md)
  <div>
+    <a href="https://geoffreylitt.github.io/wildcard/#/examples/blogger">
     <img class="imageTarget" src="examples/_images/blogger/edited_text.png">
+    </a>
 </div>
 </div>
 
@@ -37,7 +43,9 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [4. Hackernews: Find popular news](examples/hackernews.md)
 <div>
+    <a href="https://geoffreylitt.github.io/wildcard/#/examples/hackernews">
     <img class="imageTarget" src="examples/_images/hackernews/ranked_by_points.png">
+    </a>
 </div>
 </div>
 
@@ -46,7 +54,9 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [5. Weather: Find the best weather](examples/weather.md)
 <div>
+    <a href="https://geoffreylitt.github.io/wildcard/#/examples/weather">
     <img class="imageTarget" src="examples/_images/weather/warmest.png">
+    </a>
 </div>
 </div>
 
@@ -55,7 +65,9 @@ Here are some examples of how Wildcard in use on some websites:
 
 #### [6. Youtube: Sort videos by watch time](examples/youtube.md)
  <div>
+    <a href="https://geoffreylitt.github.io/wildcard/#/examples/youtube">
     <img class="imageTarget" src="examples/_images/youtube/ranked_by_watch_time.png">
+    </a>
 </div>
 </div>
 
