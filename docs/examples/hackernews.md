@@ -18,7 +18,7 @@ But sometimes, users want to see content in a different format.
 <img class="galleryImages" src="examples/_images/hackernews/ranked_by_comments.png" alt="Hackernews with content sorted by points">
 <figcaption> Content presented based on highest level of engagement. </figcaption>
 
-<img class="galleryImages" src="examples/_images/hackernews/annotations.png" alt="Hackernews with annotations">
+<img class="galleryImages" src="examples/_images/hackernews/annotation_vid.gif" alt="Hackernews with annotations">
 <figcaption> Users can also add their own annotations to the articles. These annotations persist across page refreshes. </figcaption>
 
 <div class="w3-center w3-container w3-text-white" style="width:100%">
