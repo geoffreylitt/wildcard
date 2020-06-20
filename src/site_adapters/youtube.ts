@@ -2,6 +2,7 @@
 
 import { extractNumber, urlExact, urlContains } from "../utils"
 import { createDomScrapingAdapter } from "./domScrapingBase"
+import debounce from 'lodash/debounce'
 
 
 const YoutubeAdapter = createDomScrapingAdapter({
@@ -59,7 +60,7 @@ const YoutubeAdapter = createDomScrapingAdapter({
     addScrapeTriggers: (reload) => {
         document.addEventListener("click", (e) => { reload() });
         document.addEventListener("keydown", (e) => { reload() });
-        document.addEventListener("scroll", (e) => { reload() });
+        document.addEventListener("scroll", debounce((e) => { reload() }, 50));
     },
     onRowSelected: (row) => {
         row.rowElements.forEach(el => {
