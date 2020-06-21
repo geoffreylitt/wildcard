@@ -11,6 +11,7 @@ import BloggerAdapter from './blogger'
 import WeatherChannelAdapter from './weatherchannel'
 import YoutubeAdapter from './youtube'
 import GithubAdapter from './github'
+import HarvardBookWarehouse from './harvardbookwarehouse'
 
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
@@ -26,9 +27,10 @@ export const siteAdapters = [
   WeatherChannelAdapter,
   YoutubeAdapter,
   GithubAdapter,
+  HarvardBookWarehouse
 ]
 
-export function getActiveAdapter():any {
+export function getActiveAdapter(): any {
   const adaptersForPage = siteAdapters.filter(adapter => adapter.enabled())
 
   if (adaptersForPage.length === 0) { return undefined; }
