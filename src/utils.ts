@@ -1,5 +1,5 @@
 /** Try to extract the first integer from a text string or HTML element */
-export function extractNumber(input:any, defaultValue?:number):number {
+export function extractNumber(input:any, defaultValue?:number, commaIsDecimalSeparator:boolean = false):number {
   let text, result;
 
   if (input instanceof HTMLElement)  {
@@ -7,8 +7,12 @@ export function extractNumber(input:any, defaultValue?:number):number {
   } else if (typeof input === "string") {
     text = input
   }
-  if (text) { result = text.match(/[^0-9]*([0-9\.]*).*/)[1] }
-
+  if (text) { result = text.match(/[^0-9]*([0-9\.\,]*).*/)[1] }
+  if (!commaIsDecimalSeparator) {
+      // in the US and elsewhere, commas are thousands separator so they can be removed.
+      // in other countries, the commas is the decimal separator.
+      result = result.replace(/,/g, '')
+  }
   if (result) {
     return Number(result)
   } else if (defaultValue !== undefined) {
