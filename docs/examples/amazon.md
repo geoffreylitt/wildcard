@@ -14,10 +14,13 @@ When browsing through used products on Amazon, users are not shown the total cos
 <figcaption> When the user selects a row, the corresponding element is highlighted in Wildcard. </figcaption>
 
 <img class="galleryImages" src="examples/_images/amazon/ascended_sort.png" alt="Total price sorted in ascending order">
-<figcaption> Wildcard computes the total price from the three listed per item, and sorts the total price in ascending order. </figcaption>
+<figcaption> Wildcard computes the total price from the three listed per item, and can be used to sort the total price in ascending order. </figcaption>
 
-<img class="galleryImages" src="examples/_images/amazon/descended_sort.png" alt="Total price sorted in descending order">
-<figcaption>  On the other hand, Wildcard can sort price in descending order. </figcaption>
+<img class="galleryImages" src="examples/_images/amazon/price_sort_vid.gif" alt="Total price sorted in descending order">
+<figcaption>  Wildcard used to sort the total price in ascending and descending order. </figcaption>
+
+<img class="galleryImages" src="examples/_images/amazon/condition_sort_vid.gif" alt="Video of book sorted by condition">
+<figcaption> Additionally, users can perform nested sorts within the table; after the prices are sorted in ascending order, users can run another sort on the conditions. This will order the offer listings based on both price and condition as shown above. </figcaption>
 
 <img class="galleryImages" src="examples/_images/amazon/cheap_item.png" alt="Books sorted by condition">
 <figcaption> Notice that by sorting the condition of the books, the user will find that the New copy costs only $1.06 more than the used copy.</figcaption>

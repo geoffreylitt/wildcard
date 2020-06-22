@@ -2,6 +2,7 @@
 
 import { extractNumber, urlExact, urlContains } from "../utils"
 import { createDomScrapingAdapter } from "./domScrapingBase"
+import debounce from 'lodash/debounce'
 
 
 const YoutubeAdapter = createDomScrapingAdapter({
@@ -18,10 +19,15 @@ const YoutubeAdapter = createDomScrapingAdapter({
     ],
     scrapePage: () => {
         let tableRows = document.querySelector('#contents').children;
+        if (tableRows.length == 1) {
+            // for use on video listing page e.g. https://www.youtube.com/user/*/videos
+            tableRows = document.querySelector('#contents #items').children;
+        }
         return Array.from(tableRows).map((el, index) => {
             let elAsHTMLElement : HTMLElement = <HTMLElement>el;
 
-            if(el.querySelector('#video-title-link') !== null && el.querySelector('#overlays') != null && el.querySelector('#overlays').children[0] != null){
+            // on /user/*/videos, link is in #thumbnail, not #video-title-link
+            if((el.querySelector('#video-title-link') !== null || el.querySelector('#thumbnail') !== null) && el.querySelector('#overlays') != null && el.querySelector('#overlays').children[0] != null){
 
                 let overlayChildrenAmount = el.querySelector('#overlays').children.length;
                 let timeStampExists = overlayChildrenAmount > 1 && el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1] !== undefined;
@@ -34,7 +40,7 @@ const YoutubeAdapter = createDomScrapingAdapter({
 
                 return {
                     rowElements: [elAsHTMLElement],
-                    id: el.querySelector('#video-title-link').getAttribute("href"),
+                    id: (el.querySelector('#video-title-link') || el.querySelector('#thumbnail')).getAttribute("href"),
                     dataValues: {
                         Title: el.querySelector('#video-title'),
                         Time: timeStamp,
@@ -54,6 +60,7 @@ const YoutubeAdapter = createDomScrapingAdapter({
     addScrapeTriggers: (reload) => {
         document.addEventListener("click", (e) => { reload() });
         document.addEventListener("keydown", (e) => { reload() });
+        document.addEventListener("scroll", debounce((e) => { reload() }, 50));
     },
     onRowSelected: (row) => {
         row.rowElements.forEach(el => {
