@@ -13,7 +13,6 @@ export const EECSCatalogAdapter = createDomScrapingAdapter({
     // mode is a new column added F2020, remove to make adapter work for previous semesters
     { name: "mode", type: "text" },
     { name: "lecturers", type: "text" },
-    { name: "lecturers", type: "text" },
     { name: "recitation instructors", type: "text" }
   ],
   scrapePage: () => {
