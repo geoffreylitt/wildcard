@@ -14,6 +14,7 @@ import GithubAdapter from './github'
 import HarvardBookWarehouse from './harvardbookwarehouse'
 
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
+import MITCourseCatalog from './mitcoursecatelog'
 
 export const siteAdapters = [
   HNAdapter,
@@ -27,7 +28,8 @@ export const siteAdapters = [
   WeatherChannelAdapter,
   YoutubeAdapter,
   GithubAdapter,
-  HarvardBookWarehouse
+  HarvardBookWarehouse,
+  MITCourseCatalog
 ]
 
 export function getActiveAdapter(): any {
