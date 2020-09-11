@@ -5,7 +5,7 @@ import { createDomScrapingAdapter } from "./domScrapingBase"
 
 export const EECSCatalogAdapter = createDomScrapingAdapter({
   name: "MIT EECS Course Catalog",
-  enabled: () => urlContains("eecs.scripts.mit.edu/eduportal/who_is_teaching_what/"),
+  enabled: () => urlContains("eecs.scripts.mit.edu/eduportal/who_is_teaching_what/F/2020"),
   attributes: [
     { name: "id", type: "text", hidden: true },
     { name: "number", type: "text" },
