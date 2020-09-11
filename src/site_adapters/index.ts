@@ -12,6 +12,9 @@ import WeatherChannelAdapter from './weatherchannel'
 import YoutubeAdapter from './youtube'
 import GithubAdapter from './github'
 import HarvardBookWarehouse from './harvardbookwarehouse'
+import EECSCatalogAdapter from './eecsCatalog'
+import FirehoseAdapter from './firehose'
+
 
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
@@ -27,7 +30,9 @@ export const siteAdapters = [
   WeatherChannelAdapter,
   YoutubeAdapter,
   GithubAdapter,
-  HarvardBookWarehouse
+  HarvardBookWarehouse,
+  EECSCatalogAdapter,
+  FirehoseAdapter
 ]
 
 export function getActiveAdapter(): any {
