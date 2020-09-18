@@ -1,13 +1,9 @@
 'use strict';
 
-import { urlExact, urlContains, extractNumber } from "../utils";
+import { urlContains, extractNumber, urlMatches } from "../utils";
 import mapValues from "lodash/mapValues";
 import keyBy from 'lodash/keyBy'
-import keys from 'lodash/keys'
-import values from 'lodash/values'
-import pick from 'lodash/pick'
-import forIn from 'lodash/forIn'
-import { Record, Attribute, SortConfig, TableAdapter, Table, tableId, RecordEdit } from '../core/types'
+import { Attribute, SortConfig, TableAdapter, Table, RecordEdit } from '../core/types'
 import { htmlToElement } from '../utils'
 
 type DataValue = string | number | boolean
@@ -75,6 +71,8 @@ export interface ScrapedAjaxRow {
 // build a site adapter
 export interface ScrapingAdapterConfig {
   name:string;
+  matches?:string;
+  contains?:string;
   enabled():boolean;
   attributes:Array<Attribute>;
   scrapePage():Array<ScrapedRow>;
@@ -362,10 +360,19 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     }
   }
 
+  const enabled = () => {
+    const { matches, contains }  = config;
+    if (matches) {
+      return urlMatches(new RegExp(matches));
+    } else if (contains) {
+      return urlContains(contains);
+    }
+    return config.enabled();
+  }
+
   return {
     name: config.name,
-    enabled: config.enabled,
-
+    enabled,
     // todo: maybe have different table ids for each adapter,
     // rather than make them all "app"?
     tableId: "app",

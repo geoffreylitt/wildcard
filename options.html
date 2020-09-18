@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Wildcard Extension Options</title>
+        <style>
+            #adaptersContainer {
+                display: flex;
+                flex-direction: column;
+            }
+            #adaptersContainer > div {
+                margin: 2.5px;
+                padding: 2.5px;
+            }
+            #createAdapterContainer {
+                display: none;
+            }
+            #loadAdaptersContainer {
+                display: none;
+            }
+            #deleteAdapter {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <h1> Wildcard Options</h1>
+        <div id='adaptersContainer'>
+            <div>
+                <label for="adapterActions">Choose an action:</label>
+                <select name="adapterActions" id="adapterActions">
+                    <option value="" selected disabled hidden>Choose action</option>
+                    <option value="create">Create Local Adapter</option>
+                    <option value="delete">Delete Local Adapter</option>
+                    <option value="load">Load Local Adapter</option>
+                </select>
+            </div>
+            <div id='createAdapterContainer'>
+                <label for="createAdapter">Create an adapter:</label>
+                <input name='createAdapter' id='createAdapter' type='text' value='' placeholder='Adapter name'/>  
+            </div>
+            <div id='loadAdaptersContainer'>
+                <label for="loadAdapters">Choose an adapter:</label>
+                <select name="loadAdapters" id="loadAdapters">
+                    <option value="" selected disabled hidden>Choose adapter</option>
+                </select>
+            </div>
+            <div>
+                <textarea id='adapterText' rows="25" cols="150"></textarea>
+            </div>
+            <div>
+                <button id='saveAdapter'>Save Adapter</button>
+                <button id='deleteAdapter'>Delete Adapter</button>
+            </div>
+        </div>
+        <script src="./options.js"></script>
+    </body>
+</html>

@@ -6,7 +6,7 @@
 
 import React from "react";
 import { render } from "react-dom";
-import { createStore, compose, applyMiddleware, bindActionCreators } from "redux";
+import { createStore, applyMiddleware, bindActionCreators } from "redux";
 import { Provider, connect } from 'react-redux'
 import { composeWithDevTools } from 'redux-devtools-extension';
 import reducer from './core/reducer';
@@ -14,7 +14,7 @@ import { debugMiddleware } from './core/debug'
 import { htmlToElement } from './utils'
 import WcPanel from "./ui/WcPanel";
 import { getActiveAdapter } from "./site_adapters"
-import userTableAdapter from "./localStorageAdapter"
+import { userStore as userTableAdapter } from "./localStorageAdapter"
 import thunk from 'redux-thunk';
 import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
@@ -42,8 +42,8 @@ const connectRedux = (component, actions) => {
   )(component)
 }
 
-const run = function () {
-  const activeSiteAdapter = getActiveAdapter();
+const run = async function () {
+  const activeSiteAdapter = await getActiveAdapter();
   if (!activeSiteAdapter) { return; }
 
   activeSiteAdapter.initialize();
