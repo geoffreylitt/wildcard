@@ -9,7 +9,20 @@
     const adaptersSelect = document.getElementById('loadAdapters');
     const saveAdapterButton = document.getElementById('saveAdapter');
     const deleteAdapterButton = document.getElementById('deleteAdapter');
-    const adapterTextArea = document.getElementById('adapterText');
+    var editor;
+
+    window.onload = function(e){ 
+        editor = ace.edit("adapterEditor"); 
+        editor.session.setMode("ace/mode/typescript"); 
+    } 
+
+    function statusMessage(msg) {
+        let status = document.getElementById('status');
+        status.textContent = msg;
+        setTimeout(function() {
+            status.textContent = '';
+        }, 1000);
+    }
     function readFromLocalStorage(key, callback) {
         chrome.storage.local.get([key], (results) => {
             callback(results[key])
@@ -19,14 +32,20 @@
         if (callback) {
             chrome.storage.local.set({ [key]: value }, callback);
         } else {
-            chrome.storage.local.set({ [key]: value });
+            chrome.storage.local.set({ [key]: value }, function() {
+            // Update status to let user know options were saved.
+            statusMessage("Adapter saved.");
+            });
         }
     }
     function removeFromLocalStorage(key, callback) {
         if (callback) {
             chrome.storage.local.remove(key, callback);
         } else {
-            chrome.storage.local.remove(key);
+            chrome.storage.local.remove(key, function() {
+              // Update status to let user know options were saved.
+              statusMessage("Options updated.");
+            });
         }
     }
     function populateAdapterSelect(localAdapters = []) {
@@ -52,7 +71,7 @@
         createAdaptersContainer.style.display = 'none';
         deleteAdapterButton.style.display = 'none';
         createAdaptersInput.value = '';
-        adapterTextArea.value = '';
+        editor.setValue('');
         if (action === 'create') {
             createAdaptersContainer.style.display = 'block';
         } else if (action === 'load' || action === 'delete') {
@@ -60,7 +79,7 @@
             const adapter = adaptersSelect.value;
             if (adapter) {
                 readFromLocalStorage(`${localAdaptersKey}:${adapter}`, (adapterConfig) => {
-                    adapterTextArea.value = adapterConfig;
+                    editor.setValue(adapterConfig);
                 });
             }
             if (action === 'delete') {
@@ -71,13 +90,13 @@
     adaptersSelect.addEventListener('change', () => {
         const adapter = adaptersSelect.value;
         readFromLocalStorage(`${localAdaptersKey}:${adapter}`, (adapterConfig) => {
-            adapterTextArea.value = adapterConfig;
+            editor.setValue(adapterConfig);
         });
     });
     saveAdapterButton.addEventListener('click', () => {
-        const adapterConfig = adapterTextArea.value.trim();
+        const adapterConfig = editor.getValue().trim();
         const action = adapterActionsSelect.value;
-        const adapter = action === 'create' ? createAdaptersInput.value : adaptersSelect.value;
+        const adapter = action === 'create' ? createAdaptersInput.value.trim() : adaptersSelect.value;
         if (adapter && adapterConfig) {
             if (Array.isArray(LOCAL_ADAPTERS) && LOCAL_ADAPTERS.indexOf(adapter) === -1) {
                 LOCAL_ADAPTERS.push(adapter);
@@ -98,8 +117,9 @@
                 saveToLocalStorage(localAdaptersKey, LOCAL_ADAPTERS);
             }
             removeFromLocalStorage(`${localAdaptersKey}:${adapter}`, () => {
-                adapterTextArea.value = '';
-            });
+                editor.setValue('');
+                statusMessage("Adapter removed.");
+              });
 
         }
     })

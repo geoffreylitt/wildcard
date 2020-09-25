@@ -2,6 +2,9 @@
 <html>
     <head>
         <title>Wildcard Extension Options</title>
+        <script src="vendor/jquery.js"></script> 
+        <script src="vendor/ace/ace.js"></script>
+        <script src="vendor/ace/mode-typescript.js"></script>  
         <style>
             #adaptersContainer {
                 display: flex;
@@ -19,6 +22,13 @@
             }
             #deleteAdapter {
                 display: none;
+            }
+            #adapterEditor {
+                height: calc(100vh - 200px);
+            }
+            #status {
+                color: blue;
+                font-weight: bold;
             }
         </style>
     </head>
@@ -44,9 +54,8 @@
                     <option value="" selected disabled hidden>Choose adapter</option>
                 </select>
             </div>
-            <div>
-                <textarea id='adapterText' rows="25" cols="150"></textarea>
-            </div>
+            <div id="adapterEditor"></div>
+            <div id="status"></div>
             <div>
                 <button id='saveAdapter'>Save Adapter</button>
                 <button id='deleteAdapter'>Delete Adapter</button>
