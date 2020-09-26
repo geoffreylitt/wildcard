@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Wildcard Extension Popup</title> 
+        <style>
+            html, body {
+                padding: 0;
+                margin: 0;
+            }
+            #popupContainer {
+                width: 200px;
+                height: 100px;
+                padding: 2.5px;
+                margin: 2.5px;
+                border-radius: 5px;
+            }
+            #popupContainer #optionsContainer .option:hover {
+                cursor: pointer;
+                background-color: #ecf0f1;
+            }
+            #popupContainer #optionsContainer {
+                width: 100%;
+            }
+            #popupContainer #optionsContainer .option {
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='popupContainer'>
+            <h3>Wildcard Options</h3> 
+            <div id='optionsContainer'>
+                <div id='optionsPage' class='option'> Open Options Page</div>
+            </div>
+        </div>
+        <script src="./popup.js"></script>
+    </body>
+</html>
