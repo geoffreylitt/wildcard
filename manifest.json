@@ -22,7 +22,8 @@
       "https://*/*",
       "webRequest",
       "webRequestBlocking",
-      "<all_urls>"
+      "<all_urls>",
+      "contextMenus"
     ],
     "browser_action": {
       "default_title": "Wildcard",

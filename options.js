@@ -14,6 +14,7 @@
     window.onload = function(e){ 
         editor = ace.edit("adapterEditor"); 
         editor.session.setMode("ace/mode/typescript"); 
+        editor.setTheme("ace/theme/monokai"); 
     } 
 
     function statusMessage(msg) {
