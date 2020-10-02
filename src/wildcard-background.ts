@@ -7,7 +7,7 @@
 // to add functionality only available in background scripts,
 // add a message handler to this list
 
-let fetchWithTimeout:any = (url, options, timeout) => {
+let fetchWithTimeout: any = (url, options, timeout) => {
   return new Promise((resolve, reject) => {
     fetch(url, options).then(resolve, reject);
 
@@ -20,12 +20,12 @@ let fetchWithTimeout:any = (url, options, timeout) => {
 
 const getVisits = (request, sender, sendResponse) => {
   chrome.history.getVisits({ url: request.url }, (visits) => {
-    sendResponse({visits: visits});
+    sendResponse({ visits: visits });
   })
 }
 
 const getReadingTime = (request, sender, sendResponse) => {
-  const apiUrl= `https://klopets.com/readtime/?url=${request.url}&json`
+  const apiUrl = `https://klopets.com/readtime/?url=${request.url}&json`
   fetchWithTimeout(apiUrl, {}, 5000)
     .then(r => r.json())
     .catch(err => sendResponse({ error: "couldn't fetch read time" }))
@@ -45,7 +45,7 @@ const handlers = {
 }
 
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  function (request, sender, sendResponse) {
     let handler = handlers[request.command]
 
     if (handler) {
@@ -54,3 +54,11 @@ chrome.runtime.onMessage.addListener(
 
     return true;
   });
+
+chrome.contextMenus.create({
+  title: "Wildcard: Edit Script",
+  contexts: ["page"],
+  onclick: function () {
+    alert("clicked menu");
+  }
+});
