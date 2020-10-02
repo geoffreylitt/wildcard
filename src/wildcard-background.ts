@@ -4,6 +4,8 @@
 
 'use strict';
 
+window['state'] = {};
+
 // to add functionality only available in background scripts,
 // add a message handler to this list
 
@@ -41,7 +43,21 @@ const getReadingTime = (request, sender, sendResponse) => {
 
 const handlers = {
   getVisits: getVisits,
-  getReadingTime: getReadingTime
+  getReadingTime: getReadingTime,
+  generateScraper: (request, sender, sendResponse) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs.length) {
+          chrome.tabs.sendMessage(tabs[0].id, request, (response) => {
+            if (response) {
+              window['state'].endUserScraper = response;
+              chrome.runtime.openOptionsPage();
+            } else {
+              sendResponse({ error: 'Error generating scraper config' });
+            }
+          });
+        }
+    });
+  }
 }
 
 chrome.runtime.onMessage.addListener(

@@ -1,17 +1,20 @@
 (function(){
-    const optionsContainer = document.getElementById('optionsContainer');
-    const optionSelector = '.option';
-    optionsContainer.addEventListener('click', (event) => {
-        console.log(event.target);
-        const closest = event.target.closest(optionSelector);
-        if (closest && optionsContainer.contains(closest)) {
-          switch(closest.id) {
-              case 'optionsPage':
-                chrome.runtime.openOptionsPage() 
-                break;
-              default:
-                break;
+    console.log(document);
+    const generateConfigButton = document.getElementById('generateConfig');
+    const selectorsInput = document.getElementById('selectorsInput');
+    generateConfigButton.addEventListener('click', (event) => {
+      const selectors = selectorsInput.value.split(",").map(selector => selector.trim());
+      selectors.reverse();
+      console.log("SELECTORS:", selectors);
+      if (selectors && selectors.length) {
+        const message = { command: 'generateScraper', selectors };
+        chrome.runtime.sendMessage(message, (response) => {
+          if (response.error) {
+            alert(response.error);
           }
-        }
+        });
+      } else {
+        alert('Please paste selectors for the first row in the input before clicking button.');
+      }
     });
 })();

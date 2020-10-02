@@ -19,6 +19,7 @@ import thunk from 'redux-thunk';
 import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
 import { TableAdapterMiddleware } from './tableAdapterMiddleware'
+import { generateScraper } from './endUserScraper'
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
@@ -113,5 +114,16 @@ const run = async function () {
   );
 
 }
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  switch (request.command) {
+    case 'generateScraper':
+      const scraper = generateScraper(request.selectors);
+      sendResponse(scraper);
+      break;
+    default:
+      break;
+  }
+});
 
 run()

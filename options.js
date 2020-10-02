@@ -122,6 +122,17 @@
               });
 
         }
-    })
-    readFromLocalStorage(localAdaptersKey, populateAdapterSelect);
+    });
+    chrome.runtime.getBackgroundPage((backgroundPage) => {
+        readFromLocalStorage(localAdaptersKey, populateAdapterSelect);
+        const { state } = backgroundPage;
+        if (state && state.endUserScraper) {
+            const { name, config } = state.endUserScraper;
+            adapterActionsSelect.value = 'create';
+            adapterActionsSelect.dispatchEvent(new Event('change'));
+            createAdaptersInput.value = name;
+            editor.setValue(config);
+            delete state.endUserScraper;
+        }
+    });
 })();

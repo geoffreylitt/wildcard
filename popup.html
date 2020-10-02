@@ -14,23 +14,23 @@
                 margin: 2.5px;
                 border-radius: 5px;
             }
-            #popupContainer #optionsContainer .option:hover {
-                cursor: pointer;
-                background-color: #ecf0f1;
-            }
-            #popupContainer #optionsContainer {
+           
+            #popupContainer #scraperContainer {
                 width: 100%;
             }
-            #popupContainer #optionsContainer .option {
+            #popupContainer #scraperContainer > *  {
                 width: 100%;
+                margin: 1px;
+                padding: 1px;
             }
         </style>
     </head>
     <body>
         <div id='popupContainer'>
             <h3>Wildcard Options</h3> 
-            <div id='optionsContainer'>
-                <div id='optionsPage' class='option'> Open Options Page</div>
+            <div id='scraperContainer'>
+                <input id='selectorsInput' type='text' placeholder="Enter selectors"/>
+                <button id='generateConfig'> Generate Scraper Config</button>
             </div>
         </div>
         <script src="./popup.js"></script>
