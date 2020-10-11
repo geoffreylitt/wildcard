@@ -31,20 +31,66 @@ function findLCA(nodes) {
     }
     return common[0];
 }
+function findRowElement(selectors, lca) {
+    const candidates = [];
+    const point = 1/selectors.length;
+    let candidate = lca;
+    while (candidate && candidate.tagName !== 'BODY') {
+        const candidateEntry = {
+            candidate,
+            weight: 0
+        };
+        let sibling = candidate.nextElementSibling;
+        while (sibling) {
+            selectors.forEach(selector => {
+                if (sibling.querySelector(selector)) {
+                    candidateEntry.weight += point;
+                }
+            });
+            sibling = sibling.nextElementSibling;
+        }
+        candidates.push(candidateEntry);
+        candidate = candidate.parentNode;
+    }
+    candidates.sort((a, b) => {
+        if (a.weight > b.weight) {
+            return -1
+        } else if (a.weight < b.weight) {
+            return 1
+        } else {
+            return 0;
+        }
+    });
+    return candidates[0].candidate;
+}
 function generateNodeSelector(node){
-    const nodeSelector = `${node.tagName.toLowerCase()}${node.id ? `#${node.id}` : `.${Array.from(node.classList).join('.')}`}`;
-    const selectorArray = [nodeSelector];
-    let _node = node.parentNode;
+    let selector = node.tagName.toLowerCase();
+    if (node.id) {
+        selector += `#${node.id}`;
+    } else if (node.classList && node.classList.length) {
+        selector += `.${Array.from(node.classList).join('.')}`;
+    }
+    return selector;
+}
+function generateRowElementSelector(rowElement) {
+    const selectorArray = [];
+    let _node = rowElement;
+    let selector;
     while(_node && _node.tagName !== "BODY") {
-        selectorArray.unshift(_node.tagName.toLowerCase());
+        selector = generateNodeSelector(_node)
+        selectorArray.unshift(selector);
         _node = _node.parentNode;
+        if (/[#]+/.test(selector)) {
+            break;
+        }
     }
     return selectorArray.join(">");
 }
 export function generateScraper(selectors) {
     const nodes = selectors.map(selector => document.querySelector(selector));
     const lca = findLCA(nodes);
-    const lcaSelector = generateNodeSelector(lca);
+    const rowElement = findRowElement(selectors, lca);
+    const rowElementSelector = generateRowElementSelector(rowElement);
     const name = document.title;
     const attributes = selectors.map((_, index) => {
         return {
@@ -58,14 +104,14 @@ export function generateScraper(selectors) {
         contains: "${window.location.href}",
         attributes: ${JSON.stringify(attributes)},
         scrapePage: () => {
-            return Array.from(document.querySelectorAll("${lcaSelector}")).map((element, index) => {
+            return Array.from(document.querySelectorAll("${rowElementSelector}")).map((element, index) => {
                 const dataValues = {};
                 ${JSON.stringify(selectors)}.forEach((selector, index) => {
                     const selected = element.querySelector(selector);
                     dataValues[index] = selected? selected.textContent : "";
                 });
                 return {
-                    id: "${lcaSelector}" + index,
+                    id: String(index),
                     dataValues,
                     rowElements: [element]
                 }
