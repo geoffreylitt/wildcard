@@ -72,9 +72,18 @@ chrome.runtime.onMessage.addListener(
   });
 
 chrome.contextMenus.create({
-  title: "Wildcard: Edit Script",
+  title: "Wildcard: Edit Adapter",
   contexts: ["page"],
   onclick: function () {
-    alert("clicked menu");
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs && tabs.length) {
+        // send message to active tab
+        chrome.tabs.sendMessage(tabs[0].id, { command: 'openCodeEditor' }, (response) => {
+          if (response.error) {
+            alert(response.error);
+          }
+        });
+      }
+    });
   }
 });
