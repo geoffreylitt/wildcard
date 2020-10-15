@@ -3,6 +3,10 @@ import Handsontable from 'handsontable';
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
 
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-typescript";
+import "ace-builds/src-noconflict/theme-monokai";
+
 import keyBy from 'lodash/keyBy'
 import includes from 'lodash/includes'
 
@@ -43,7 +47,7 @@ const ToggleButton = styled.div`
   padding: 10px;
   position: fixed;
   bottom: ${props => props.hidden ? 20 : 300}px;
-  right: 20px;
+  right: ${props => props.codeEditorHidden ? 2 : 31}vw;
   background-color: white;
   box-shadow: 0px 0px 10px -1px #d5d5d5;
   border: none;
@@ -59,7 +63,7 @@ const Panel = styled.div`
   bottom: 0;
   left: 0;
   height: ${props => props.hidden ? 0 : 280}px;
-  width: 98vw;
+  width: ${props => props.codeEditorHidden ? 98 : 68.5}vw;
   z-index: 2200;
 
   box-shadow: 0px -5px 10px 1px rgba(170,170,170,0.5);
@@ -77,11 +81,27 @@ const ControlBar = styled.div`
   padding: 5px 10px;
 `
 
+const CodeEditor = styled(AceEditor)`
+  display: ${props => props.codeEditorHidden ? 'none' : 'block'};
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  z-index: 2500;
+`
+const EditorButton = styled(ToggleButton)`
+  display: ${props => props.codeEditorHidden ? 'none' : 'block'};
+  bottom: 20px;
+  right: ${props => props.right};
+`
+
 // Declare our functional React component
 
 const WcPanel = ({ records, attributes, query, actions }) => {
   const hotRef = useRef(null);
   const [hidden, setHidden] = useState(false);
+  // Declare a new state variable for adapter code
+  const [adapterCode, setAdapterCode] = useState("");
+  const [codeEditorHidden, setCodeEditorHidden] = useState(true);
 
   const hotSettings = {
     data: formatRecordsForHot(records),
@@ -219,12 +239,53 @@ const WcPanel = ({ records, attributes, query, actions }) => {
     actions.selectRecord(recordId, attribute)
   }
 
+
+  const loadAdapterCode = function () {
+    let loaded = false;
+    // setup listener
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      switch (request.command) {
+        case 'openCodeEditor':
+          // show code editor
+          setCodeEditorHidden(false);
+          sendResponse({ codeEditorHidden: false });
+
+          // load adapter code
+          if (!loaded) {
+            loaded = true;
+            let adapterKey = "localStorageAdapter:adapters:MIT EECS Course Catalog";
+            chrome.storage.local.get(adapterKey, (results) => {
+              setAdapterCode(results[adapterKey]);
+              console.log("loaded code from storage");
+            });
+          }
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  const onBlurCodeEditor = function(e, code){
+    const data = code.getValue();
+    console.log('Editor Data: ',data);
+    setAdapterCode(data);
+  }
+
+  const saveAdapterCode = function() {
+    let adapterKey = "localStorageAdapter:adapters:MIT EECS Course Catalog";
+    chrome.storage.local.set({ [adapterKey]: adapterCode }, function() {
+console.log("saved changes");
+    });
+  }
+
   if (records && records.length > 0) {
     return <>
-      <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}>
+      <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
+       codeEditorHidden={codeEditorHidden}>
         { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
       </ToggleButton>
-      <Panel hidden={hidden}>
+      <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
         </ControlBar>
@@ -237,6 +298,19 @@ const WcPanel = ({ records, attributes, query, actions }) => {
           settings = {hotSettings}
           ref={hotRef} />
       </Panel>
+      <CodeEditor mode="typescript" theme="monokai" value={adapterCode}
+         codeEditorHidden={codeEditorHidden} 
+         onLoad ={loadAdapterCode}
+         onBlur={(e, code) => setAdapterCode(code.getValue())}
+        //  onBlur={onBlurCodeEditor}
+         width="30vw" height="100vh" 
+      />
+      <EditorButton codeEditorHidden={codeEditorHidden} right="70px"
+        onClick={() => {saveAdapterCode();}}> Save
+      </EditorButton>
+      <EditorButton codeEditorHidden={codeEditorHidden} right="10px"
+        onClick={() => setCodeEditorHidden(true)}> Close
+      </EditorButton>
     </>;
   } else {
     return null;
