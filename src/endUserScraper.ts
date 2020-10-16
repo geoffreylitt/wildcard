@@ -1,56 +1,9 @@
-function evaluateXpath(xpath) {
-    return document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-}
-function xpathQuerySelector(xpath) {
-    const elements = [];
-    const iterator = evaluateXpath(xpath);
-    let element = iterator.iterateNext();
-    while (element) {
-        elements.push(element);
-        element = iterator.iterateNext();
-    }
-    return elements;
-}
-function getRowElementXPath(node){
-    let xpath = generateXpath(node);
-    if (xpath) {
-        let score = xpathQuerySelector(xpath).length;
-        let done = false;
-        while (!done) {
-            const matches = xpathQuerySelector(xpath + '/..').length;
-            if (matches < score){
-                done = true;
-            } else {
-                score = matches;
-                xpath += '/..';
-            }
-        }
-        return { 
-            xpath,
-            matches: xpathQuerySelector(xpath)
-        }
-    }
-    return null;
-}
-function xpathBasedListener() {
-    const _matches = new Map();
-    document.body.addEventListener('mousemove', (event) => {
-        const result = getRowElementXPath(event.target);
-        if (result) {
-            const { xpath, matches } = result;
-            _matches.forEach((_style, _match) => {
-                _match.style = _style;
-            });
-            _matches.clear();
-            matches.forEach(match => {
-                if (match.nodeType === Node.ELEMENT_NODE) {
-                    _matches.set(match, match.style)
-                    match.style.border =  "1px solid red";
-                }
-            });
-        }
-    });
-}
+import { 
+    readFromChromeLocalStorage, 
+    saveToChromeLocalStorage,
+    removeFromChromeLocalStorage
+} from './utils';
+
 function getAncestors(node) {
     const ancestors = [node];
     let ancestor = node.parentNode;
@@ -61,31 +14,7 @@ function getAncestors(node) {
     return ancestors;
 }
 function containsNode(nodes, node) {
-    const found = nodes.find(_node => _node.isSameNode(node));
-    const isParent = nodes.some(_node => node.contains(_node));
-    return !!found || !!isParent;
-}
-function findLCA(nodes) {
-    const ancestors = nodes.map(node => getAncestors(node));
-    const first = ancestors[0];
-    const common = [];
-    for (let i = 0; i < first.length; i++) {
-        for (let j = 1; j < ancestors.length; j++) {
-            for (let k = 0; k < ancestors[j].length; k++) {
-                if (first[i].isEqualNode(ancestors[j][k]) && !containsNode(common, first[i])) {
-                    common.push(first[i]);
-                    break;
-                }
-            }
-        }
-    }
-    if (common.length > 1) {
-        return findLCA(common);
-    } else if (common[0]) {
-        return common[0];
-    } else {
-        return nodes[0];
-    }
+    return  !!nodes.find(_node => _node.isSameNode(node));
 }
 function generateNodeSelector(node) {
     let selector = node.tagName.toLowerCase();
@@ -94,21 +23,27 @@ function generateNodeSelector(node) {
     }
     return selector;
 }
-function generateIndexedNodeSelector(node) {
-    const tag = node.tagName.toLowerCase();
-    const index = Array.prototype.indexOf.call(node.parentNode.children, node) + 1;
-    return `${tag}:nth-child(${index})`;
-}
-function generateNodeSelectorFromBody(node) {
+function generateNodeSelectorFrom(node, from) {
+    if (node.isSameNode(from)) {
+        return null;
+    }
     const selectors = [];
     let _node = node;
-    while (_node && _node.tagName !== "BODY") {
+    while (!_node.isSameNode(from)) {
         selectors.unshift(generateNodeSelector(_node));
         _node = _node.parentNode;
     }
     return selectors.join(">");
 }
+function generateIndexedNodeSelector(node) {
+    const tag = node.tagName.toLowerCase();
+    const index = Array.prototype.indexOf.call(node.parentNode.children, node) + 1;
+    return `${tag}:nth-child(${index})`;
+}
 function generateIndexedNodeSelectorFrom(node, from) {
+    if (node.isSameNode(from)) {
+        return null;
+    }
     const selectors = [];
     let _node = node;
     while (!_node.isSameNode(from)) {
@@ -117,9 +52,39 @@ function generateIndexedNodeSelectorFrom(node, from) {
     }
     return selectors.join('>');
 }
+function findLCA(nodes) {
+    const ancestors = nodes.map(node => getAncestors(node));
+    const [first, ...rest] = ancestors;
+    const common = [];
+    while (rest.length) {
+        const branch = rest.pop();
+        for (let i = 0; i < first.length; i++) {
+            let found = false;
+            for (let j = 0; j < branch.length; j++) {
+                if (first[i].isEqualNode(branch[j])) {
+                    if (!containsNode(common, first[i])) {
+                        common.push(first[i]);
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+    }
+    if (common.length > 1) {
+        return findLCA(common);
+    } else if (common.length === 1) {
+        return common[0];
+    } else {
+        return nodes[0];
+    }
+}
 function findRowElement(nodes, lca) {
     const candidates = [];
-    let selectors = nodes.map(node => generateIndexedNodeSelectorFrom(node, lca));
+    let selectors = nodes.map(node => generateIndexedNodeSelectorFrom(node, lca)).filter(selector => selector);
     let candidate = lca;
     while (candidate && candidate.tagName !== 'BODY') {
         const candidateEntry = {
@@ -146,8 +111,12 @@ function findRowElement(nodes, lca) {
             previousSibling = previousSibling.previousElementSibling;
         }
         candidates.push(candidateEntry);
+        if (selectors.length) {
+            selectors = selectors.map(selector => `${generateIndexedNodeSelector(candidate)}>${selector}`);
+        } else {
+            selectors = [generateIndexedNodeSelector(candidate)];
+        }
         candidate = candidate.parentNode;
-        selectors = selectors.map(selector => `${generateIndexedNodeSelector(candidate)}>${selector}`);
     }
     if (candidates.length) {
       candidates.sort(function (a, b) {
@@ -163,81 +132,15 @@ function findRowElement(nodes, lca) {
       });
       return {
           rowElement: candidates[0].candidate,
-          rowElementSelector: generateNodeSelectorFromBody(candidates[0].candidate),
+          rowElementSelector: generateNodeSelectorFrom(candidates[0].candidate, document.body),
           targetNodeSelectors: candidates[0].targetNodeSelectors
       };
     }
     return null
 }
- 
-function generateXpath(node) {
-    const xpath = [];
-    let _node = node;
-    let selector;
-    while (_node && _node.tagName && _node.tagName !== 'BODY') {
-        selector = _node.tagName;
-        if (_node.classList && _node.classList.length) {
-            selector += `[contains(@class, '${Array.from(_node.classList).join(' ')}')]`;
-        }
-        xpath.push(selector);
-        _node = _node.parentNode;
-    }
-    if (xpath.length) {
-        xpath.reverse();
-        xpath[0] = `//BODY/${xpath[0]}`;
-        return xpath.join('/');
-    }
-    return null;
-}
-function cssBasedListner() {
-    const _matches = new Map();
-    const targetNodes = [];
-    document.body.addEventListener('mousedown', (event) => {
-        _matches.forEach((_style, _match) => {
-            _match.style = _style;
-        });
-        _matches.clear();
-        const target = event.target as HTMLElement;
-        if (targetNodes.indexOf(target) === -1) {
-            targetNodes.push(target);
-            let lca = findLCA(targetNodes);
-            if (lca.isSameNode(targetNodes[0])) {
-                lca = lca.parentNode;
-            }
-            const result = findRowElement(targetNodes, lca);
-            if (result) {
-                const { rowElementSelector, targetNodeSelectors } = result;
-                Array.from(document.querySelectorAll(rowElementSelector))
-                .forEach((rowElement) => {
-                    targetNodeSelectors.forEach(selector => {
-                        const match = rowElement.querySelector(selector);
-                        if (match && match.nodeType === Node.ELEMENT_NODE) {
-                            _matches.set(match, match.style)
-                            match.style.border =  "1px solid red";
-                        }
-                    });
-                });
-                const { config } = generateScraper(targetNodeSelectors, rowElementSelector);
-                console.log(config);
-            }
-        }
-    });
-    document.body.addEventListener('mousemove', (event) => {
-        const target = event.target as HTMLElement;
-        _matches.forEach((_style, _match) => {
-           _match.style.backgroundColor = _style;
-        });
-        _matches.clear();
-        _matches.set(target, target.style.backgroundColor)
-        target.style.backgroundColor =  "red";
-    });
-}
 
-export function startScraper() {
-  cssBasedListner();
-}
-
-export function generateScraper(targetSelectors, rowElementSelector) {
+function generateScraper(targetSelectors, rowElementSelector) {
+    const name = document.title
     const attributes = targetSelectors.map((_, index) => {
         return {
             name: String(index),
@@ -268,4 +171,100 @@ export function generateScraper(targetSelectors, rowElementSelector) {
         name,
         config
     };
+}
+ 
+function scrapingListener(run) {
+    const _matchesClick = new Map();
+    const _matchesMouseMove = new Map();
+    const targetNodes = [];
+    const adaptersBaseKey = 'localStorageAdapter:adapters';
+    document.body.addEventListener('click', (event) => {
+        const wcRoot = document.getElementById('wc--root');
+        const target = event.target as HTMLElement;
+        if (wcRoot && wcRoot.contains(target)) {
+            return;
+        }
+        event.preventDefault();
+        _matchesClick.forEach((_style, _match) => {
+            _match.style = _style;
+        });
+        _matchesClick.clear();
+        if (target.textContent) {
+            const targetNodeIndex = targetNodes.indexOf(target);
+            if (targetNodeIndex === -1) {
+                targetNodes.push(target);
+            } else {
+                targetNodes.splice(targetNodeIndex, 1);
+            }
+            if (targetNodes.length) {
+                const lca = findLCA(targetNodes);
+                const result = findRowElement(targetNodes, lca);
+                if (result) {
+                    const { rowElementSelector, targetNodeSelectors } = result;
+                    Array.from(document.querySelectorAll(rowElementSelector))
+                    .forEach((rowElement) => {
+                        targetNodeSelectors.forEach(selector => {
+                            const match = rowElement.querySelector(selector);
+                            if (match && match.nodeType === Node.ELEMENT_NODE) {
+                                _matchesClick.set(match, match.style)
+                                match.style.border =  "1px solid red";
+                            }
+                        });
+                    });
+                    const { name, config } = generateScraper(targetNodeSelectors, rowElementSelector);
+                    const adapterKey = `${adaptersBaseKey}:${name}`;
+                    readFromChromeLocalStorage([adaptersBaseKey], (results) => {
+                        const adapters = results[adaptersBaseKey];
+                        if (!adapters.includes(name)) {
+                            adapters.push(name);
+                            saveToChromeLocalStorage({ 
+                                [adaptersBaseKey]: adapters,
+                                [adapterKey]: config
+                            }, () => {
+                                run();
+                            })
+                        } else {
+                            saveToChromeLocalStorage({ [adapterKey]: config }, () => {
+                                run();
+                            });
+                        }
+                    });
+                }
+            } else {
+                readFromChromeLocalStorage([adaptersBaseKey], (results) => {
+                    const adapters = results[adaptersBaseKey];
+                    const name = document.title;
+                    const adapterKey = `${adaptersBaseKey}:${name}`;
+                    const adapaterIndex = adapters.indexOf(name);
+                    if (adapaterIndex !== -1) {
+                        adapters.splice(adapaterIndex, 1);
+                        saveToChromeLocalStorage({ [adaptersBaseKey]: adapters }, () => {
+                            removeFromChromeLocalStorage([adapterKey, `query:${name}`], () => {
+                                run();
+                            });
+                        });
+                    }
+                }); 
+            }
+        }
+    });
+    document.body.addEventListener('mousemove', (event) => {
+        const wcRoot = document.getElementById('wc--root');
+        const target = event.target as HTMLElement;
+        if (wcRoot && wcRoot.contains(target)) {
+            return;
+        }
+        _matchesMouseMove.forEach((_style, _match) => {
+           _match.style.backgroundColor = _style;
+        });
+        _matchesMouseMove.clear();
+        if (!target.childElementCount && target.textContent) {
+            _matchesMouseMove.set(target, target.style.backgroundColor)
+            target.style.backgroundColor =  "red";  
+        }
+    });
+}
+
+export function startScrapingListener(run) {
+  scrapingListener(run);
 }
