@@ -108,7 +108,7 @@ const run = async function () {
 
   render(
     <Provider store={store}>
-      <TableEditor />
+     <TableEditor adapter={activeSiteAdapter} />
     </Provider>,
     document.getElementById("wc--root")
   );

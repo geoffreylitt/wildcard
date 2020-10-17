@@ -96,12 +96,14 @@ const EditorButton = styled(ToggleButton)`
 
 // Declare our functional React component
 
-const WcPanel = ({ records, attributes, query, actions }) => {
+const WcPanel = ({ records, attributes, query, actions, adapter }) => {
   const hotRef = useRef(null);
   const [hidden, setHidden] = useState(false);
   // Declare a new state variable for adapter code
   const [adapterCode, setAdapterCode] = useState("");
   const [codeEditorHidden, setCodeEditorHidden] = useState(true);
+  const adapterKey = "localStorageAdapter:adapters:" + adapter.name;
+
 
   const hotSettings = {
     data: formatRecordsForHot(records),
@@ -253,7 +255,6 @@ const WcPanel = ({ records, attributes, query, actions }) => {
           // load adapter code
           if (!loaded) {
             loaded = true;
-            let adapterKey = "localStorageAdapter:adapters:MIT EECS Course Catalog";
             chrome.storage.local.get(adapterKey, (results) => {
               setAdapterCode(results[adapterKey]);
               console.log("loaded code from storage");
@@ -273,7 +274,6 @@ const WcPanel = ({ records, attributes, query, actions }) => {
   }
 
   const saveAdapterCode = function() {
-    let adapterKey = "localStorageAdapter:adapters:MIT EECS Course Catalog";
     chrome.storage.local.set({ [adapterKey]: adapterCode }, function() {
 console.log("saved changes");
     });
