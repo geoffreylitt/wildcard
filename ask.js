@@ -1,6 +1,6 @@
 (function () {
   let LOCAL_ADAPTERS;
-  const localAdaptersKey = 'localStorageAdapt:adapters';
+  const localAdaptersKey = 'localStorageAdapter:adapters';
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
