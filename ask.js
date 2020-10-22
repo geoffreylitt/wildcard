@@ -1,14 +1,13 @@
 (function () {
   let LOCAL_ADAPTERS;
-  const localStorageKey = 'localStorageAdapter';
-  const localAdaptersKey = `${localStorageKey}:adapters`;
+  const localAdaptersKey = 'localStorageAdapt:adapters';
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const aid = urlParams.get('aid');
   const url = "http://localhost:3000/adapters/" + aid + "/script.ts";
 
-  let adapterName = "MIT EECS Course Catalog";
+  let adapterName ="default";
   let adapterCode;
 
   // alert("aid=" + aid);
@@ -24,27 +23,36 @@
     // load LOCAL_ADAPTERS
     chrome.storage.local.get([localAdaptersKey], (results) => {
       LOCAL_ADAPTERS = results[localAdaptersKey];
+      // defined LOCAL_ADAPTERS if needed
+      if (LOCAL_ADAPTERS === undefined){
+        LOCAL_ADAPTERS = [];
+      }
+    });
+
+    $.get(url, function (data, status) {
+      adapterCode = data;
+      // get adapter name from adapterCode
+      const result = adapterCode.match(/name\s*:\s*['|"](.*)['|"],/);
+      if (result && result.length > 1){
+        adapterName = result[1];
+      }
+
+      editor.setValue(adapterCode);
+      $("#adapterName").text(adapterName);
+
       // check if adapter already installed
       if (Array.isArray(LOCAL_ADAPTERS) && LOCAL_ADAPTERS.indexOf(adapterName) > -1) {
         // disable Install button
         $("#install").attr("disabled", true);
         statusMessage("Adapter already installed.");
       }
-    });
-
-    $.get(url, function (data, status) {
-      // alert(data);
-      adapterCode = data;
-      editor.setValue(data);
-      
-      // const scraper = new Function(`return ${data}`)();
-      $("#adapterName").html(adapterName);
     }).fail(function (jqXHR, textStatus, errorThrown) {
       alert("error " + textStatus + errorThrown);
     });
   } 
 
   $("#install").on("click", function(event) {
+    // if adapterName not exist, update LOCAL_ADAPTERS and create one
     if (Array.isArray(LOCAL_ADAPTERS) && LOCAL_ADAPTERS.indexOf(adapterName) === -1) {
       document.getElementById("askContainer").style.cursor = "wait";
       LOCAL_ADAPTERS.push(adapterName);
@@ -58,14 +66,11 @@
         });
       });
     }
-
   });
 
   function statusMessage(msg) {
     let status = document.getElementById('status');
     status.textContent = msg;
   }
-
-
 
 })();
