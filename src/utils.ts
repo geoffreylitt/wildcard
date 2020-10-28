@@ -50,22 +50,24 @@ export function onDomReady(fn) {
   else document.addEventListener('DOMContentLoaded', fn)
 }
 
-export function readFromChromeLocalStorage(keys, callback) {
-  chrome.storage.local.get(keys, (results) => {
-      callback(results)
+export function readFromChromeLocalStorage(keys) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(keys, (results) => {
+      resolve(results)
+    });
   });
 }
-export function saveToChromeLocalStorage(entries, callback) {
-  if (callback) {
-      chrome.storage.local.set(entries, callback);
-  } else {
-      chrome.storage.local.set(entries);
-  }
+
+export function saveToChromeLocalStorage(entries) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.set(entries);
+    resolve();
+  });
 }
-export function removeFromChromeLocalStorage(keys, callback) {
-  if (callback) {
-      chrome.storage.local.remove(keys, callback);
-  } else {
-      chrome.storage.local.remove(keys);
-  }
+
+export function removeFromChromeLocalStorage(keys) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.remove(keys);
+    resolve();
+  });
 }

@@ -41,23 +41,20 @@ const getReadingTime = (request, sender, sendResponse) => {
     })
 }
 
+const forwardToContentScripts = (request, sender, sendResponse) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs && tabs.length) {
+      chrome.tabs.sendMessage(tabs[0].id, request);
+    }
+  });
+}
+
 const handlers = {
   getVisits: getVisits,
   getReadingTime: getReadingTime,
-  generateScraper: (request, sender, sendResponse) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs && tabs.length) {
-          chrome.tabs.sendMessage(tabs[0].id, request, (response) => {
-            if (response) {
-              window['state'].endUserScraper = response;
-              chrome.runtime.openOptionsPage();
-            } else {
-              sendResponse({ error: 'Error generating scraper config' });
-            }
-          });
-        }
-    });
-  }
+  deleteAdapter: forwardToContentScripts,
+  saveAdapter: forwardToContentScripts,
+  resetAdapter: forwardToContentScripts
 }
 
 chrome.runtime.onMessage.addListener(
@@ -72,18 +69,52 @@ chrome.runtime.onMessage.addListener(
   });
 
 chrome.contextMenus.create({
-  title: "Wildcard: Edit Adapter",
-  contexts: ["page"],
-  onclick: function () {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs.length) {
-        // send message to active tab
-        chrome.tabs.sendMessage(tabs[0].id, { command: 'openCodeEditor' }, (response) => {
-          if (response.error) {
-            alert(response.error);
-          }
-        });
-      }
-    });
-  }
+  title: "Wildcard",
+  id: "wildcard",
+  type: "normal",
+  contexts: ["page"]
+}, () => {
+  chrome.contextMenus.create({
+    title: "Create Adapter",
+    contexts: ["page"],
+    parentId: "wildcard",
+    onclick: function () {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs.length) {
+          // send message to active tab
+          chrome.tabs.sendMessage(tabs[0].id, { command: "createAdapter" }, (response) => {
+            if (response.error) {
+              alert(response.error);
+            }
+          });
+        }
+      });
+    }
+  });
+  chrome.contextMenus.create({
+    title: "Edit Adapter",
+    contexts: ["page"],
+    parentId: "wildcard",
+    onclick: function () {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs.length) {
+          // send message to active tab
+          chrome.tabs.sendMessage(tabs[0].id, { command: "openCodeEditor" }, (response) => {
+            if (response.error) {
+              alert(response.error);
+            }
+          });
+        }
+      });
+    }
+  });
+  chrome.contextMenus.create({
+    title: "Open Options Page",
+    contexts: ["page"],
+    parentId: "wildcard",
+    onclick: function () {
+      chrome.runtime.openOptionsPage();
+    }
+  });
 });
+
