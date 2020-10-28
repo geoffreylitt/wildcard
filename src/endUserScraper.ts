@@ -340,7 +340,10 @@ function saveAdapter({ config }) {
         const adapterName = _adapterKey.split(':').pop();
         readFromChromeLocalStorage([_adaptersBaseKey])
         .then(results => {
-            const adapters = results[_adaptersBaseKey];
+            let adapters = results[_adaptersBaseKey];
+            if (adapters === undefined) {
+                adapters = []
+            }
             if (!adapters.includes(adapterName)) {
                 adapters.push(adapterName);
                 saveToChromeLocalStorage({ 
