@@ -19,6 +19,12 @@ import styled from 'styled-components'
 
 import { Record, Attribute } from '../core/types'
 
+import { run } from '../wildcard';
+import {
+  readFromChromeLocalStorage,
+  saveToChromeLocalStorage
+} from '../utils'
+
 function formatRecordsForHot(records:Array<Record>) {
   return records.map(record => ({
     id: record.id,
@@ -38,10 +44,8 @@ function formatAttributesForHot(attributes:Array<Attribute>) {
 
 const ToggleButton = styled.div`
   display: block;
-
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 14px;
-
   border-radius: 10px;
   z-index: 10000;
   padding: 10px;
@@ -52,7 +56,6 @@ const ToggleButton = styled.div`
   box-shadow: 0px 0px 10px -1px #d5d5d5;
   border: none;
   cursor: pointer;
-
   &:hover {
     background-color: #eee;
   }
@@ -65,13 +68,10 @@ const Panel = styled.div`
   height: ${props => props.hidden ? 0 : 280}px;
   width: ${props => props.codeEditorHidden ? 98 : 68.5}vw;
   z-index: 2200;
-
   box-shadow: 0px -5px 10px 1px rgba(170,170,170,0.5);
   border-top: solid thin #9d9d9d;
-
   overflow: hidden;
   background-color: white;
-
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 14px;
 `
@@ -94,16 +94,20 @@ const EditorButton = styled(ToggleButton)`
   right: ${props => props.right};
 `
 
+const CreateAdapterButton = styled(ToggleButton)`
+  right: ${props => props.right};
+`
+
 // Declare our functional React component
 
-const WcPanel = ({ records, attributes, query, actions, adapter }) => {
+const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter }) => {
   const hotRef = useRef(null);
   const [hidden, setHidden] = useState(false);
   // Declare a new state variable for adapter code
   const [adapterCode, setAdapterCode] = useState("");
   const [codeEditorHidden, setCodeEditorHidden] = useState(true);
-  // build adapterKey from the active adapter
-  const adapterKey = "localStorageAdapter:adapters:"+adapter.name;
+  const _adapterKey = "localStorageAdapter:adapters:" + adapter.name;
+
 
   const hotSettings = {
     data: formatRecordsForHot(records),
@@ -149,6 +153,31 @@ const WcPanel = ({ records, attributes, query, actions, adapter }) => {
 
             // NOTE! idx assumes that id is hidden.
             actions.toggleVisibility("user", allCols[idx]);
+          }
+        }
+      }
+    },
+    dropdownMenu: {
+      items: {
+        type: {
+          name: "Column Type",
+          submenu: {
+            items: [
+              {
+                key: "type:text",
+                name: "Text",
+                callback: (key, selection, clickEvent) => {
+                  alert(`You set the column type to ${key.split(":").pop()}`)
+                },
+              },
+              {
+                key: "type:numeric",
+                name: "Number",
+                callback: (key, selection, clickEvent) => {
+                  alert(`You set the column type to ${key.split(":").pop()}`)
+                }
+              }
+            ]
           }
         }
       }
@@ -241,6 +270,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter }) => {
     actions.selectRecord(recordId, attribute)
   }
 
+
   const loadAdapterCode = function () {
     let loaded = false;
     // setup listener
@@ -254,9 +284,9 @@ const WcPanel = ({ records, attributes, query, actions, adapter }) => {
           // load adapter code
           if (!loaded) {
             loaded = true;
-            chrome.storage.local.get(adapterKey, (results) => {
-              setAdapterCode(results[adapterKey]);
-              console.log("loaded code from storage key: "+ adapterKey);
+            chrome.storage.local.get(_adapterKey, (results) => {
+              setAdapterCode(results[_adapterKey]);
+              console.log("loaded code from storage");
             });
           }
           break;
@@ -273,17 +303,46 @@ const WcPanel = ({ records, attributes, query, actions, adapter }) => {
   }
 
   const saveAdapterCode = function() {
-    chrome.storage.local.set({ [adapterKey]: adapterCode }, function() {
-console.log("saved changes to storage key: " + adapterKey);
+    chrome.storage.local.set({ [_adapterKey]: adapterCode }, function() {
+console.log("saved changes");
     });
   }
 
   if (records && records.length > 0) {
     return <>
-      <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
-       codeEditorHidden={codeEditorHidden}>
-        { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
-      </ToggleButton>
+      {creatingAdapter ? (
+        <>
+          <CreateAdapterButton 
+            right='160px'
+            onClick={() => {
+              chrome.runtime.sendMessage({ command: 'resetAdapter'})
+            }}
+          >
+            Reset
+          </CreateAdapterButton>
+          <CreateAdapterButton 
+            right='90px'
+            onClick={() => {
+              chrome.runtime.sendMessage({ command: 'deleteAdapter'})
+            }}
+          >
+            Delete
+          </CreateAdapterButton>
+          <CreateAdapterButton 
+            right='25px'
+            onClick={() => {
+              chrome.runtime.sendMessage({ command: 'saveAdapter'})
+            }}
+          >
+            Save
+          </CreateAdapterButton>
+        </>
+      ) : (
+         <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
+         codeEditorHidden={codeEditorHidden}>
+          { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
+        </ToggleButton>
+      )}
       <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
