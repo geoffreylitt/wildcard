@@ -19,7 +19,7 @@ import thunk from 'redux-thunk';
 import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
 import { TableAdapterMiddleware } from './tableAdapterMiddleware'
-import { startScrapingListener } from './endUserScraper'
+import { startScrapingListener, stopScrapingListener, resetScrapingListener } from './endUserScraper'
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
@@ -43,7 +43,7 @@ const connectRedux = (component, actions) => {
   )(component)
 }
 
-const run = async function () {
+export const run = async function ({ creatingAdapter }) {
   const wcRoot = document.getElementById('wc--root');
   if (wcRoot) {
     wcRoot.remove();
@@ -112,12 +112,30 @@ const run = async function () {
 
   render(
     <Provider store={store}>
-     <TableEditor adapter={activeSiteAdapter} />
+     <TableEditor adapter={activeSiteAdapter} creatingAdapter={creatingAdapter} />
     </Provider>,
     document.getElementById("wc--root")
   );
 
 }
 
-run();
-//startScrapingListener(run);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  switch(request.command) {
+    case 'createAdapter':
+      startScrapingListener();
+      break;
+    case 'saveAdapter':
+      stopScrapingListener({ save: true });
+      break;
+    case 'deleteAdapter':
+      stopScrapingListener({ save: false });
+      break;
+    case 'resetAdapter': 
+      resetScrapingListener();
+      break;
+    default:
+      break;
+  }
+});
+
+run({ creatingAdapter: false });

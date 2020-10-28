@@ -3,6 +3,7 @@ declare const browser;
 
 import { TableAdapter, Record, Attribute, TableCallback, RecordEdit } from './core/types'
 import { createDomScrapingAdapter } from './site_adapters/domScrapingBase';
+import { readFromChromeLocalStorage } from './utils'
 
 let table = {
   tableId: "user",
@@ -105,14 +106,14 @@ export const userStore:TableAdapter = {
 
 export const adapterStore = {
   getLocalAdapters: async () => {
-    const localStorageKey = 'localStorageAdapter';
+    const localAdaptersKey = 'localStorageAdapter:adapters';
     const result = [];
     try {
-      const localAdaptersKey = `${localStorageKey}:adapters`;
-      const localAdapters = (await readFromLocalStorage(localAdaptersKey) || []) as [];
+      const localAdapters = (await readFromChromeLocalStorage([localAdaptersKey]) as Object)[localAdaptersKey] || [];
       for (let i = 0; i < localAdapters.length; i++) {
         const adapter = localAdapters[i];
-        const adapterConfigString = await readFromLocalStorage(`${localAdaptersKey}:${adapter}`) as string;
+        const localAdapterKey = `${localAdaptersKey}:${adapter}`;
+        const adapterConfigString = (await readFromChromeLocalStorage([localAdapterKey]) as Object)[localAdapterKey];
         const adapterConfig = new Function(`return ${adapterConfigString}`)()
         const localAdapter = createDomScrapingAdapter(adapterConfig);
         result.push(localAdapter);
@@ -122,12 +123,4 @@ export const adapterStore = {
     }
     return result;
   }
-}
-
-function readFromLocalStorage(key) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(key, (results) => {
-      resolve(results[key]);
-    });
-  });
 }

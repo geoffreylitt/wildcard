@@ -33,9 +33,5 @@
       "<all_urls>",
       "contextMenus"
     ],
-    "browser_action": {
-      "default_title": "Wildcard",
-      "default_popup": "popup.html"
-    },
     "options_page": "options.html"
   }
