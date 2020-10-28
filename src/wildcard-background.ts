@@ -54,7 +54,22 @@ const handlers = {
   getReadingTime: getReadingTime,
   deleteAdapter: forwardToContentScripts,
   saveAdapter: forwardToContentScripts,
-  resetAdapter: forwardToContentScripts
+  resetAdapter: forwardToContentScripts,
+  installAdapter: (request, sender, sendResponse) => {
+    // alert("Got install command, aid=" + request.aid);
+
+    // chrome.tabs.create({
+    //   active: true,
+    //   url:  'ask.html?aid=' + request.aid
+    // }, null);
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs && tabs.length) {
+        chrome.tabs.update(tabs[0].id, {url: 'ask.html?aid=' + request.aid});
+      }
+    });
+
+  }
 }
 
 chrome.runtime.onMessage.addListener(

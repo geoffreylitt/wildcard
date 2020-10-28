@@ -12,11 +12,13 @@ import WeatherChannelAdapter from './weatherchannel'
 import YoutubeAdapter from './youtube'
 import GithubAdapter from './github'
 import HarvardBookWarehouse from './harvardbookwarehouse'
+import WildcardMarketplace from './wildcardMarketplace'
 import { adapterStore } from '../localStorageAdapter'
 import { TableAdapter } from '../core/types'
 
 export const siteAdapters = [
-  HNAdapter,
+  WildcardMarketplace,
+  // HNAdapter,
   FluxAdapter,
   ExpediaAdapter,
   AirbnbAdapter,
