@@ -57,21 +57,6 @@ const handlers = {
           });
         }
     });
-  },
-  installAdapter: (request, sender, sendResponse) => {
-    // alert("Got install command, aid=" + request.aid);
-
-    // chrome.tabs.create({
-    //   active: true,
-    //   url:  'ask.html?aid=' + request.aid
-    // }, null);
-
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs.length) {
-        chrome.tabs.update(tabs[0].id, {url: 'ask.html?aid=' + request.aid});
-      }
-    });
-
   }
 }
 
@@ -90,7 +75,6 @@ chrome.contextMenus.create({
   title: "Wildcard: Edit Adapter",
   contexts: ["page"],
   onclick: function () {
-
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs && tabs.length) {
         // send message to active tab

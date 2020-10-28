@@ -60,4 +60,11 @@ export default [
     builtins()
   ]
 },
+{
+  input: 'src/marketplace.js',
+  output: {
+    file: 'dist/marketplace.js',
+    format: 'iife'
+  }
+}
 ];

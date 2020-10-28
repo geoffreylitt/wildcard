@@ -11,6 +11,14 @@
         "matches": [
           "<all_urls>"
         ]
+      },
+      {
+        "js": [
+          "dist/marketplace.js"
+        ],
+        "matches": [
+          "http://localhost:3000/adapter.html?aid=*"
+        ]
       }
     ],
     "background": {"scripts": ["dist/wildcard-background.js", "src/wildcard-ajax.js"]},

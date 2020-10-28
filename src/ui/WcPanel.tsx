@@ -102,8 +102,8 @@ const WcPanel = ({ records, attributes, query, actions, adapter }) => {
   // Declare a new state variable for adapter code
   const [adapterCode, setAdapterCode] = useState("");
   const [codeEditorHidden, setCodeEditorHidden] = useState(true);
-  const adapterKey = "localStorageAdapter:adapters:" + adapter.name;
-
+  // build adapterKey from the active adapter
+  const adapterKey = "localStorageAdapter:adapters:"+adapter.name;
 
   const hotSettings = {
     data: formatRecordsForHot(records),
@@ -241,7 +241,6 @@ const WcPanel = ({ records, attributes, query, actions, adapter }) => {
     actions.selectRecord(recordId, attribute)
   }
 
-
   const loadAdapterCode = function () {
     let loaded = false;
     // setup listener
@@ -257,7 +256,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter }) => {
             loaded = true;
             chrome.storage.local.get(adapterKey, (results) => {
               setAdapterCode(results[adapterKey]);
-              console.log("loaded code from storage");
+              console.log("loaded code from storage key: "+ adapterKey);
             });
           }
           break;
@@ -275,7 +274,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter }) => {
 
   const saveAdapterCode = function() {
     chrome.storage.local.set({ [adapterKey]: adapterCode }, function() {
-console.log("saved changes");
+console.log("saved changes to storage key: " + adapterKey);
     });
   }
 
