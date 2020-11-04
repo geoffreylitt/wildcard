@@ -114,12 +114,16 @@ export const adapterStore = {
         const adapter = localAdapters[i];
         const localAdapterKey = `${localAdaptersKey}:${adapter}`;
         const adapterConfigString = (await readFromChromeLocalStorage([localAdapterKey]) as Object)[localAdapterKey];
+
+        // sometimes we can end up with malformed adapters; just ignore and keep going
+        if(!adapterConfigString) continue;
+
         const adapterConfig = new Function(`return ${adapterConfigString}`)()
         const localAdapter = createDomScrapingAdapter(adapterConfig);
         result.push(localAdapter);
       }
     } catch(error){
-      console.log('error while retrieving local adapters:', error);
+      console.error('error while retrieving local adapters:', error);
     }
     return result;
   }
