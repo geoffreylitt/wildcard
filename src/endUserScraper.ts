@@ -22,9 +22,9 @@ const _adaptersBaseKey = 'localStorageAdapter:adapters';
 let _adapterKey;
 let _rowElementSelector;
 let _targetNodesSelectors = [];
-const _defaultTutorialMessage = 'Hover over a row of the dataset until all the relevant rows have a blue border';
+const _defaultTutorialMessage = '1. Hover over a row of the dataset until all the relevant rows have a blue border and then alt + click any them to proceed to step 2';
 const _tutorialHTML = `
-    <div id='wc-scraper-tutorial' style='width: 100vw; background-color: rgb(52, 152, 219); color: white; position: absolute; top: 0; left: 0; text-align: center;'>
+    <div id='wc-scraper-tutorial' style='z-index: 1000; width: 100vw; background-color: rgb(52, 152, 219); color: white; position: fixed; top: 0; left: 0; text-align: center;'>
         <span id='message' style='padding: 2.5px; margin: 2.5px;'>
             ${_defaultTutorialMessage}
         </span>
@@ -41,7 +41,19 @@ function generateNodeSelector(node) {
     return selector;
 }
 
-function generateNodeSelectorFrom(node, from) {
+function getAllCombinations(chars) {
+    const result = [];
+    const f = (prefix, chars) => {
+        for (let i = 0; i < chars.length; i++) {
+            result.push(`${prefix}.${chars[i]}`);
+            f(`${prefix}.${chars[i]}`, chars.slice(i + 1));
+        }
+    };
+    f('', chars);
+    return result;
+}
+
+function generateSelectorFrom(node, from) {
     if (node.isSameNode(from)) {
         return null;
     }
@@ -49,6 +61,9 @@ function generateNodeSelectorFrom(node, from) {
     let _node = node;
     while (!_node.isSameNode(from)) {
         selectors.unshift(generateNodeSelector(_node));
+        if (areAllSiblings(_node,  selectors.join('>'))) {
+            return selectors.join('>')
+        }
         _node = _node.parentNode;
     }
     return selectors.join(">");
@@ -60,7 +75,7 @@ function generateIndexedNodeSelector(node) {
     return `${tag}:nth-child(${index})`;
 }
 
-function generateIndexedNodeSelectorFrom(node, from) {
+function generateIndexedSelectorFrom(node, from) {
     if (node.isSameNode(from)) {
         return null;
     }
@@ -73,9 +88,15 @@ function generateIndexedNodeSelectorFrom(node, from) {
     return selectors.join('>');
 }
 
+function areAllSiblings(node, selector) {
+    return Array
+        .from(document.querySelectorAll(selector))
+        .every(element => element.parentNode.isSameNode(node.parentNode));
+}
+
 function findRowElement(nodes, lca) {
     const candidates = [];
-    let selectors = nodes.map(node => generateIndexedNodeSelectorFrom(node, lca)).filter(selector => selector);
+    let selectors = nodes.map(node => generateIndexedSelectorFrom(node, lca)).filter(selector => selector);
     let candidate = lca;
     while (candidate && candidate.tagName !== 'BODY') {
         const candidateEntry = {
@@ -112,19 +133,23 @@ function findRowElement(nodes, lca) {
       candidates.sort((a, b) => b.score - a.score);
       return {
           rowElement: candidates[0].candidate,
-          rowElementSelector: generateNodeSelectorFrom(candidates[0].candidate, document.body),
+          rowElementSelector: generateSelectorFrom(candidates[0].candidate, document.body),
       };
     }
     return null
 }
 
+function getRowElements(selector) {
+    return document.querySelectorAll<HTMLElement>(selector);
+}
+
 function generateTargetNodeSelectors(rowElementSelector, nodes) {
     const selectors = [];
-    const rowElements = Array.from(document.querySelectorAll(rowElementSelector));
+    const rowElements = getRowElements(rowElementSelector);
     for (let i = 0; i < nodes.length; i++) {
         for (let j = 0; j < rowElements.length; j++) {
             if (rowElements[j].contains(nodes[i])) {
-                selectors.push(generateIndexedNodeSelectorFrom(nodes[i], rowElements[j]));
+                selectors.push(generateIndexedSelectorFrom(nodes[i], rowElements[j]));
                 break;
             }
         }
@@ -141,7 +166,8 @@ function generateScraper(targetSelectors, rowElementSelector) {
       contains: "${window.location.href}",
       attributes: ${JSON.stringify(attributes)},
       scrapePage: () => {
-        return Array.from(document.querySelectorAll("${rowElementSelector}")).map((element, index) => {
+        const rowElements = document.querySelectorAll("${rowElementSelector}");
+        return Array.from(rowElements).map((element, index) => {
             const dataValues = {};
             ${JSON.stringify(targetSelectors)}.forEach((selector, index) => {
                 const selected = element.querySelector(selector);
@@ -175,8 +201,13 @@ function createTableColumns(n) {
 function clickListener(event) {
     if (ignoreEvent(event)) {
         return;
+    } else if (!event.altKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
     }
     event.preventDefault();
+    event.stopPropagation();
     const target = event.target as HTMLElement;
     if (_rowElementSelector) {
         if (!target.childElementCount && 
@@ -193,7 +224,8 @@ function clickListener(event) {
             }
             const styleProperty = 'backgroundColor';
             const styleValue = _mouseClickColor;
-            Array.from(document.querySelectorAll(_rowElementSelector))
+            const rowElements = getRowElements(_rowElementSelector);
+            Array.from(rowElements)
             .forEach((rowElement) => {
                 _targetNodesSelectors
                 .map(selector => rowElement.querySelector(selector) as HTMLElement)
@@ -218,7 +250,8 @@ function clickListener(event) {
             const { rowElementSelector } = rowElementData;
             const styleProperty = 'border';
             const styleValue = `1px solid ${_mouseClickColor}`;
-            Array.from(document.querySelectorAll<HTMLElement>(rowElementSelector))
+            const rowElements = getRowElements(rowElementSelector);
+            Array.from(rowElements)
             .forEach((rowElement) => {
                 setStyleAndAddToMap({
                     map: _eventMaps._mouseClickRowElement,
@@ -231,7 +264,7 @@ function clickListener(event) {
             _adapterKey = `${_adaptersBaseKey}:${name}`;
             _rowElementSelector = rowElementSelector;
             saveAdapter({ config });
-            updateTutorialMessage({ message: 'Hover over the text fields in any of the rows. Click on a field to add it to the table, click on it again to remove it.' })
+            updateTutorialMessage({ message: '2. Hover over the text fields in any of the rows. Alt + click on a field to add it to the table as a column, alt + click on it again to remove it.' })
         }
     }
 }
@@ -248,7 +281,8 @@ function mouseMoveListener(event) {
             const { rowElementSelector } = rowElementData;
             const styleProperty = 'border';
             const styleValue = `1px solid ${_mouseMoveColor}`;
-            Array.from(document.querySelectorAll<HTMLElement>(rowElementSelector))
+            const rowElements = getRowElements(rowElementSelector);
+            Array.from(rowElements)
             .forEach((rowElement) => {
                 setStyleAndAddToMap({
                     map: _eventMaps._mouseMoveRowElement,
@@ -265,7 +299,8 @@ function mouseMoveListener(event) {
             if (targetNodeSelectors.length) {
                 const styleProperty = 'backgroundColor';
                 const styleValue = _mouseMoveColor;
-                Array.from(document.querySelectorAll<HTMLElement>(_rowElementSelector))
+                const rowElements = getRowElements(_rowElementSelector);
+                Array.from(rowElements)
                 .forEach((rowElement) => {
                     targetNodeSelectors
                     .map(selector => rowElement.querySelector(selector) as HTMLElement)
@@ -410,15 +445,15 @@ function updateTutorialMessage({ message }) {
 }
 
 export function startScrapingListener() {
-    document.body.addEventListener('click', clickListener);
-    document.body.addEventListener('mousemove', mouseMoveListener);
+    document.body.addEventListener('click', clickListener, true);
+    document.body.addEventListener('mousemove', mouseMoveListener, true);
     _tutorialElement = htmlToElement(_tutorialHTML);
     document.body.prepend(_tutorialElement);
 }
 
 export function stopScrapingListener({ save }) {
-    document.body.removeEventListener('click', clickListener);
-    document.body.removeEventListener('mousemove', mouseMoveListener);
+    document.body.removeEventListener('click', clickListener, true);
+    document.body.removeEventListener('mousemove', mouseMoveListener, true);
     removeTutorial();
     if (!save) {
         deleteAdapter({ creatingAdapter: false });

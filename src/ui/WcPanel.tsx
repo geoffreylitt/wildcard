@@ -313,20 +313,20 @@ console.log("saved changes");
       {creatingAdapter ? (
         <>
           <CreateAdapterButton 
-            right='160px'
+            right='155px'
             onClick={() => {
               chrome.runtime.sendMessage({ command: 'resetAdapter'})
             }}
           >
-            Reset
+            Start Over
           </CreateAdapterButton>
           <CreateAdapterButton 
-            right='90px'
+            right='85px'
             onClick={() => {
               chrome.runtime.sendMessage({ command: 'deleteAdapter'})
             }}
           >
-            Delete
+            Cancel
           </CreateAdapterButton>
           <CreateAdapterButton 
             right='25px'
