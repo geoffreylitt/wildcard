@@ -80,7 +80,7 @@
             const adapter = adaptersSelect.value;
             if (adapter) {
                 readFromLocalStorage(`${localAdaptersKey}:${adapter}`, (adapterConfig) => {
-                    editor.setValue(adapterConfig);
+                    editor.setValue(JSON.stringify(adapterConfig, null, 2));
                 });
             }
             if (action === 'delete') {
@@ -91,11 +91,11 @@
     adaptersSelect.addEventListener('change', () => {
         const adapter = adaptersSelect.value;
         readFromLocalStorage(`${localAdaptersKey}:${adapter}`, (adapterConfig) => {
-            editor.setValue(adapterConfig);
+            editor.setValue(JSON.stringify(adapterConfig, null, 2));
         });
     });
     saveAdapterButton.addEventListener('click', () => {
-        const adapterConfig = editor.getValue().trim();
+        const adapterConfig = JSON.parse(editor.getValue().trim());
         const action = adapterActionsSelect.value;
         const adapter = action === 'create' ? createAdaptersInput.value.trim() : adaptersSelect.value;
         if (adapter && adapterConfig) {

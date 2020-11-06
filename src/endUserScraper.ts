@@ -36,7 +36,33 @@ let _tutorialElement;
 function generateNodeSelector(node) {
     let selector = node.tagName.toLowerCase();
     if (node.classList && node.classList.length) {
-        selector += `.${Array.from(node.classList).join('.')}`;
+        let selectors = [];
+        const siblings = Array.from(node.parentNode.children)
+            .filter((element: HTMLElement) => !element.isSameNode(node));
+        getAllCombinations(Array.from(node.classList))
+            .forEach((selector, i) => {
+                selectors[i] = {
+                    selector,
+                    score: 0
+                }
+                const selectorClassNames= selector.substring(1).split('.');
+                siblings
+                    .filter((sibling: HTMLElement) => sibling.classList && sibling.classList.length)
+                    .map((sibling: HTMLElement) => Array.from(sibling.classList))
+                    .forEach(classList => {
+                        const allInClasslist = selectorClassNames.every(className => classList.includes(className));
+                        if (allInClasslist) {
+                            selectors[i].score += 1;
+                        }
+                    });
+            });
+        if (selectors.length) {
+            selectors.sort((a, b) => b.score - a.score);
+            const highestScore = selectors[0].score;
+            selectors = selectors.filter(({ score }) => score === highestScore);
+            selectors.sort((a, b) => b.selector.split('.').length - a.selector.split('.').length);
+            selector = selectors.shift().selector;
+        }
     }
     return selector;
 }
@@ -159,31 +185,25 @@ function generateTargetNodeSelectors(rowElementSelector, nodes) {
 
 
 function generateScraper(targetSelectors, rowElementSelector) {
-    const name = document.title
-    const attributes = createTableColumns(Math.max(targetSelectors.length, 4));
-    const config =`{
-      name: "${name}",
-      contains: "${window.location.href}",
-      attributes: ${JSON.stringify(attributes)},
-      scrapePage: () => {
-        const rowElements = document.querySelectorAll("${rowElementSelector}");
-        return Array.from(rowElements).map((element, index) => {
-            const dataValues = {};
-            ${JSON.stringify(targetSelectors)}.forEach((selector, index) => {
-                const selected = element.querySelector(selector);
-                dataValues[String.fromCharCode(97 + index).toUpperCase()] = selected ? selected.textContent.trim() : "";
-            });
-            return {
-                id: String(index),
-                dataValues,
-                rowElements: [element]
-            }
-        });
-      }
-    }`.trim();
     return {
-        name,
-        config
+        name: document.title,
+        attributes: createTableColumns(Math.max(targetSelectors.length, 4)),
+        contains: window.location.href,
+        scrapePage: `() => {
+            const rowElements = document.querySelectorAll("${rowElementSelector}");
+            return Array.from(rowElements).map((element, index) => {
+                const dataValues = {};
+                ${JSON.stringify(targetSelectors)}.forEach((selector, index) => {
+                    const selected = element.querySelector(selector);
+                    dataValues[String.fromCharCode(97 + index).toUpperCase()] = selected ? selected.textContent.trim() : "";
+                });
+                return {
+                    id: String(index),
+                    dataValues,
+                    rowElements: [element]
+                }
+            });
+        }`.trim()
     };
 }
 
@@ -239,8 +259,8 @@ function clickListener(event) {
                     });
                 });
             });
-            const { name, config } = generateScraper(_targetNodesSelectors, _rowElementSelector);
-            _adapterKey = `${_adaptersBaseKey}:${name}`;
+            const config = generateScraper(_targetNodesSelectors, _rowElementSelector);
+            _adapterKey = `${_adaptersBaseKey}:${config.name}`;
             saveAdapter({ config });   
         }
     } else {
@@ -260,8 +280,8 @@ function clickListener(event) {
                     styleValue
                 });
             });
-            const { name, config } = generateScraper([], rowElementSelector);
-            _adapterKey = `${_adaptersBaseKey}:${name}`;
+            const config = generateScraper([], rowElementSelector);
+            _adapterKey = `${_adaptersBaseKey}:${config.name}`;
             _rowElementSelector = rowElementSelector;
             saveAdapter({ config });
             updateTutorialMessage({ message: '2. Hover over the text fields in any of the rows. Alt + click on a field to add it to the table as a column, alt + click on it again to remove it.' })

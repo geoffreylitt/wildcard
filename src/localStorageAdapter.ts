@@ -107,18 +107,21 @@ export const userStore:TableAdapter = {
 export const adapterStore = {
   getLocalAdapters: async () => {
     const localAdaptersKey = 'localStorageAdapter:adapters';
+    const keysToEvaluate = ['scrapePage', 'onRowSelected', 'onRowUnSelected'];
     const result = [];
     try {
       const localAdapters = (await readFromChromeLocalStorage([localAdaptersKey]) as Object)[localAdaptersKey] || [];
       for (let i = 0; i < localAdapters.length; i++) {
         const adapter = localAdapters[i];
         const localAdapterKey = `${localAdaptersKey}:${adapter}`;
-        const adapterConfigString = (await readFromChromeLocalStorage([localAdapterKey]) as Object)[localAdapterKey];
-
+        const adapterConfig = (await readFromChromeLocalStorage([localAdapterKey]) as Object)[localAdapterKey];
         // sometimes we can end up with malformed adapters; just ignore and keep going
-        if(!adapterConfigString) continue;
-
-        const adapterConfig = new Function(`return ${adapterConfigString}`)()
+        if(!adapterConfig) continue;
+        Object.keys(adapterConfig)
+          .filter(key => keysToEvaluate.includes(key))
+          .forEach(key => {
+            adapterConfig[key] = new Function(`return ${adapterConfig[key]}`)();
+          });
         const localAdapter = createDomScrapingAdapter(adapterConfig);
         result.push(localAdapter);
       }
