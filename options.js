@@ -80,7 +80,7 @@
             const adapter = adaptersSelect.value;
             if (adapter) {
                 readFromLocalStorage(`${localAdaptersKey}:${adapter}`, (adapterConfig) => {
-                    editor.setValue(JSON.stringify(adapterConfig, null, 2));
+                    editor.setValue(adapterConfig);
                 });
             }
             if (action === 'delete') {
@@ -91,7 +91,7 @@
     adaptersSelect.addEventListener('change', () => {
         const adapter = adaptersSelect.value;
         readFromLocalStorage(`${localAdaptersKey}:${adapter}`, (adapterConfig) => {
-            editor.setValue(JSON.stringify(adapterConfig, null, 2));
+            editor.setValue(adapterConfig);
         });
     });
     saveAdapterButton.addEventListener('click', () => {

@@ -114,9 +114,10 @@ export const adapterStore = {
       for (let i = 0; i < localAdapters.length; i++) {
         const adapter = localAdapters[i];
         const localAdapterKey = `${localAdaptersKey}:${adapter}`;
-        const adapterConfig = (await readFromChromeLocalStorage([localAdapterKey]) as Object)[localAdapterKey];
+        const adapterConfigString = (await readFromChromeLocalStorage([localAdapterKey]) as Object)[localAdapterKey];
         // sometimes we can end up with malformed adapters; just ignore and keep going
-        if(!adapterConfig) continue;
+        if(!adapterConfigString) continue;
+        const adapterConfig = JSON.parse(adapterConfigString);
         Object.keys(adapterConfig)
           .filter(key => keysToEvaluate.includes(key))
           .forEach(key => {

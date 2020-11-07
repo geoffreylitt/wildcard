@@ -187,8 +187,9 @@ function generateTargetNodeSelectors(rowElementSelector, nodes) {
 function generateScraper(targetSelectors, rowElementSelector) {
     return {
         name: document.title,
+        urls: [window.location.href],
+        matches: [window.location.href],
         attributes: createTableColumns(Math.max(targetSelectors.length, 4)),
-        contains: window.location.href,
         scrapePage: `() => {
             const rowElements = document.querySelectorAll("${rowElementSelector}");
             return Array.from(rowElements).map((element, index) => {
@@ -203,7 +204,7 @@ function generateScraper(targetSelectors, rowElementSelector) {
                     rowElements: [element]
                 }
             });
-        }`.trim()
+        }`
     };
 }
 
@@ -391,6 +392,7 @@ function clearElementMaps() {
 }
 
 function saveAdapter({ config }) {
+    const _config = JSON.stringify(config, null, 2);
     if (_adapterKey) {
         const adapterName = _adapterKey.split(':').pop();
         readFromChromeLocalStorage([_adaptersBaseKey])
@@ -403,12 +405,12 @@ function saveAdapter({ config }) {
                 adapters.push(adapterName);
                 saveToChromeLocalStorage({ 
                     [_adaptersBaseKey]: adapters,
-                    [_adapterKey]: config
+                    [_adapterKey]: _config
                 }).then(() => {
                     run({ creatingAdapter: true });
                 })
             } else {
-                saveToChromeLocalStorage({ [_adapterKey]: config })
+                saveToChromeLocalStorage({ [_adapterKey]: _config })
                 .then(() => {
                     run({ creatingAdapter: true });
                 });
