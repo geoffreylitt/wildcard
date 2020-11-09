@@ -68,7 +68,7 @@ const Panel = styled.div`
   height: ${props => props.hidden ? 0 : 280}px;
   width: ${props => props.codeEditorHidden ? 98 : 68.5}vw;
   z-index: 2200;
-  box-shadow: 0px -5px 10px 1px rgba(170,170,170,0.5);
+  box-shadow: 0px -5px 10px 1px #f1a8a8;
   border-top: solid thin #9d9d9d;
   overflow: hidden;
   background-color: white;
@@ -92,6 +92,11 @@ const EditorButton = styled(ToggleButton)`
   display: ${props => props.codeEditorHidden ? 'none' : 'block'};
   bottom: 20px;
   right: ${props => props.right};
+`
+
+const ShareButton = styled(ToggleButton)`
+  right: ${props => props.right};
+  display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
 `
 
 const CreateAdapterButton = styled(ToggleButton)`
@@ -313,14 +318,6 @@ console.log("saved changes");
       {creatingAdapter ? (
         <>
           <CreateAdapterButton 
-            right='245px'
-            onClick={() => {
-              window.open("http://localhost:3000/upload.html?key=" + _adapterKey);
-            }}
-          >
-            Share
-          </CreateAdapterButton>
-          <CreateAdapterButton 
             right='155px'
             onClick={() => {
               chrome.runtime.sendMessage({ command: 'resetAdapter'})
@@ -346,10 +343,16 @@ console.log("saved changes");
           </CreateAdapterButton>
         </>
       ) : (
+        <>
+        <ShareButton hidden={hidden} codeEditorHidden={codeEditorHidden} right="190px"
+          onClick={() => {window.open("http://localhost:3000/upload.html?key=" + _adapterKey);
+        }}> Share
+        </ShareButton>
          <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
          codeEditorHidden={codeEditorHidden}>
           { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
         </ToggleButton>
+        </>
       )}
       <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
         <ControlBar>
