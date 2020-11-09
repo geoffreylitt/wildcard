@@ -1,6 +1,37 @@
 const localAdaptersKey = 'localStorageAdapter:adapters';
 let LOCAL_ADAPTERS;
 
+window.onload = function(e){
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const key = urlParams.get('key');
+
+  // don't do anything if key is not available
+  if (key == "")
+    return;
+  
+  // read adapter code from storage
+  chrome.storage.local.get(key, (results) => {
+    const code = results[key];
+
+    // populate fields
+    document.getElementById("code").textContent = code;
+
+    // get name and url from adapter code
+    
+    // const scraper = new Function(`return ${code}`)();
+    // document.getElementById("name").value = scraper.name;
+    // document.getElementById("url").value = scraper.contains;
+    
+    const json = JSON.parse(code);
+    document.getElementById("name").value = json.name;
+    document.getElementById("url").value = json.urls[0];
+
+    document.getElementById("upload").removeAttribute('disabled');
+  });
+
+}
+
 // listen for custom event to ensure adapter info has been parsed
 document.addEventListener('adapterReady', function (e) {
   const adapterName = document.getElementById("adapterName").textContent;
@@ -35,7 +66,7 @@ document.addEventListener('adapterReady', function (e) {
     if (Array.isArray(LOCAL_ADAPTERS) && LOCAL_ADAPTERS.indexOf(adapterName) === -1) {
       LOCAL_ADAPTERS.push(adapterName);
       chrome.storage.local.set({ [localAdaptersKey]: LOCAL_ADAPTERS }, function () {
-        const key = "localStorageAdapter:adapters:" + adapterName;
+        const key = `${localAdaptersKey}:${adapterName}`;
         chrome.storage.local.set({ [key]: adapterCode }, () => {
           // Update status to let user know adapter was installed.
           status.textContent = "Adapter installed.";
@@ -57,7 +88,7 @@ document.addEventListener('adapterReady', function (e) {
       LOCAL_ADAPTERS.splice(LOCAL_ADAPTERS.indexOf(adapterName), 1);
       chrome.storage.local.set({ [localAdaptersKey]: LOCAL_ADAPTERS });
 
-      const key = "localStorageAdapter:adapters:" + adapterName;
+      const key = `${localAdaptersKey}:${adapterName}`;
       chrome.storage.local.remove(key, () => {
         status.textContent = "Adapter removed.";
         // hide Uninstall button, show Install button

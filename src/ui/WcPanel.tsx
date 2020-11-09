@@ -313,6 +313,14 @@ console.log("saved changes");
       {creatingAdapter ? (
         <>
           <CreateAdapterButton 
+            right='245px'
+            onClick={() => {
+              window.open("http://localhost:3000/upload.html?key=" + _adapterKey);
+            }}
+          >
+            Share
+          </CreateAdapterButton>
+          <CreateAdapterButton 
             right='155px'
             onClick={() => {
               chrome.runtime.sendMessage({ command: 'resetAdapter'})
