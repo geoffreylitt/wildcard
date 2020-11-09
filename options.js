@@ -95,7 +95,7 @@
         });
     });
     saveAdapterButton.addEventListener('click', () => {
-        const adapterConfig = JSON.parse(editor.getValue().trim());
+        const adapterConfig = editor.getValue().trim();
         const action = adapterActionsSelect.value;
         const adapter = action === 'create' ? createAdaptersInput.value.trim() : adaptersSelect.value;
         if (adapter && adapterConfig) {
