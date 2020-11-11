@@ -8,7 +8,7 @@ export function extractNumber(input:any, defaultValue?:number, commaIsDecimalSep
     text = input
   }
   if (text) { result = text.match(/[^0-9]*([0-9\.\,]*).*/)[1] }
-  if (!commaIsDecimalSeparator) {
+  if (result && !commaIsDecimalSeparator) {
       // in the US and elsewhere, commas are thousands separator so they can be removed.
       // in other countries, the commas is the decimal separator.
       result = result.replace(/,/g, '')

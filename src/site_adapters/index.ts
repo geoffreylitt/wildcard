@@ -2,7 +2,8 @@
 
 import HNAdapter from './hackerNews'
 import FluxAdapter from './flux'
-import ExpediaAdapter from './expedia'
+// expedia adapter has a css issue with esbuild
+// import ExpediaAdapter from './expedia'
 import AirbnbAdapter from './airbnb'
 import AmazonAdapter from './amazon'
 import InstacartAdapter from './instacart'
@@ -17,7 +18,7 @@ import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 export const siteAdapters = [
   HNAdapter,
   FluxAdapter,
-  ExpediaAdapter,
+  // ExpediaAdapter,
   AirbnbAdapter,
   AmazonAdapter,
   InstacartAdapter,

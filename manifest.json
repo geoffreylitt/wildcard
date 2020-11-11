@@ -10,7 +10,8 @@
         ],
         "matches": [
           "<all_urls>"
-        ]
+        ],
+        "css" : ["dist/wildcard.css"]
       }
     ],
     "background": {"scripts": ["dist/wildcard-background.js", "src/wildcard-ajax.js"]},

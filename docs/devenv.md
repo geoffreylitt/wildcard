@@ -12,11 +12,10 @@ Clone the Github repo: `git clone git@github.com:geoffreylitt/wildcard.git`
 
 Install dependencies :
 
-* Install [rollup](https://rollupjs.org/guide/en/) and [yarn](https://classic.yarnpkg.com/en/docs/install/)
 * `yarn install` (or `npm install`)
-* `yarn global add concurrently docsify`
+* `yarn global add docsify`
 
-Build the project: `yarn run build`.  This will compile the Typescript project and create files in the `./dist` folder.
+Build the project: `yarn run dev`.  This will compile the Typescript project and create files in the `./dist` folder.
 
 Now, follow [the quick start instructions](quickstart.md) to install the built project directory in your browser.
 
