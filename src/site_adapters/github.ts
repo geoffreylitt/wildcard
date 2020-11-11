@@ -1,4 +1,4 @@
-'use strict';
+stat'use strict';
 import { urlMatches, extractNumber } from "../utils";
 import { createDomScrapingAdapter } from "./domScrapingBase"
 
@@ -6,7 +6,7 @@ const GithubAdapter = createDomScrapingAdapter({
   name: "Github",
   enabled: () => urlMatches(/github.com.*tab=repositories/),
   attributes: [
-    { name: "name"   , type: "text"},
+    { name: "name"   , type: "text"},git s
     { name: "stars"  , type: "numeric"},
     { name: "forks"  , type: "text"},
     { name: "updated", type: "text"},

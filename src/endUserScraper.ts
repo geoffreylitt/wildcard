@@ -16,22 +16,42 @@ const _eventMaps = {
     _mouseClickTargetNode: new Map(),
     _defaults: new Map()
 }
-const _mouseMoveColor = 'rgb(52, 152, 219)';
-const _mouseClickColor = 'rgb(46, 204, 113)';
+const _minColumns = 4;
+const _mouseMoveColor = 'rgb(127, 140, 141)';
+const _mouseClickRowColor = _mouseMoveColor;
+let _mouseClickColumColors = [];
 const _adaptersBaseKey = 'localStorageAdapter:adapters';
 let _adapterKey;
 let _rowElementSelector;
-let _targetNodesSelectors = [];
-const _defaultTutorialMessage = '1. Hover over a row of the dataset until all the relevant rows have a blue border and then alt + click any them to proceed to step 2';
+const _defaultTutorialMessage = '1. Hover over a row of the dataset until all the relevant rows have a border and then alt + click any them to proceed to step 2';
 const _tutorialHTML = `
-    <div id='wc-scraper-tutorial' style='z-index: 1000; width: 100vw; background-color: rgb(52, 152, 219); color: white; position: fixed; top: 0; left: 0; text-align: center;'>
-        <span id='message' style='padding: 2.5px; margin: 2.5px;'>
+    <div id='wc-scraper-tutorial' style='display: flex; flex-direction: column; justify-content: center; z-index: 1000; width: 100vw; background-color: ${_mouseMoveColor}; color: white; position: fixed; top: 0; left: 0; opacity: 0.9; font-size: 0.9em;'>
+        <div class='instructions' style='margin: 1px; text-align: center;'>
+            <span id='message' style='padding: 2.5px; margin: 2.5px;'>
             ${_defaultTutorialMessage}
-        </span>
+            </span>
+        </div>
+    </div>
+`;
+const _scraperControlsHTML = `
+    <div id='wc-scraper-tutorial-column-controls' style='margin: 1px; display: flex; justify-content: center;'>
+        <div style='padding: 1px; margin: 1px; border: 1px solid white; margin-right: 10px;'>
+            <button id='prevButton' style='margin: 1px;'> Prev Column</button>
+            <span id='columnNumber' style='margin: 1px;'>A</span>
+            <button id='nextButton' style='margin: 1px;'>Next Column</button>
+        </div>
+        <div style='padding: 1px; margin: 1px; border:1px solid white; margin-left: 10px;'>
+            <button id='startOverButton' style='margin: 1px;'> Start Over</button>
+            <button id='cancelButton' style='margin: 1px;'> Cancel</button>
+            <button id='saveButton' style='margin: 1px;'> Save</button>
+        </div>
     </div>
 `;
 
 let _tutorialElement;
+let _scraperControlsElement
+let _column = -1;
+const _columnMap = new Map<number, string[]>();
 
 function generateNodeSelector(node) {
     let selector = node.tagName.toLowerCase();
@@ -184,28 +204,42 @@ function generateTargetNodeSelectors(rowElementSelector, nodes) {
 }
 
 
-function generateScraper(targetSelectors, rowElementSelector) {
+function generateScraper(columnSelectors, rowElementSelector) {
     return {
         name: document.title,
         urls: [window.location.href],
         matches: [window.location.href],
-        attributes: createTableColumns(Math.max(targetSelectors.length, 4)),
+        attributes: createTableColumns(Math.max(columnSelectors.length, _minColumns)),
         scrapePage: `() => {
             const rowElements = document.querySelectorAll("${rowElementSelector}");
-            return Array.from(rowElements).map((element, index) => {
+            return Array.from(rowElements).map((element, rowIndex) => {
                 const dataValues = {};
-                ${JSON.stringify(targetSelectors)}.forEach((selector, index) => {
-                    const selected = element.querySelector(selector);
-                    dataValues[String.fromCharCode(97 + index).toUpperCase()] = selected ? selected.textContent.trim() : "";
-                });
+                const columnSelectors = ${JSON.stringify(columnSelectors)};
+                for (let columnIndex = 0; columnIndex < columnSelectors.length; columnIndex++) {
+                    const selectors = columnSelectors[columnIndex];
+                    for (let selectorIndex = 0; selectorIndex < selectors.length; selectorIndex++) {
+                        const selector = selectors[selectorIndex];
+                        const selected = element.querySelector(selector);
+                        if (selected && selected.textContent) {
+                            dataValues[String.fromCharCode(97 + columnIndex).toUpperCase()] = selected.textContent.trim();
+                            break;
+                        }
+                    }
+                }
                 return {
-                    id: String(index),
+                    id: String(rowIndex),
                     dataValues,
                     rowElements: [element]
                 }
             });
         }`
     };
+}
+
+function populateColumnColors() {
+    for (let i = 0; i < _minColumns; i++) {
+        _mouseClickColumColors.push(randomRGB());
+    }
 }
 
 function createTableColumns(n) {
@@ -219,7 +253,15 @@ function createTableColumns(n) {
     return columns;
 }
 
-function clickListener(event) {
+function createArrayVersionOfColumnMap() {
+    const result: Array<Array<string>> = [];
+    _columnMap.forEach((value) => {
+        result.push(value);
+    })
+    return result;
+}
+
+function scraperClickListener(event) {
     if (ignoreEvent(event)) {
         return;
     } else if (!event.altKey) {
@@ -237,32 +279,52 @@ function clickListener(event) {
         ){
             clearElementMap(_eventMaps._mouseClickTargetNode, true);
             const targetNodeSelector = generateTargetNodeSelectors(_rowElementSelector, [target]).shift();
-            const targetNodeSelectorIndex = _targetNodesSelectors.indexOf(targetNodeSelector);
+            if (!_columnMap.get(_column)) {
+                _columnMap.set(_column, []); 
+            }
+            const columnList = _columnMap.get(_column);
+            const targetNodeSelectorIndex = columnList.indexOf(targetNodeSelector);
             if (targetNodeSelectorIndex === -1) {
-                _targetNodesSelectors.push(targetNodeSelector);
+                columnList.push(targetNodeSelector);
             } else {
-                _targetNodesSelectors.splice(targetNodeSelectorIndex, 1);
+                columnList.splice(targetNodeSelectorIndex, 1);
+                if (columnList.length === 0) {
+                    _columnMap.delete(_column);
+                }
             }
             const styleProperty = 'backgroundColor';
-            const styleValue = _mouseClickColor;
-            const rowElements = getRowElements(_rowElementSelector);
-            Array.from(rowElements)
-            .forEach((rowElement) => {
-                _targetNodesSelectors
-                .map(selector => rowElement.querySelector(selector) as HTMLElement)
-                .filter(targetNode => targetNode)
-                .forEach(targetNode => {
-                    setStyleAndAddToMap({
-                        map: _eventMaps._mouseClickTargetNode,
-                        node: targetNode,
-                        styleProperty,
-                        styleValue
-                    });
-                });
-            });
-            const config = generateScraper(_targetNodesSelectors, _rowElementSelector);
+            if (!_mouseClickColumColors[_column]) {
+                _mouseClickColumColors.push(randomRGB())
+            }
+            const rows = getRowElements(_rowElementSelector);
+            const columns = createArrayVersionOfColumnMap();
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                for (let j = 0; j < columns.length; j++) {
+                    const selectors = columns[j];
+                    for (let k = 0; k < selectors.length; k++) {
+                        const selector = selectors[k]
+                        const element = row.querySelector(selector) as HTMLElement;
+                        if (element) {
+                            setStyleAndAddToMap({
+                                map: _eventMaps._mouseClickTargetNode,
+                                node: element,
+                                styleProperty,
+                                styleValue: _mouseClickColumColors[j]
+                            });
+                        }
+                    }
+                }
+            }
+            const config = generateScraper(columns, _rowElementSelector);
             _adapterKey = `${_adaptersBaseKey}:${config.name}`;
-            saveAdapter({ config });   
+            populateColumnColors();
+            saveAdapter( 
+                config, 
+                () => {
+                    run({ creatingAdapter: true })
+                }
+            );   
         }
     } else {
         clearElementMap(_eventMaps._mouseClickRowElement);
@@ -270,7 +332,7 @@ function clickListener(event) {
         if (rowElementData) {
             const { rowElementSelector } = rowElementData;
             const styleProperty = 'border';
-            const styleValue = `1px solid ${_mouseClickColor}`;
+            const styleValue = `1px solid ${_mouseClickRowColor}`;
             const rowElements = getRowElements(rowElementSelector);
             Array.from(rowElements)
             .forEach((rowElement) => {
@@ -284,13 +346,18 @@ function clickListener(event) {
             const config = generateScraper([], rowElementSelector);
             _adapterKey = `${_adaptersBaseKey}:${config.name}`;
             _rowElementSelector = rowElementSelector;
-            saveAdapter({ config });
-            updateTutorialMessage({ message: '2. Hover over the text fields in any of the rows. Alt + click on a field to add it to the table as a column, alt + click on it again to remove it.' })
+            saveAdapter(
+                config, 
+                () => {
+                    initScraperControls();
+                    run({ creatingAdapter: true });
+                }
+            );
         }
     }
 }
 
-function mouseMoveListener(event) {
+function scraperMouseMoveListener(event) {
     if (ignoreEvent(event)) {
         return;
     }
@@ -391,7 +458,12 @@ function clearElementMaps() {
     _eventMaps._defaults.clear();
 }
 
-function saveAdapter({ config }) {
+function randomRGB() {
+    const o = Math.round, r = Math.random, s = 255;
+    return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + r().toFixed(1) + ')';
+}
+
+function saveAdapter(config, callback) {
     const _config = JSON.stringify(config, null, 2);
     if (_adapterKey) {
         const adapterName = _adapterKey.split(':').pop();
@@ -407,19 +479,19 @@ function saveAdapter({ config }) {
                     [_adaptersBaseKey]: adapters,
                     [_adapterKey]: _config
                 }).then(() => {
-                    run({ creatingAdapter: true });
+                    callback();
                 })
             } else {
                 saveToChromeLocalStorage({ [_adapterKey]: _config })
                 .then(() => {
-                    run({ creatingAdapter: true });
+                    callback();
                 });
             }
         });
     }
 }
 
-function deleteAdapter({ creatingAdapter }) {
+function deleteAdapter(callback) {
     if (_adapterKey) {
         const adapterName = _adapterKey.split(':').pop();
         readFromChromeLocalStorage([_adaptersBaseKey])
@@ -432,9 +504,7 @@ function deleteAdapter({ creatingAdapter }) {
                 .then(() => {
                     removeFromChromeLocalStorage([_adapterKey, `query:${adapterName}`])
                     .then(() => {
-                        resetGlobals();
-                        clearElementMaps();
-                        run({ creatingAdapter });
+                        callback();
                     });
                 });
             }
@@ -442,21 +512,49 @@ function deleteAdapter({ creatingAdapter }) {
     }
 }
 
-function resetGlobals() {
+function resetScraperState() {
     _adapterKey = null;
-    _targetNodesSelectors = [];
     _rowElementSelector = null;
+    _column = -1;
+    _columnMap.clear();
+    clearElementMaps();
+    _mouseClickColumColors = [];
 }
 
-function resetTutorial() {
-    updateTutorialMessage({
-        message: _defaultTutorialMessage
-    });
+function initTutorial() {
+    _tutorialElement = htmlToElement(_tutorialHTML);
+    document.body.prepend(_tutorialElement);
 }
 
 function removeTutorial() {
     if (_tutorialElement) {
+        removeScraperControls();
         _tutorialElement.remove();
+        _tutorialElement = null;
+    }
+}
+
+function resetTutorial() {
+    removeTutorial();
+    initTutorial();  
+}
+
+function initScraperControls() {
+    updateTutorialMessage({ message: `
+        2. Alt + click on a field within the selected rows to add it to the current column
+        of the table and alt + click on it again to remove it.
+    `});
+    _scraperControlsElement = htmlToElement(_scraperControlsHTML);
+    _tutorialElement.append(_scraperControlsElement);
+    _column += 1;
+    addColumnControlListeners();
+}
+
+function removeScraperControls() {
+    if (_scraperControlsElement) {
+        removeScraperControlsListeners();
+        _scraperControlsElement.remove();
+        _scraperControlsElement = null;
     }
 }
 
@@ -466,27 +564,103 @@ function updateTutorialMessage({ message }) {
     }
 }
 
+function createColumnLabel(columnIndex) {
+    return String.fromCharCode(97 + columnIndex).toUpperCase()
+}
+
+function columnControlListener(event){
+    if (event.target.id === 'prevButton') {
+        const proposed = _column - 1;
+        if (_columnMap.has(proposed)) {
+            _column = proposed;
+            _scraperControlsElement.querySelector('#columnNumber').textContent = createColumnLabel(proposed);
+        } else {
+            alert(`You are trying to switch to an invalid column.`);
+        }
+    } else {
+        const proposed = _column + 1;
+        if (!_columnMap.get(_column) || (_columnMap.get(_column) && !_columnMap.get(_column).length)) {
+            alert(`Please select fields for column ${createColumnLabel(_column)} before moving to column ${createColumnLabel(proposed)}.`);
+            return;
+        }
+        if (!_columnMap.has(proposed)) {
+            _columnMap.set(proposed, []);
+        }
+        _column = proposed;
+        _scraperControlsElement.querySelector('#columnNumber').textContent = createColumnLabel(proposed);
+    }
+}
+
+function scraperControlsListener(event) {
+    switch (event.target.id) {
+        case 'startOverButton':
+            chrome.runtime.sendMessage({ command: 'resetAdapter'})
+            break;
+        case 'cancelButton':
+            chrome.runtime.sendMessage({ command: 'deleteAdapter'})
+            break;
+        case 'saveButton':
+            chrome.runtime.sendMessage({ command: 'saveAdapter'})
+            break;
+        default:
+            break;
+    }
+}
+
+function addColumnControlListeners() {
+    if (_scraperControlsElement) {
+        _scraperControlsElement.querySelector('#prevButton').addEventListener('click', columnControlListener);
+        _scraperControlsElement.querySelector('#nextButton').addEventListener('click', columnControlListener);
+        _scraperControlsElement.querySelector('#startOverButton').addEventListener('click', scraperControlsListener);
+        _scraperControlsElement.querySelector('#cancelButton').addEventListener('click', scraperControlsListener);
+        _scraperControlsElement.querySelector('#saveButton').addEventListener('click', scraperControlsListener);
+    }
+}
+
+function removeScraperControlsListeners() {
+    if (_scraperControlsElement) {
+        _scraperControlsElement.querySelector('#prevButton').removeEventListener('click', columnControlListener);
+        _scraperControlsElement.querySelector('#nextButton').removeEventListener('click', columnControlListener);
+        _scraperControlsElement.querySelector('#startOverButton').removeEventListener('click', scraperControlsListener);
+        _scraperControlsElement.querySelector('#cancelButton').removeEventListener('click', scraperControlsListener);
+        _scraperControlsElement.querySelector('#saveButton').removeEventListener('click', scraperControlsListener);
+    }
+}
+
+function addScrapingListeners() {
+    document.body.addEventListener('click', scraperClickListener, true);
+    document.body.addEventListener('mousemove', scraperMouseMoveListener, true);
+}
+
+function removeScrapingListeners() {
+    document.body.removeEventListener('click', scraperClickListener, true);
+    document.body.removeEventListener('mousemove', scraperMouseMoveListener, true);
+}
+
 export function startScrapingListener() {
-    document.body.addEventListener('click', clickListener, true);
-    document.body.addEventListener('mousemove', mouseMoveListener, true);
-    _tutorialElement = htmlToElement(_tutorialHTML);
-    document.body.prepend(_tutorialElement);
+    addScrapingListeners();
+    initTutorial();
 }
 
 export function stopScrapingListener({ save }) {
-    document.body.removeEventListener('click', clickListener, true);
-    document.body.removeEventListener('mousemove', mouseMoveListener, true);
-    removeTutorial();
+    removeScrapingListeners();
     if (!save) {
-        deleteAdapter({ creatingAdapter: false });
+        deleteAdapter(() => {
+            resetScraperState();
+            removeTutorial();
+            run({ creatingAdapter: false });
+        })
     } else {
-        resetGlobals();
-        clearElementMaps();
+        resetScraperState();
+        removeTutorial();
         run({ creatingAdapter: false });
     }
 }
 
 export function resetScrapingListener() {
-    resetTutorial();
-    deleteAdapter({ creatingAdapter: true });
+    deleteAdapter(() => {
+        resetScraperState();
+        resetTutorial();
+        run({ creatingAdapter: true });
+    });
 }
