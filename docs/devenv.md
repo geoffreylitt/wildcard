@@ -12,11 +12,10 @@ Clone the Github repo: `git clone git@github.com:geoffreylitt/wildcard.git`
 
 Install dependencies :
 
-* Install [rollup](https://rollupjs.org/guide/en/) and [yarn](https://classic.yarnpkg.com/en/docs/install/)
 * `yarn install` (or `npm install`)
-* `yarn global add concurrently docsify`
+* `yarn global add docsify`
 
-Build the project: `yarn run build`.  This will compile the Typescript project and create files in the `./dist` folder.
+Build the project: `yarn run dev`.  This will compile the Typescript project and create files in the `./dist` folder.
 
 Now, follow [the quick start instructions](quickstart.md) to install the built project directory in your browser.
 
@@ -31,9 +30,11 @@ When you want to make changes to the code, run: `yarn run dev`
 
 This starts a watcher that compiles the project when any files change, and auto-updates the Chrome extension (see below for autoreload setup steps).
 
-Compilation can take a few seconds. If a change isn't working, it might be that compilation didn't finish yet. (Improving compilation time is a todo)
-
 To test if you're able to make changes, try adding a `console.log` statement to a site adapter file like `src/site_adapters/airbnb.ts` and see if it works.
+
+In a separate terminal tab, run `yarn run tsc`. This will warn you when you have
+type errors. Type errors will not prevent you from building and running code,
+but you should try to eliminate type errors before you commit code.
 
 ### Extension auto-reloading
 

@@ -4,3 +4,4 @@ node_modules/*
 *.sublime-workspace
 .idea/
 dist/*
+yarn-error.log

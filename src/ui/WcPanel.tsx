@@ -1,15 +1,6 @@
 import React, { useRef, useState } from "react";
-import Handsontable from 'handsontable';
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
-
-import keyBy from 'lodash/keyBy'
-import includes from 'lodash/includes'
-
-import { connect } from 'react-redux'
-import * as WcActions from '../core/actions'
-import { bindActionCreators } from 'redux'
-import { createSelector } from 'reselect'
 
 import styled from 'styled-components'
 
