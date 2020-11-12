@@ -71,8 +71,7 @@ export interface ScrapedAjaxRow {
 // build a site adapter
 export interface ScrapingAdapterConfig {
   name:string;
-  matches?:string;
-  contains?:string;
+  matches?:string[];
   enabled():boolean;
   attributes:Array<Attribute>;
   scrapePage():Array<ScrapedRow>;
@@ -361,13 +360,16 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   }
 
   const enabled = () => {
-    const { matches, contains }  = config;
+    const { matches }  = config;
     if (matches) {
-      return urlMatches(new RegExp(matches));
-    } else if (contains) {
-      return urlContains(contains);
+      const enabled = matches.some(match => {
+        return urlContains(match)
+      });
+      return enabled;
+    } else if (config.enabled) {
+      return config.enabled();
     }
-    return config.enabled();
+    return false;
   }
 
   return {

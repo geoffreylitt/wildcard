@@ -315,43 +315,16 @@ console.log("saved changes");
 
   if (records && records.length > 0) {
     return <>
-      {creatingAdapter ? (
+      {!creatingAdapter && (
         <>
-          <CreateAdapterButton 
-            right='155px'
-            onClick={() => {
-              chrome.runtime.sendMessage({ command: 'resetAdapter'})
-            }}
-          >
-            Start Over
-          </CreateAdapterButton>
-          <CreateAdapterButton 
-            right='85px'
-            onClick={() => {
-              chrome.runtime.sendMessage({ command: 'deleteAdapter'})
-            }}
-          >
-            Cancel
-          </CreateAdapterButton>
-          <CreateAdapterButton 
-            right='25px'
-            onClick={() => {
-              chrome.runtime.sendMessage({ command: 'saveAdapter'})
-            }}
-          >
-            Save
-          </CreateAdapterButton>
-        </>
-      ) : (
-        <>
-        <ShareButton hidden={hidden} codeEditorHidden={codeEditorHidden} right="190px"
-          onClick={() => {window.open("http://localhost:3000/upload.html?key=" + _adapterKey);
-        }}> Share
-        </ShareButton>
-         <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
-         codeEditorHidden={codeEditorHidden}>
-          { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
-        </ToggleButton>
+          <ShareButton hidden={hidden} codeEditorHidden={codeEditorHidden} right="190px"
+            onClick={() => {window.open("http://localhost:3000/upload.html?key=" + _adapterKey);
+          }}> Share
+          </ShareButton>
+          <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
+          codeEditorHidden={codeEditorHidden}>
+            { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
+          </ToggleButton>
         </>
       )}
       <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
