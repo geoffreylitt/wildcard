@@ -68,7 +68,7 @@ const Panel = styled.div`
   height: ${props => props.hidden ? 0 : 280}px;
   width: ${props => props.codeEditorHidden ? 98 : 68.5}vw;
   z-index: 2200;
-  box-shadow: 0px -5px 10px 1px #f1a8a8;
+  box-shadow: 0px -5px 10px 1px rgba(170,170,170,0.5);
   border-top: solid thin #9d9d9d;
   overflow: hidden;
   background-color: white;
