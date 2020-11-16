@@ -313,11 +313,11 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   }
 
   const addAttribute = () => {
-    return Promise.reject("Can't add attributes to site adapter")
+    return Promise.reject("Attributes can only be added to user tables.")
   }
 
   const toggleVisibility = (colName) => {
-    return Promise.reject("Can't hide/show attributes in WildCard")
+    return Promise.reject("Visibility can only be toggled for user tables.")
   }
 
   // todo: support highlighting individual attributes

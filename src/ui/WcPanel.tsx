@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
+import "./overrides.css";
 
 import styled from 'styled-components'
 
@@ -98,8 +99,11 @@ const WcPanel = ({ records, attributes, query, actions }) => {
     contextMenu: {
       items: {
         "insert_user_attribute": {
-          name: 'Insert new column',
+          name: 'Insert new user column',
           callback: function(key, selection, clickEvent) {
+            // TODO: For now, new columns always get added to the user table.
+            // Eventually, do we want to allow adding to the main site table?
+            // Perhaps that'd be a way of extending scrapers using formulas...
             actions.addAttribute("user");
           }
         },
@@ -112,12 +116,18 @@ const WcPanel = ({ records, attributes, query, actions }) => {
         },
         "toggle_column_visibility":{
           name: 'Toggle visibility',
+          disabled: () => {
+            // only allow toggling visibility on user table
+            const colIndex = getHotInstance().getSelectedLast()[1]
+            const attribute = attributes[colIndex]
+
+            return attribute.tableId !== "user"
+          },
           callback: function(key, selection, clickEvent) {
-            var allCols = attributes.map(attr => attr.name);
-            var idx = selection[0].start.col;
+            const attribute = attributes[selection[0].start.col];
 
             // NOTE! idx assumes that id is hidden.
-            actions.toggleVisibility("user", allCols[idx]);
+            actions.toggleVisibility(attribute.tableId, attribute.name);
           }
         }
       }
