@@ -1,0 +1,6 @@
+/* In WcPanel.tsx, we set the z-index of our table to 2200 (to put it above original site content)
+   So, we also need to tell the context menu to be visible above the table.
+   We do this by overridding the default HoT CSS. */
+.htContextMenu:not(.htGhostTable) {
+  z-index: 2300;
+}
