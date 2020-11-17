@@ -7,7 +7,7 @@ window.onload = function(e){
   const key = urlParams.get('key');
 
   // don't do anything if key is not available
-  if (key == "")
+  if (key == null || key == "")
     return;
   
   // read adapter code from storage

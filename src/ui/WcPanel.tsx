@@ -78,7 +78,8 @@ const EditorButton = styled(ToggleButton)`
 `
 
 const ShareButton = styled(ToggleButton)`
-  right: ${props => props.right};
+  /* right: ${props => props.right}; */
+  right: calc(2vw + 165px);
   display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
 `
 
@@ -309,7 +310,7 @@ console.log("saved changes");
     return <>
       {!creatingAdapter && (
         <>
-          <ShareButton hidden={hidden} codeEditorHidden={codeEditorHidden} right="190px"
+          <ShareButton hidden={hidden} codeEditorHidden={codeEditorHidden}
             onClick={() => {window.open("http://localhost:3000/upload.html?key=" + _adapterKey);
           }}> Share
           </ShareButton>

@@ -107,7 +107,7 @@ export const userStore:TableAdapter = {
 export const adapterStore = {
   getLocalAdapters: async () => {
     const localAdaptersKey = 'localStorageAdapter:adapters';
-    const keysToEvaluate = ['scrapePage', 'onRowSelected', 'onRowUnSelected'];
+    const keysToEvaluate = ['scrapePage', 'onRowSelected', 'onRowUnselected'];
     const result = [];
     try {
       const localAdapters = (await readFromChromeLocalStorage([localAdaptersKey]) as Object)[localAdaptersKey] || [];
