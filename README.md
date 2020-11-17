@@ -22,3 +22,7 @@ If you want to install Wildcard today, there are two options:
 To use Wildcard with an existing library of supported websites, follow the [quick start instructions](https://geoffreylitt.github.io/wildcard/#/quickstart).
 
 If you want to add support for new websites by writing code for new "site adapters", follow the [dev env install instructions](https://geoffreylitt.github.io/wildcard/#/devenv) and then the [instructions for adding a site adapter](https://geoffreylitt.github.io/wildcard/#/add-scraper).
+
+## Contribute
+
+Follow the [dev env install instructions](https://geoffreylitt.github.io/wildcard/#/devenv).

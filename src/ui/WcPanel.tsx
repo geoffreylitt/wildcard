@@ -1,29 +1,12 @@
 import React, { useRef, useState } from "react";
-import Handsontable from 'handsontable';
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
-
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-typescript";
 import "ace-builds/src-noconflict/theme-monokai";
-
-import keyBy from 'lodash/keyBy'
-import includes from 'lodash/includes'
-
-import { connect } from 'react-redux'
-import * as WcActions from '../core/actions'
-import { bindActionCreators } from 'redux'
-import { createSelector } from 'reselect'
-
+import "./overrides.css";
 import styled from 'styled-components'
-
 import { Record, Attribute } from '../core/types'
-
-import { run } from '../wildcard';
-import {
-  readFromChromeLocalStorage,
-  saveToChromeLocalStorage
-} from '../utils'
 
 function formatRecordsForHot(records:Array<Record>) {
   return records.map(record => ({
@@ -138,8 +121,11 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     contextMenu: {
       items: {
         "insert_user_attribute": {
-          name: 'Insert new column',
+          name: 'Insert new user column',
           callback: function(key, selection, clickEvent) {
+            // TODO: For now, new columns always get added to the user table.
+            // Eventually, do we want to allow adding to the main site table?
+            // Perhaps that'd be a way of extending scrapers using formulas...
             actions.addAttribute("user");
           }
         },
@@ -152,12 +138,18 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
         },
         "toggle_column_visibility":{
           name: 'Toggle visibility',
+          disabled: () => {
+            // only allow toggling visibility on user table
+            const colIndex = getHotInstance().getSelectedLast()[1]
+            const attribute = attributes[colIndex]
+
+            return attribute.tableId !== "user"
+          },
           callback: function(key, selection, clickEvent) {
-            var allCols = attributes.map(attr => attr.name);
-            var idx = selection[0].start.col;
+            const attribute = attributes[selection[0].start.col];
 
             // NOTE! idx assumes that id is hidden.
-            actions.toggleVisibility("user", allCols[idx]);
+            actions.toggleVisibility(attribute.tableId, attribute.name);
           }
         }
       }

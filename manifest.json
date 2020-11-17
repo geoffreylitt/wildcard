@@ -19,7 +19,8 @@
         "matches": [
           "http://localhost:3000/adapter.html?aid=*",
           "http://localhost:3000/upload.html?key=*"
-        ]
+        ],
+        "css" : ["dist/wildcard.css"]
       }
     ],
     "background": {"scripts": ["dist/wildcard-background.js", "src/wildcard-ajax.js"]},
