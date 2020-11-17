@@ -1,4 +1,4 @@
-# Adding a site adatper
+# Adding a site adapter
 
 !> These are very preliminary docs. If you get stuck or run into questions/issues, file a Github issue on this repo or [reach out over email](mailto:glitt@mit.edu).
 
