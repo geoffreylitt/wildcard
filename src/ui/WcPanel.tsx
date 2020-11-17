@@ -8,6 +8,8 @@ import "./overrides.css";
 import styled from 'styled-components'
 import { Record, Attribute } from '../core/types'
 
+const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
+
 function formatRecordsForHot(records:Array<Record>) {
   return records.map(record => ({
     id: record.id,
@@ -311,7 +313,7 @@ console.log("saved changes");
       {!creatingAdapter && (
         <>
           <ShareButton hidden={hidden} codeEditorHidden={codeEditorHidden}
-            onClick={() => {window.open("http://localhost:3000/upload.html?key=" + _adapterKey);
+            onClick={() => {window.open(marketplaceUrl + "/upload.html?key=" + _adapterKey);
           }}> Share
           </ShareButton>
           <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}

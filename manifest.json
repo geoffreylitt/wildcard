@@ -18,8 +18,8 @@
           "dist/marketplace.js"
         ],
         "matches": [
-          "http://localhost:3000/adapter.html?aid=*",
-          "http://localhost:3000/upload.html?key=*"
+          "https://wildcard-marketplace.herokuapp.com/adapter.html?aid=*",
+          "https://wildcard-marketplace.herokuapp.com/upload.html?key=*"
         ]
       }
     ],
