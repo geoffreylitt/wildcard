@@ -34,6 +34,16 @@ watch.watchTree('./src', (curr, prev) => {
     },
     sourcemap: true
   })
+ 
+  require('esbuild').buildSync({
+    entryPoints: ['./src/marketplace.js'],
+    outfile: './dist/marketplace.js',
+    bundle: true,
+    define: {
+      "process.env.NODE_ENV": '"production"'
+    },
+    sourcemap: true
+  })
 
   console.log(`${new Date().toISOString()}: wrote new bundled output to ./dist`)
 
