@@ -3,7 +3,7 @@ declare const browser;
 
 import { TableAdapter, Record, Attribute, TableCallback, RecordEdit } from './core/types'
 import { createDomScrapingAdapter } from './site_adapters/domScrapingBase';
-import { readFromChromeLocalStorage } from './utils'
+import { readFromChromeLocalStorage, compileJavascript } from './utils'
 
 let table = {
   tableId: "user",
@@ -107,7 +107,7 @@ export const userStore:TableAdapter = {
 export const adapterStore = {
   getLocalAdapters: async () => {
     const localAdaptersKey = 'localStorageAdapter:adapters';
-    const keysToEvaluate = ['scrapePage', 'onRowSelected', 'onRowUnselected'];
+    const keysToEvaluate = ['scrapePage', 'onRowSelected', 'onRowUnselected', 'addScrapeTriggers'];
     const result = [];
     try {
       const localAdapters = (await readFromChromeLocalStorage([localAdaptersKey]) as Object)[localAdaptersKey] || [];
@@ -121,7 +121,7 @@ export const adapterStore = {
         Object.keys(adapterConfig)
           .filter(key => keysToEvaluate.includes(key))
           .forEach(key => {
-            adapterConfig[key] = new Function(`return ${adapterConfig[key]}`)();
+            adapterConfig[key] = compileJavascript(adapterConfig[key]);
           });
         const localAdapter = createDomScrapingAdapter(adapterConfig);
         result.push(localAdapter);

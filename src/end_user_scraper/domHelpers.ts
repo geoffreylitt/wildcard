@@ -69,7 +69,7 @@ export function generateNodeSelectorFrom(node, from) {
     while (!_node.isSameNode(from)) {
         selectors.unshift(generateNodeSelector(_node));
         if (areAllSiblings(_node,  selectors.join('>'))) {
-            return selectors.join('>')
+            return selectors.join('>');
         }
         _node = _node.parentNode;
     }

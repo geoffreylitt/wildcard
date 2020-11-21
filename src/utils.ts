@@ -71,3 +71,7 @@ export function removeFromChromeLocalStorage(keys) {
     resolve();
   });
 }
+
+export function compileJavascript(code) {
+  return eval(code);
+}

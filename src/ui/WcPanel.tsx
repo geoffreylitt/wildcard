@@ -84,11 +84,6 @@ const ShareButton = styled(ToggleButton)`
   right: calc(2vw + 165px);
   display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
 `
-
-const CreateAdapterButton = styled(ToggleButton)`
-  right: ${props => props.right};
-`
-
 // Declare our functional React component
 
 const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter }) => {
@@ -154,27 +149,24 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
             // NOTE! idx assumes that id is hidden.
             actions.toggleVisibility(attribute.tableId, attribute.name);
           }
-        }
-      }
-    },
-    dropdownMenu: {
-      items: {
-        type: {
+        },
+        "column_type": {
           name: "Column Type",
           submenu: {
             items: [
               {
-                key: "type:text",
+                key: "column_type:text",
                 name: "Text",
                 callback: (key, selection, clickEvent) => {
-                  alert(`You set the column type to ${key.split(":").pop()}`)
+                  console.log(selection);
+                  alert(`Not implemented: you set column type to ${key.split(":").pop()}`)
                 },
               },
               {
-                key: "type:numeric",
+                key: "column_type:numeric",
                 name: "Number",
                 callback: (key, selection, clickEvent) => {
-                  alert(`You set the column type to ${key.split(":").pop()}`)
+                  alert(`Not implemented: you set the column type to ${key.split(":").pop()}`)
                 }
               }
             ]

@@ -1,0 +1,39 @@
+{
+  "name": "MIT EECS Course Catalog",
+  "urls": [
+    "http://eecs.scripts.mit.edu/eduportal/who_is_teaching_what/F/2020"
+  ],
+  "matches": [
+      "http://eecs.scripts.mit.edu/eduportal/who_is_teaching_what/F/2020"
+  ],
+  "attributes": [
+    {
+      "name": "id",
+      "type": "text",
+      "hidden": true
+    },
+    {
+      "name": "number",
+      "type": "text"
+    },
+    {
+      "name": "title",
+      "type": "text"
+    },
+    {
+      "name": "mode",
+      "type": "text"
+    },
+    {
+      "name": "lecturers",
+      "type": "text"
+    },
+    {
+      "name": "recitation instructors",
+      "type": "text"
+    }
+  ],
+  "scrapePage": "() => {\n    return Array.from(document.querySelectorAll('tr[id]')).map(el => {\n      let courseData = el.getElementsByTagName('td')\n      let courseNumber = el.id\n      let courseName = courseData[0].innerText\n\n      return {\n        id: courseNumber,\n        rowElements: [el],\n        dataValues: {\n          number: courseNumber,\n          title: courseName.substring(courseNumber.length + 1),\n          mode: courseData[1].innerText,\n          lecturers: courseData[2].innerText,\n          'recitation instructors': courseData[3].innerText\n        }\n      }\n    })\n  }",
+  "onRowSelected": "(row) => {\n    row.rowElements.forEach(el => {\n      if (el.style) {\n        el.style['background-color'] = '#c9ebff';\n      }\n    });\n    row.rowElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' });\n  }",
+  "onRowUnselected": "(row) => {\n    row.rowElements.forEach(el => {\n      if (el.style) {\n        el.style['background-color'] = '';\n      }\n    })\n  }"
+}

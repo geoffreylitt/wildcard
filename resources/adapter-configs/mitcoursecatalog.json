@@ -1,0 +1,31 @@
+{
+  "name": "MIT Course Catalog",
+  "urls": [
+    "http://student.mit.edu/catalog/m6c.html"
+  ],
+  "matches": [
+    "http://student.mit.edu/catalog"
+  ],
+  "attributes": [
+    {
+      "name": "id",
+      "type": "text",
+      "hidden": true
+    },
+    {
+      "name": "code",
+      "type": "text"
+    },
+    {
+      "name": "name",
+      "type": "text"
+    },
+    {
+      "name": "level",
+      "type": "text"
+    }
+  ],
+  "scrapePage": "() => {\n        return Array.from(document.querySelectorAll('h3'))\n            .slice(1)\n            .filter((element) => {\n                const regEx = new RegExp('[A-Z0-9]+\\\\.[0-9]+(\\\\[[A-Z]\\])?\\\\s.+');\n                const matches = regEx.test(element.textContent);\n                               return matches;\n            })\n            .map((element) => {\n                const regEx = new RegExp('([A-Z0-9]+\\\\.[0-9]+(\\\\[[A-Z]\\\\])?)\\\\s(.+)');\n                const matches = regEx.exec(element.textContent.trim());\n                const match = matches[0];\n                const id = matches[1];\n                const symbol = matches[2]; \n                const name = matches[3];\n                const rowElements = [element];\n                let currentElement = element.nextSibling;\n                while (currentElement && currentElement.tagName !== \"H3\") {\n                    rowElements.push(currentElement);\n                    currentElement = currentElement.nextSibling;\n                }\n                let level;\n                for (var i = 1; i < rowElements.length; i++) {\n                    var rowElement = rowElements[i];\n                    if (rowElement.tagName === 'IMG') {\n                        if (rowElement.title === 'Undergrad') {\n                            level = 'U';\n                            break;\n                        }\n                        else if (rowElement.title === 'Graduate') {\n                            level = 'G';\n                            break;\n                        }\n                    }\n                }\n                const row = {\n                    id: id,\n                    rowElements: rowElements,\n                    dataValues: {\n                        code: id,\n                        name: name,\n                        level: level\n                    },\n                    annotationContainer: rowElements[rowElements.length - 1],\n                    annotationTemplate: '<span style=\"color: #b12b28;\">$annotation</span>'\n                };\n  return row;\n            });\n        }\n    ",
+  "onRowSelected": "(row) => {\n        const rowElement = row.rowElements[0];\n        rowElement.style.border = \"solid 2px #b12b28\";\n        rowElement.scrollIntoView({ behavior: \"smooth\", block: \"center\" });\n    }",
+  "onRowUnselected": "(row) => {\n        const rowElement = row.rowElements[0];\n        rowElement.style.border = '';\n    }"
+}

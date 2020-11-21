@@ -363,7 +363,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     const { matches }  = config;
     if (matches) {
       const enabled = matches.some(match => {
-        return urlContains(match)
+        return urlContains(match) || urlMatches(new RegExp(match))
       });
       return enabled;
     } else if (config.enabled) {
