@@ -29,8 +29,10 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
         const finalRecords:Record[] = getFinalRecords(state)
         const finalAttributes:Attribute[] = getFinalAttributes(state)
 
-        evalFormulas(finalRecords, finalAttributes, (recordId, values) => {
-          dispatch({ type: "FORMULAS_EVALUATED_FOR_RECORD", recordId, values })
+        console.log({finalAttributes})
+
+        evalFormulas(finalRecords, finalAttributes).then(values => {
+          dispatch({ type: "FORMULAS_EVALUATED", values })
         })
       }
     },

@@ -256,22 +256,25 @@ export function formulaParse(s) {
   }
 }
 
-export async function evalFormulas(records: Record[], attributes: Attribute[], onEval) {
+export async function evalFormulas(records: Record[], attributes: Attribute[]): Promise<any> {
   // todo: actually correctly evaluate in topo sort order here. 
   // as-is, this will break if deps aren't properly ordered.
   const sortedFormulaAttributes = attributes.filter(attr => attr.formula)
   console.log({sortedFormulaAttributes})
   
-  records.forEach(async record => {
-    const evalResults = await Promise.all(
-      sortedFormulaAttributes.map(attr =>
-         formulaParse(attr.formula).eval(record.values)))
-    
-    const values = {}
-    evalResults.forEach((value, index) => {
-      values[sortedFormulaAttributes[index].name] = value
+  const evalResults = await Promise.all(records.map(async record => await Promise.all(
+    sortedFormulaAttributes.map(attr =>
+       formulaParse(attr.formula).eval(record.values)))))
+  
+  console.log({evalResults})
+  const values = {};
+  evalResults.forEach((record, i) => {
+    values[records[i].id] = {}
+    record.forEach((value, j) => {
+      console.log({record, value, i, j})
+      values[records[i].id][sortedFormulaAttributes[j].name] = value
     })
-
-    onEval(record.id, values)
   })
+
+  return values
 }
