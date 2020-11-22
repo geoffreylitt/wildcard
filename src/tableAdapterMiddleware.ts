@@ -7,6 +7,7 @@
 
 import { getFinalRecords } from './core/getFinalTable'
 import { TableAdapter } from './core/types'
+import pick from 'lodash/pick'
 
 export const TableAdapterMiddleware = (tableAdapter: TableAdapter) =>
   ({ getState }) => next => action => {
@@ -38,6 +39,24 @@ export const TableAdapterMiddleware = (tableAdapter: TableAdapter) =>
       if (action.table.tableId !== tableAdapter.tableId) {
         tableAdapter.handleOtherTableUpdated(action.table)
       }
+      break;
+
+    // update the website with annotations from formula results.
+    // todo: we're baking in some notions of formulas being only in the user table here...
+    // should rethink a design where formulas can occur anywhere?
+    case "FORMULAS_EVALUATED":
+      console.log("we in here")
+      const finalRecords = getFinalRecords(newState)
+      const userAttributeNames = newState.userTable.attributes.map(a => a.name)
+      const userRecordsWithFormulaResults =
+        finalRecords.map(record => ({...record, values: pick(record.values, userAttributeNames)}))
+
+      console.log({finalRecords, userAttributeNames, userRecordsWithFormulaResults})
+      tableAdapter.handleOtherTableUpdated(
+        {...newState.userTable,
+          records: userRecordsWithFormulaResults})
+      break;
+
 
     case "RECORD_SELECTED":
       if (action.recordId) {
