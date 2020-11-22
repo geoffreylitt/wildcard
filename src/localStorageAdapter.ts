@@ -3,11 +3,13 @@ declare const browser;
 
 import { TableAdapter, Record, Attribute, TableCallback, RecordEdit } from './core/types'
 
-let table = {
+const emptyTable = {
   tableId: "user",
   attributes: [],
   records: []
 }
+
+let table = emptyTable
 
 // todo: could we use tableId instead of a separate "namespace" here?
 // especially because we might not always want to launch the same user table
@@ -65,6 +67,10 @@ const userStore:TableAdapter = {
      })
    },
    enabled: () => true , // user store is always enabled
+   clear: () => {
+     table = emptyTable
+     loadTable()
+   },
    loadTable: loadTable,
    subscribe(callback:TableCallback) {
      subscribers = [...subscribers, callback];
@@ -72,11 +78,10 @@ const userStore:TableAdapter = {
    editRecords: editRecords,
    addAttribute() {
      const newAttribute : Attribute = {
-       name: "formula" + (table.attributes.length + 1),
+       name: "user" + (table.attributes.length + 1),
        type: "text",
        editable: true,
-       hideInPage: false,
-       formula: "=1+1"
+       hideInPage: false
      }
 
      table = { ...table, attributes: [...table.attributes, newAttribute] }
@@ -93,6 +98,12 @@ const userStore:TableAdapter = {
     loadTable();
 
     return;
+  },
+  setFormula(attrName, formula) {
+    table = { ...table,
+      attributes: table.attributes.map(attr => attr.name === attrName ? { ...attr, formula } : attr )}
+
+    loadTable(); 
   },
 
    // These changes to the table are no-ops

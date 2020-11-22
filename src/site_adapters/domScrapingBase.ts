@@ -377,7 +377,9 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     handleOtherTableUpdated,
     handleRecordSelected,
     addAttribute,
-    toggleVisibility
+    toggleVisibility,
+    clear: () => {},
+    setFormula: (attrName, formula) => {}
   }
 }
 

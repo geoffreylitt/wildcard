@@ -111,6 +111,16 @@ export interface TableAdapter {
 
   handleRecordSelected(recordId: recordId, attribute: string);
 
+  /** clear the contents of the table */
+  clear():void
+
+  addAttribute():Promise<Table>;
+
+  toggleVisibility(colName: string):void;
+  
+  setFormula(attrName: string, formula: string);
+
+
   /** Update the UI to match arbitrary table state
    *  (To implement performantly, probably do a diff inside the adapter
    *  and only update the UI where necessary) */
@@ -122,7 +132,4 @@ export interface TableAdapter {
 
   handleOtherTableUpdated(table:Table):void;
 
-  addAttribute():Promise<Table>;
-
-  toggleVisibility(colName: string):void;
 }

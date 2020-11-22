@@ -114,6 +114,15 @@ const WcPanel = ({ records, attributes, query, actions }) => {
             alert('not implemented yet');
           }
         },
+        "clear_user_table": {
+          name: 'Clear user table',
+          callback: function(key, selection, clickEvent) {
+            // TODO: For now, new columns always get added to the user table.
+            // Eventually, do we want to allow adding to the main site table?
+            // Perhaps that'd be a way of extending scrapers using formulas...
+            actions.clear("user");
+          }
+        },
         "toggle_column_visibility":{
           name: 'Toggle visibility',
           disabled: () => {
@@ -128,6 +137,23 @@ const WcPanel = ({ records, attributes, query, actions }) => {
 
             // NOTE! idx assumes that id is hidden.
             actions.toggleVisibility(attribute.tableId, attribute.name);
+          }
+        },
+        "set_column_formula":{
+          name: 'Edit formula',
+          disabled: () => {
+            // only allow editing formulas on user table
+            const colIndex = getHotInstance().getSelectedLast()[1]
+            const attribute = attributes[colIndex]
+
+            return attribute.tableId !== "user"
+          },
+          callback: function(key, selection, clickEvent) {
+            const attribute = attributes[selection[0].start.col];
+
+            // NOTE! idx assumes that id is hidden.
+            const formula = prompt("Edit formula:")
+            actions.setFormula(attribute.tableId, attribute.name, formula);
           }
         }
       }

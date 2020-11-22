@@ -52,6 +52,13 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
       }
     },
 
+    clear (tableId:tableId) {
+      return (dispatch) => {
+        const TableAdapter = TableAdapters[tableId];
+        TableAdapter.clear()
+      }
+    },
+
     toggleVisibility (tableId:tableId, colName:string) {
       return (dispatch) => {
         dispatch({
@@ -59,6 +66,16 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
         })
         const TableAdapter = TableAdapters[tableId];
         TableAdapter.toggleVisibility(colName);
+      }
+    },
+
+    setFormula (tableId:tableId, attrName:string, formula) {
+      return (dispatch) => {
+        dispatch({
+          type: "HIDE_COL_REQUESTED"
+        })
+        const TableAdapter = TableAdapters[tableId];
+        TableAdapter.setFormula(attrName, formula);
       }
     },
 
