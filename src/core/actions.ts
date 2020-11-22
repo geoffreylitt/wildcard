@@ -20,7 +20,6 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
   return {
     tableReloaded (table:Table) {
       return (dispatch, getState) => {
-        console.log("running tableReloaded")
         // load the new data into the UI immediately
         dispatch({ type: "TABLE_RELOADED", table })
 
@@ -28,8 +27,6 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
         const state = getState()
         const finalRecords:Record[] = getFinalRecords(state)
         const finalAttributes:Attribute[] = getFinalAttributes(state)
-
-        console.log({finalAttributes})
 
         evalFormulas(finalRecords, finalAttributes).then(values => {
           dispatch({ type: "FORMULAS_EVALUATED", values })
