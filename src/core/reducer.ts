@@ -45,10 +45,10 @@ const query = (state = { sortConfig: null }, action):QueryState => {
 
 const formulaResults = (state = { "25177045": {formula4: 123} }, action) => {
   switch(action.type) {
-    case "FORMULAS_EVALUATED_FOR_RECORD":
+    case "FORMULAS_EVALUATED":
       return {
         ...state,
-        [action.recordId]: action.values
+        ...action.values
       }
     
     default:
