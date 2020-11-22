@@ -255,7 +255,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
         newTable.attributes
           .filter(attr => !attr.hideInPage) // hide columns hidden in page
           .map(attr => record.values[attr.name])
-          .filter(value => value)
+          .filter(value => value !== undefined)
           .map(value => scrapedRow.annotationTemplate.replace("$annotation", value));
       annotationTarget.innerHTML = annotationsHTML.join(" ")
     }
