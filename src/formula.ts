@@ -254,4 +254,3 @@ export function formulaParse(s) {
     return new Formula(s, formulaGrammar.match(s));
   }
 }
-

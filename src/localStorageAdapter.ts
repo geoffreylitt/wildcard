@@ -72,10 +72,11 @@ const userStore:TableAdapter = {
    editRecords: editRecords,
    addAttribute() {
      const newAttribute : Attribute = {
-       name: "user" + (table.attributes.length + 1),
+       name: "formula" + (table.attributes.length + 1),
        type: "text",
        editable: true,
-       hideInPage: false
+       hideInPage: false,
+       formula: "=1+1"
      }
 
      table = { ...table, attributes: [...table.attributes, newAttribute] }

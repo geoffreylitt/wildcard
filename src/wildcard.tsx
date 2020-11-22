@@ -43,6 +43,8 @@ const connectRedux = (component, actions) => {
 }
 
 const run = function () {
+  console.log(`Build ID: ${process.env.__BUILD_ID__}`)
+
   const activeSiteAdapter = getActiveAdapter();
   if (!activeSiteAdapter) { return; }
 
@@ -83,7 +85,6 @@ const run = function () {
   chrome.storage.local.get(`query:${activeSiteAdapter.name}`, (result) => {
     const query = result[`query:${activeSiteAdapter.name}`]
     if (query) {
-      console.log("found query", query)
       store.dispatch(actions.sortRecords(query.sortConfig))
     } else {
       console.log("no query")

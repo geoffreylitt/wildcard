@@ -34,6 +34,9 @@ export interface Attribute {
   *  Making a column editable requires extracting [[PageValue]]s as Elements.*/
   editable?: boolean;
 
+  /** The formula for computing this cell. (If missing, cell is considered manual data) */
+  formula?: string;
+
   /** Specify a custom [Handsontable editor](https://handsontable.com/docs/7.3.0/tutorial-cell-editor.html)
   * as a class (see Expedia adapter for an example) */
   editor?: string;
