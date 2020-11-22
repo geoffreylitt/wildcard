@@ -45,13 +45,11 @@ export const TableAdapterMiddleware = (tableAdapter: TableAdapter) =>
     // todo: we're baking in some notions of formulas being only in the user table here...
     // should rethink a design where formulas can occur anywhere?
     case "FORMULAS_EVALUATED":
-      console.log("we in here")
       const finalRecords = getFinalRecords(newState)
       const userAttributeNames = newState.userTable.attributes.map(a => a.name)
       const userRecordsWithFormulaResults =
         finalRecords.map(record => ({...record, values: pick(record.values, userAttributeNames)}))
 
-      console.log({finalRecords, userAttributeNames, userRecordsWithFormulaResults})
       tableAdapter.handleOtherTableUpdated(
         {...newState.userTable,
           records: userRecordsWithFormulaResults})
