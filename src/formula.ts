@@ -2,6 +2,7 @@
 
 import ohm from 'ohm-js/dist/ohm';
 import _ from "lodash";
+import { Attribute, Record } from './core/types';
 
 const GRAMMAR_SRC = `
 Formula {
@@ -253,4 +254,21 @@ export function formulaParse(s) {
   } else {
     return new Formula(s, formulaGrammar.match(s));
   }
+}
+
+export async function evalFormulas(record: Record, attributes: Attribute[]): Promise<any> {
+  // todo: actually correctly evaluate in topo sort order here. 
+  // as-is, this will break if deps aren't properly ordered.
+  const sortedFormulaAttributes = attributes.filter(attr => attr.formula)
+  
+  const evalResults = await Promise.all(
+    sortedFormulaAttributes.map(attr =>
+       formulaParse(attr.formula).eval(record.values)))
+  
+  const values = {}
+  evalResults.forEach((value, index) => {
+    values[sortedFormulaAttributes[index].name] = value
+  })
+
+  return values
 }

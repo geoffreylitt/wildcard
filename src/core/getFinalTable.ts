@@ -27,10 +27,6 @@ const getUserAttributes = (state:RootState):Attribute[] => state.userTable.attri
 const getSortConfig = (state:RootState):SortConfig => state.query.sortConfig
 const getFormulaResults = (state:RootState):any => state.formulaResults
 
-const formulaResultsLookupKey = (record: Record, attribute: Attribute):string => {
-  return `${record.id}:${attribute.name}`
-}
-
 // todo: this selector is just cached on the whole state --
 // probably pointless to use this selector concept here?
 export const getFinalRecords = createSelector(
@@ -53,8 +49,7 @@ export const getFinalRecords = createSelector(
       // (any missing results are still in process of being computed,
       // and we'll re-run the reducer once they are available)
       userAttributes.filter(attr => attr.formula).forEach(attr => {
-        const lookupKey = formulaResultsLookupKey(finalRecord, attr)
-        const result = formulaResults[lookupKey]
+        const result = formulaResults?.[finalRecord.id]?.[attr.name]
         if(result !== undefined) {
           finalRecord.values[attr.name] = result
         }
