@@ -65,15 +65,63 @@ const Panel = styled.div`
 `
 
 const ControlBar = styled.div`
-  height: 20px;
+  height: 18px;
   padding: 5px 10px;
+`
+
+const CellEditorBox = styled.input`
+  display: inline-block;
+  margin-left: 10px;
+  padding: 3px 10px;
+  border: none;
+  min-width: 600px;
+  height: 100%;
+
+  &:focus {
+    border: none;
+  }
 `
 
 // Declare our functional React component
 
 const WcPanel = ({ records, attributes, query, actions }) => {
   const hotRef = useRef(null);
+  const cellEditorRef = useRef(null);
   const [hidden, setHidden] = useState(false);
+
+  // Keep track of the currently selected cell
+  const [activeCell, setActiveCell] = useState(null)  
+
+  // The value of the selected cell.
+  // (Including in-progress updates that we are making in the UI)
+  const [activeCellValue, setActiveCellValue] = useState(null)
+
+  const onCellEditorKeyPress = (e) => {
+    const key = e.key
+    if (key === 'Enter') {
+      console.log("enter!")
+      cellEditorRef.current.blur()
+    }
+  }
+
+  const commitActiveCellValue = () => {
+    if(activeCellValue[0] === "=") {
+      actions.setFormula(
+        activeCell.attribute.tableId,
+        activeCell.attribute.name,
+        activeCellValue
+      )
+    } else {
+      actions.editRecords([
+        {
+          tableId: activeCell.attribute.tableId,
+          recordId: activeCell.record.id,
+          attribute: activeCell.attribute.name,
+          value: activeCellValue
+        }
+      ])
+    }
+  }
 
   const hotSettings = {
     data: formatRecordsForHot(records),
@@ -255,10 +303,14 @@ const WcPanel = ({ records, attributes, query, actions }) => {
   }
 
   const onAfterSelection = (rowIndex, prop) => {
-    const recordId = records[rowIndex].id;
-    const attribute = prop;
+    const record = records[rowIndex]
+    const attribute = attributes.find(attr => attr.name === prop)
 
-    actions.selectRecord(recordId, attribute)
+    actions.selectRecord(record.id, prop)
+
+    setActiveCell({ record, attribute })
+    const activeCellValue = (attribute.formula || record.values[attribute.name] || "")
+    setActiveCellValue(activeCellValue)
   }
 
   if (records && records.length > 0) {
@@ -269,6 +321,12 @@ const WcPanel = ({ records, attributes, query, actions }) => {
       <Panel hidden={hidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
+          <CellEditorBox
+            ref={cellEditorRef}
+            value={activeCellValue}
+            onChange={(e) => setActiveCellValue(e.target.value)}
+            onKeyPress={onCellEditorKeyPress}
+            onBlur={commitActiveCellValue} />
         </ControlBar>
         <HotTable
           licenseKey='non-commercial-and-evaluation'
