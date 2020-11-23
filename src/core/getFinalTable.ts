@@ -72,11 +72,26 @@ export const getFinalRecords = createSelector(
 )
 
 export const getFinalAttributes = createSelector(
-  [getAppAttributes, getUserAttributes],
-  (appAttributes, userAttributes) => {
+  [getAppAttributes, getUserAttributes, getFormulaResults],
+  (appAttributes, userAttributes, formulaResults) => {
     // annotate attrs with a table id
     appAttributes = (appAttributes || []).map( a => ({ ...a, tableId: "app" }))
     userAttributes = (userAttributes || []).map(a => ({ ...a, tableId: "user" }))
+
+    // set column type for formulas based on first row
+    userAttributes.forEach(attr => {
+      if(attr.formula) {
+        const sampleValue = formulaResults[Object.keys(formulaResults)[0]][attr.name]
+        if(typeof sampleValue === 'number') {
+          attr.type = "numeric"
+        } else if (typeof sampleValue === 'boolean') {
+          attr.type = "checkbox"
+        } else {
+          attr.type = "text"
+        }
+      }
+    })
+
     return appAttributes.concat(userAttributes)
   }
 )

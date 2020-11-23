@@ -79,7 +79,13 @@ const WcPanel = ({ records, attributes, query, actions }) => {
     data: formatRecordsForHot(records),
     rowHeaders: true,
     columns: formatAttributesForHot(attributes),
-    colHeaders: attributes.map(attr => attr.name),
+    colHeaders: attributes.map(attr => {
+      if(attr.formula) {
+        return `<span class="formula-header">${attr.name}</span>`
+      } else {
+        return `<span class="data-header">${attr.name}</span>`
+      }
+    }),
     columnSorting: true,
 
     // Set a low column width,
@@ -98,7 +104,6 @@ const WcPanel = ({ records, attributes, query, actions }) => {
       const attr = attributes.find(a => a.name === prop)
       if (attr.formula) {
         cellProperties.placeholder = "loading..."
-        cellProperties.className = "formula-cell"
       }
       return cellProperties
     },
