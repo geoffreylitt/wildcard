@@ -6,6 +6,7 @@ import "./overrides.css";
 import styled from 'styled-components'
 
 import { Record, Attribute } from '../core/types'
+import Handsontable from "handsontable";
 
 function formatRecordsForHot(records:Array<Record>) {
   return records.map(record => ({
@@ -22,7 +23,6 @@ function formatAttributesForHot(attributes:Array<Attribute>) {
     editor: attribute.editor
   }))
 }
-
 
 const ToggleButton = styled.div`
   display: block;
@@ -92,6 +92,16 @@ const WcPanel = ({ records, attributes, query, actions }) => {
 
     // todo: parameterize height, make whole panel stretchable
     height: 250,
+
+    cells: (row, col, prop) => {
+      const cellProperties:any = {}
+      const attr = attributes.find(a => a.name === prop)
+      if (attr.formula) {
+        cellProperties.placeholder = "loading..."
+        cellProperties.className = "formula-cell"
+      }
+      return cellProperties
+    },
 
     hiddenColumns: {
       columns: attributes.map((attr, idx) => attr.hidden ? idx : null).filter(e => Number.isInteger(e))

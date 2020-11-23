@@ -55,7 +55,6 @@ export const TableAdapterMiddleware = (tableAdapter: TableAdapter) =>
           records: userRecordsWithFormulaResults})
       break;
 
-
     case "RECORD_SELECTED":
       if (action.recordId) {
         tableAdapter.handleRecordSelected(action.recordId, action.attribute);
