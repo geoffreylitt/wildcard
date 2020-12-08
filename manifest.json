@@ -11,7 +11,9 @@
         "matches": [
           "<all_urls>"
         ],
-        "css" : ["dist/wildcard.css"]
+        "css": [
+          "dist/wildcard.css"
+        ]
       },
       {
         "js": [
@@ -19,11 +21,20 @@
         ],
         "matches": [
           "https://wildcard-marketplace.herokuapp.com/adapter.html?aid=*",
-          "https://wildcard-marketplace.herokuapp.com/upload.html?key=*"
+          "https://wildcard-marketplace.herokuapp.com/upload.html?key=*",
+          "http://wildcard-marketplace.herokuapp.com/adapter.html?aid=*",
+          "http://wildcard-marketplace.herokuapp.com/upload.html?key=*",
+          "http://localhost:3000/adapter.html?aid=*",
+          "http://localhost:3000/upload.html?key=*"
         ]
       }
     ],
-    "background": {"scripts": ["dist/wildcard-background.js", "src/wildcard-ajax.js"]},
+    "background": {
+      "scripts": [
+        "dist/wildcard-background.js",
+        "src/wildcard-ajax.js"
+      ]
+    },
     "permissions": [
       "storage",
       "*://localhost/*",
