@@ -13,7 +13,7 @@ import WeatherChannelAdapter from './weatherchannel'
 import YoutubeAdapter from './youtube'
 import GithubAdapter from './github'
 import HarvardBookWarehouse from './harvardbookwarehouse'
-
+import MITCourseCatalog from './mitcoursecatelog'
 import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
 
 export const siteAdapters = [
@@ -28,7 +28,8 @@ export const siteAdapters = [
   WeatherChannelAdapter,
   YoutubeAdapter,
   GithubAdapter,
-  HarvardBookWarehouse
+  HarvardBookWarehouse,
+  MITCourseCatalog
 ]
 
 export function getActiveAdapter(): any {
