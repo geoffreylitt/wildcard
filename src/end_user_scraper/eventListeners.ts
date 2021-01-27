@@ -4,12 +4,11 @@ import {
 
 import {
     getTutorialElement,
-    initScraperControls
+    renderColumnBoxes
 } from './tutorial';
 
 import {
-    inSelectorElements,
-    getElementsBySelector
+    getElementsBySelector, inSelectorElements
 } from './domHelpers';
 
 import {
@@ -17,16 +16,25 @@ import {
     getEventMaps,
     getColumnMap,
     getColumn,
-    setAdapterKey,
     setRowElementSelector,
     getRowElementSelector,
     setStyleAndAddToMap,
-    populateColumnColors,
     getMouseClickRowStyleData,
     getMouseMoveRowStyleData,
     getMouseMoveColumnStyleData,
     getMouseClickColumnStyleValue,
-    getMouseClickColumnStyleProperty
+    getMouseClickColumnStyleProperty,
+    getAdapterKey,
+    getExploring,
+    getRowElement,
+    setRowElement,
+    setExploring,
+    setTempColumnMap,
+    getTempColumnMap,
+    setColumn,
+    getCurrentColumnSelector,
+    setCurrentColumnSelector,
+    getMultipleExamples
 } from './state';
 
 import {
@@ -36,17 +44,16 @@ import {
 
 import {
     mapToArrayOfValues,
-    generateAdapterKey
+    copyMap,
+    applyToColumnMap,
+    newSelector,
+    getColumnForSelector
 } from './utils';
 
 import {
-    generateAdapter,
-    saveAdapter
+    createAdapterAndSave,
+    deleteAdapter,
 } from './adapterHelpers';
-
-import {
-    ADAPTERS_BASE_KEY
-} from './constants';
 
 function ignoreEvent(event) {
     const target = event.target;
@@ -66,92 +73,29 @@ function scraperClickListener(event) {
     event.preventDefault();
     event.stopPropagation();
     const target = event.target as HTMLElement;
+    const exploring = getExploring();
+    const rowElement = getRowElement();
     const rowElementSelector = getRowElementSelector();
-    const eventMaps = getEventMaps();
-    const columnMap = getColumnMap();
+    const tempColumnMap = getTempColumnMap();
     const column = getColumn();
-    if (rowElementSelector) {
-        if (!target.childElementCount && 
-            target.textContent &&
-            inSelectorElements({ selector: rowElementSelector, node: target })
-        ){
-            
-            clearElementMap(eventMaps.mouseClickColumnElement, true);
-            const columnElementSelector = generateColumnSelectors(rowElementSelector, [target]).shift();
-            if (!columnMap.get(column)) {
-                columnMap.set(column, []); 
-            }
-            const columnSelectors = columnMap.get(column);
-            const columnElementSelectorIndex = columnSelectors.indexOf(columnElementSelector);
-            if (columnElementSelectorIndex === -1) {
-                columnSelectors.push(columnElementSelector);
-            } else {
-                columnSelectors.splice(columnElementSelectorIndex, 1);
-                if (columnSelectors.length === 0) {
-                    columnMap.delete(column);
-                }
-            }
-            const rows = getElementsBySelector(rowElementSelector);
-            const columns = mapToArrayOfValues(columnMap);
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                for (let j = 0; j < columns.length; j++) {
-                    const selectors = columns[j];
-                    for (let k = 0; k < selectors.length; k++) {
-                        const selector = selectors[k]
-                        const element = row.querySelector(selector) as HTMLElement;
-                        if (element) {
-                            setStyleAndAddToMap({
-                                map: eventMaps.mouseClickColumnElement,
-                                node: element,
-                                styleProperty: getMouseClickColumnStyleProperty(),
-                                styleValue: getMouseClickColumnStyleValue(j)
-                            });
-                        }
-                    }
-                }
-            }
-            const config = generateAdapter(columns, rowElementSelector);
-            const adapterKey = generateAdapterKey(config.name);
-            setAdapterKey(adapterKey);
-            populateColumnColors();
-            saveAdapter( 
-                adapterKey,
-                config, 
-                () => {
-                    run({ creatingAdapter: true })
-                }
-            );   
-        }
-    } else {
-        clearElementMap(eventMaps.mouseClickRowElement);
-        const rowElementData = findRowElement([target], target);
-        if (rowElementData) {
-            const { rowElementSelector } = rowElementData;
-            const { styleProperty, styleValue } = getMouseClickRowStyleData();
-            const rowElements = getElementsBySelector(rowElementSelector);
-            Array.from(rowElements)
-            .forEach((rowElement) => {
-                setStyleAndAddToMap({
-                    map: eventMaps.mouseClickRowElement,
-                    node: rowElement,
-                    styleProperty,
-                    styleValue
-                });
-            });
-            const config = generateAdapter([], rowElementSelector);
-            const adapterKey = `${ADAPTERS_BASE_KEY}:${config.name}`;
-            setAdapterKey(adapterKey);
-            setRowElementSelector(rowElementSelector);
-            saveAdapter(
-                adapterKey,
-                config, 
-                () => {
-                    initScraperControls();
-                    run({ creatingAdapter: true });
-                }
-            );
-        }
+    const multipleExamples = getMultipleExamples();
+    if (
+        !target.childElementCount &&
+        target.textContent &&
+        rowElement.contains(target)
+    ) {
+        const nextColumn = column + 1;
+        tempColumnMap.set(nextColumn, []);
+        applyToColumnMap(tempColumnMap);
+        setColumn(nextColumn);
+        exploring && setExploring(false);
+    } else if (
+        multipleExamples &&
+        inSelectorElements({ selector: rowElementSelector, node: target }) &&
+        !target.childElementCount &&
+        target.textContent
+    ) {
+        applyToColumnMap(tempColumnMap);
     }
 }
 
@@ -159,48 +103,211 @@ function scraperMouseMoveListener(event) {
     if (ignoreEvent(event)) {
         return;
     }
+    event.preventDefault();
+    event.stopPropagation();
     const target = event.target as HTMLElement;
-    const rowElementSelector = getRowElementSelector();
     const eventMaps = getEventMaps();
-    if (!rowElementSelector) {
-        clearElementMap(eventMaps.mouseMoveRowElement);
+    const exploring = getExploring();
+    let rowElementSelector = !exploring && getRowElementSelector();
+    let rowElement = !exploring && getRowElement();
+    const adapterKey = getAdapterKey();
+    const tempColumnMap = getTempColumnMap();
+    const columnMap = exploring && tempColumnMap  ? tempColumnMap : copyMap(getColumnMap());
+    const column = getColumn();
+    const multipleExamples = getMultipleExamples();
+    if (exploring) {
         const rowElementData = findRowElement([target], target);
         if (rowElementData) {    
-            const { rowElementSelector } = rowElementData;
-            const rowElements = getElementsBySelector(rowElementSelector);
-            const { styleProperty, styleValue } = getMouseMoveRowStyleData();
-            Array.from(rowElements)
-            .forEach((rowElement) => {
-                setStyleAndAddToMap({
-                    map: eventMaps.mouseMoveRowElement,
-                    node: rowElement,
-                    styleProperty,
-                    styleValue
-                });
+            rowElement = rowElementData.rowElement;
+            rowElementSelector = rowElementData.rowElementSelector;
+        }
+        if (target.textContent && !target.childElementCount) {
+            const columnSelector = generateColumnSelectors(rowElementSelector, [target]).shift();
+            if (columnSelector) {
+                if (!Array.isArray(columnMap.get(column))) {
+                    columnMap.set(column, []);
+                }
+                const columnSelectors = columnMap.get(column);
+                if (columnSelector !== getCurrentColumnSelector()) {     
+                    columnSelectors[0] = columnSelector;
+                    setCurrentColumnSelector(columnSelector);
+                    setTempColumnMap(columnMap);
+                    setRowElementSelector(rowElementSelector);
+                    setRowElement(rowElement);
+                    const allColumnSelectors = mapToArrayOfValues(columnMap);
+                    createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector); 
+                    clearElementMap(eventMaps.mouseMoveRowElement);
+                    clearElementMap(eventMaps.mouseMoveColumnElement);
+                    clearElementMap(eventMaps.mouseClickColumnElement, true);
+                    styleColumnElementsOnClick(rowElementSelector);
+                    styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+                    styleRowElementsOnHover([rowElement]);
+                    renderColumnBoxes(columnMap);
+                }
+            }     
+        } else {
+            clearElementMap(eventMaps.mouseMoveRowElement);
+            clearElementMap(eventMaps.mouseMoveColumnElement);
+            clearElementMap(eventMaps.mouseClickColumnElement, true);
+            renderColumnBoxes(columnMap)
+            setCurrentColumnSelector(null);
+            deleteAdapter(adapterKey, () => {
+                run({ creatingAdapter: true });
             });
         }
-    } else if (inSelectorElements({ selector: rowElementSelector, node: target }) && target.textContent) {
-        clearElementMap(eventMaps.mouseMoveColumnElement);
-        if (!target.childElementCount && target.textContent) {
-            const columnSelectors = generateColumnSelectors(rowElementSelector, [target]);
-            if (columnSelectors.length) {
-                const rowElements = getElementsBySelector(rowElementSelector);
-                const { styleProperty, styleValue } = getMouseMoveColumnStyleData()
-                Array.from(rowElements)
-                .forEach((rowElement) => {
-                    columnSelectors
-                    .map(selector => rowElement.querySelector(selector) as HTMLElement)
-                    .filter(targetNode => targetNode)
-                    .forEach(targetNode => {
-                        setStyleAndAddToMap({
-                            map: eventMaps.mouseMoveColumnElement,
-                            node: targetNode,
-                            styleProperty,
-                            styleValue
-                        });
+    } else if (rowElement.contains(target) && target.textContent && !target.childElementCount) {
+        const columnSelector = generateColumnSelectors(rowElementSelector, [target]).shift();
+        if (columnSelector) {
+            if (newSelector(columnSelector, columnMap)) {
+                if (!Array.isArray(columnMap.get(column))) {
+                    columnMap.set(column, []);
+                }
+                const columnSelectors = columnMap.get(column);
+                if (columnSelector !== getCurrentColumnSelector()) {
+                    columnSelectors.push(columnSelector);
+                    setCurrentColumnSelector(columnSelector);
+                    setTempColumnMap(columnMap);
+                    const allColumnSelectors = mapToArrayOfValues(columnMap);
+                    createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
+                    clearElementMap(eventMaps.mouseMoveRowElement);
+                    clearElementMap(eventMaps.mouseMoveColumnElement);
+                    clearElementMap(eventMaps.mouseClickColumnElement, true);
+                    styleColumnElementsOnClick(rowElementSelector);
+                    styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+                    styleRowElementsOnHover([rowElement]);
+                    renderColumnBoxes(columnMap);
+                }  
+            } else {
+                const columnMap = getColumnMap();
+                const column = getColumnForSelector(columnMap, columnSelector);
+                const columnSelectors = columnMap.get(column);
+                const allColumnSelectors = mapToArrayOfValues(getColumnMap());
+                setCurrentColumnSelector(columnSelector);
+                createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
+                clearElementMap(eventMaps.mouseMoveColumnElement);
+                styleColumnElementsOnClick(rowElementSelector);
+                styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+                renderColumnBoxes(columnMap, column)
+            }
+        }
+    } else if (
+        multipleExamples &&
+        inSelectorElements({ selector: rowElementSelector, node: target }) &&
+        target.textContent &&
+        !target.childElementCount
+    ) {
+        const columnSelector = generateColumnSelectors(rowElementSelector, [target]).shift();
+        if (columnSelector) {
+            if (newSelector(columnSelector, columnMap)) {
+                if (!Array.isArray(columnMap.get(column))) {
+                    columnMap.set(column, []);
+                }
+                const columnSelectors = columnMap.get(column);
+                if (columnSelector !== getCurrentColumnSelector()) {
+                    columnSelectors.push(columnSelector);
+                    setCurrentColumnSelector(columnSelector);
+                    setTempColumnMap(columnMap);
+                    const allColumnSelectors = mapToArrayOfValues(columnMap);
+                    createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
+                    clearElementMap(eventMaps.mouseMoveRowElement);
+                    clearElementMap(eventMaps.mouseMoveColumnElement);
+                    clearElementMap(eventMaps.mouseClickColumnElement, true);
+                    styleColumnElementsOnClick(rowElementSelector);
+                    styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+                    styleRowElementsOnHover([rowElement]);
+                    renderColumnBoxes(columnMap);
+                }  
+            } else {
+                const columnMap = getColumnMap();
+                const column = getColumn();
+                const columnSelectors = columnMap.get(column);
+                const allColumnSelectors = mapToArrayOfValues(getColumnMap());
+                setCurrentColumnSelector(columnSelector);
+                createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
+                clearElementMap(eventMaps.mouseMoveColumnElement);
+                styleColumnElementsOnClick(rowElementSelector);
+                styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+                renderColumnBoxes(columnMap, getColumnForSelector(columnMap, columnSelector))
+            }
+        }
+    } else {
+        setCurrentColumnSelector(null);
+        const allColumnSelectors = mapToArrayOfValues(getColumnMap());
+        createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
+        clearElementMap(eventMaps.mouseMoveColumnElement); 
+        renderColumnBoxes(columnMap);
+    }
+}
+
+function styleRowElementsOnHover(rowElements) {
+    const eventMaps = getEventMaps();
+    const { styleProperty, styleValue } = getMouseMoveRowStyleData();
+    Array.from(rowElements)
+        .forEach((rowElement) => {
+            setStyleAndAddToMap({
+                map: eventMaps.mouseMoveRowElement,
+                node: rowElement,
+                styleProperty,
+                styleValue
+            });
+        });
+}
+
+function styleRowElementsOnClick(rowElements) {
+    const eventMaps = getEventMaps();
+    const { styleProperty, styleValue } = getMouseClickRowStyleData();
+    Array.from(rowElements)
+        .forEach((rowElement) => {
+            setStyleAndAddToMap({
+                map: eventMaps.mouseClickRowElement,
+                node: rowElement,
+                styleProperty,
+                styleValue
+            });
+        });
+}
+
+function styleColumnElementsOnHover(rowElementSelector, columnSelectors) {
+    const eventMaps = getEventMaps();
+    const rowElements = getElementsBySelector(rowElementSelector);
+    const { styleProperty, styleValue } = getMouseMoveColumnStyleData()
+    Array.from(rowElements)
+    .forEach((rowElement) => {
+        columnSelectors
+        .map(selector => rowElement.querySelector(selector) as HTMLElement)
+        .filter(targetNode => targetNode)
+        .forEach(targetNode => {
+            setStyleAndAddToMap({
+                map: eventMaps.mouseMoveColumnElement,
+                node: targetNode,
+                styleProperty,
+                styleValue
+            });
+        });
+    });
+}
+
+function styleColumnElementsOnClick(rowElementSelector) {
+    const columnMap = getColumnMap();
+    const eventMaps = getEventMaps();
+    const rows = getElementsBySelector(rowElementSelector);
+    const columns = mapToArrayOfValues(columnMap);
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        for (let j = 0; j < columns.length; j++) {
+            const selectors = columns[j];
+            for (let k = 0; k < selectors.length; k++) {
+                const selector = selectors[k]
+                const element = row.querySelector(selector) as HTMLElement;
+                if (element) {
+                    setStyleAndAddToMap({
+                        map: eventMaps.mouseClickColumnElement,
+                        node: element,
+                        styleProperty: getMouseClickColumnStyleProperty(),
+                        styleValue: getMouseClickColumnStyleValue()
                     });
-                });
-            } 
+                }
+            }
         }
     }
 }

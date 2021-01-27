@@ -8,19 +8,38 @@ import {
     MIN_COLUMNS,
     ADAPTERS_BASE_KEY
 } from './constants';
+import {
+    indexToAlpha
+} from './utils';
+
+import {
+    run
+} from '../wildcard';
+
+import {
+    setAdapterKey
+} from './state';
 
 function createTableColumns(n) {
     const columns = [];
     for (let i = 0; i < n; i++) {
         columns.push({
-            name: String.fromCharCode(97 + i).toUpperCase(),
+            name: indexToAlpha(i),
             type: "text"
         })
     }
     return columns;
 }
 
-export function saveAdapter(adapterKey, config, callback) {
+function _createAdapterId() {
+    return document.title;
+}
+
+function createAdapterKey() {
+    return `${ADAPTERS_BASE_KEY}:${_createAdapterId()}`
+}
+
+function _saveAdapter(adapterKey, config, callback?) {
     const _config = JSON.stringify(config, null, 2);
     if (adapterKey) {
         const adapterName = adapterKey.split(':').pop();
@@ -48,6 +67,31 @@ export function saveAdapter(adapterKey, config, callback) {
     }
 }
 
+export function saveAdapter(adapterKey, config, callback?) {
+    readFromChromeLocalStorage([adapterKey])
+        .then((results) => {
+            const _callback = () => {
+                run({ creatingAdapter: true });
+            };
+            if (results[adapterKey]) {
+                const currentConfig = JSON.parse(results[adapterKey]);
+                if (currentConfig.scrapePage !== config.scrapePage) {
+                    _saveAdapter(
+                        adapterKey,
+                        config,
+                        callback || _callback
+                    );
+                }
+            } else {
+                _saveAdapter(
+                    adapterKey,
+                    config,
+                    callback || _callback
+                );
+            }
+        })
+}
+
 export function deleteAdapter(adapterKey, callback) {
     if (adapterKey) {
         const adapterName = adapterKey.split(':').pop();
@@ -66,6 +110,8 @@ export function deleteAdapter(adapterKey, callback) {
                 });
             }
         });
+    } {
+        callback();
     }
 }
 
@@ -76,7 +122,7 @@ export function generateAdapter(columnSelectors, rowElementSelector) {
         matches: [window.location.href],
         attributes: createTableColumns(Math.max(columnSelectors.length, MIN_COLUMNS)),
         scrapePage: `() => {
-            const rowElements = document.querySelectorAll("${rowElementSelector}");
+            const rowElements = ${!!rowElementSelector} ? document.querySelectorAll("${rowElementSelector}") : [];
             return Array.from(rowElements).map((element, rowIndex) => {
                 const dataValues = {};
                 const columnSelectors = ${JSON.stringify(columnSelectors)};
@@ -99,4 +145,15 @@ export function generateAdapter(columnSelectors, rowElementSelector) {
             });
         }`
     };
+}
+
+export function createAdapterAndSave(adapterKey, columnSelectors, rowSelector, callback?) {
+    const config = generateAdapter(columnSelectors, rowSelector);
+    saveAdapter(adapterKey, config, callback);
+}
+
+export function createInitialAdapter() {
+    const adapterKey = createAdapterKey();
+    setAdapterKey(adapterKey);
+    createAdapterAndSave(adapterKey, [], '');
 }

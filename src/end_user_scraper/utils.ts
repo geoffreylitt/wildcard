@@ -1,6 +1,7 @@
 import {
     ADAPTERS_BASE_KEY
 } from './constants';
+import { getColumnMap } from './state';
 
 export function randomRGB() {
     const o = Math.round, r = Math.random, s = 255;
@@ -27,6 +28,57 @@ export function mapToArrayOfValues(map) {
     return result;
 }
 
+export function copyMap(map) {
+    const result = new Map();
+    for (let [column, selectors] of map) {
+        if (Array.isArray(selectors)) {
+            result.set(column, [...selectors]);
+        } else {
+            result.set(column, selectors);
+        }
+    }
+    return result;
+}
+
+export function applyToColumnMap(map) {
+    const columnMap = getColumnMap();
+    for (let [column, selectors] of map) {
+        if (Array.isArray(selectors)) {
+            columnMap.set(column, [...selectors]);
+        } else {
+            columnMap.set(column, selectors);
+        }
+    }
+}
+
 export function generateAdapterKey(id) {
     return `${ADAPTERS_BASE_KEY}:${id}`
+}
+
+export function newSelector(selector, columnMap) {
+    let seen = false;
+    for (let [column, selectors] of columnMap) {
+        if (Array.isArray(selectors)) {
+            if (selectors.includes(selector)) {
+                seen = true;
+                break;
+            }
+        }
+    }
+    return !seen;
+}
+
+export function getColumnForSelector(columnMap, selector) {
+    for (let [column, selectors] of columnMap) {
+        if (Array.isArray(selectors)) {
+            if (selectors.includes(selector)) {
+                return column;
+            }
+        }
+    }
+    return null;
+}
+
+export function indexToAlpha(i) {
+    return String.fromCharCode(97 + i).toUpperCase();
 }

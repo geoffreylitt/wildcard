@@ -5,7 +5,8 @@ import {
 import {
     MIN_COLUMNS,
     MOUSE_CLICK_ROW_COLOR,
-    MOUSE_MOVE_COLOR
+    ACTIVE_COLOR,
+    INACTIVE_COLOR
 } from './constants';
 
 const _eventMaps = {
@@ -15,11 +16,17 @@ const _eventMaps = {
     mouseClickColumnElement: new Map(),
     defaults: new Map()
 };
-const _columnMap = new Map<number, string[]>();
+let _tempColumnMap;
 let _columnColorsList = [];
 let _adapterKey;
 let _rowElementSelector;
-let _column = -1;
+let _rowElement;
+let _column = 0;
+let _exploring = true;
+let _currentColumnSelector;
+let _multipleExamples = false;
+const _columnMap = new Map<number, string[]>();
+_columnMap.set(_column, []);
 
 export function setStyleAndAddToMap({ map, node, styleProperty, styleValue }) {
     if (!_eventMaps.defaults.has(node)) {
@@ -81,6 +88,14 @@ export function setRowElementSelector(rowElementSelector) {
     _rowElementSelector = rowElementSelector;
 }
 
+export function getRowElement() {
+    return _rowElement;
+}
+
+export function setRowElement(rowElement) {
+    _rowElement = rowElement;
+}
+
 export function getColumn() {
     return _column;
 }
@@ -93,8 +108,20 @@ export function getColumnMap() {
     return _columnMap;
 }
 
-export function getColumnColors() {
-    return _columnColorsList;
+export function setTempColumnMap(value) {
+    _tempColumnMap = value;
+}
+
+export function getTempColumnMap() {
+    return _tempColumnMap;
+}
+
+export function getColumnColor(i) {
+    if (!_columnColorsList[i]) {
+        _columnColorsList[i] = randomRGB();
+    }
+    return _columnColorsList[i];
+    
 }
 
 export function getEventMaps() {
@@ -104,10 +131,15 @@ export function getEventMaps() {
 export function resetScraperState() {
     _adapterKey = null;
     _rowElementSelector = null;
-    _column = -1;
+    _column = 0;
     _columnMap.clear();
+    _columnMap.set(_column, []);
     clearElementMaps();
     _columnColorsList = [];
+    _exploring = true;
+    _currentColumnSelector = null;
+    _tempColumnMap = null;
+    _multipleExamples = false;
 }
 
 export function getMouseClickRowStyleData() {
@@ -121,25 +153,44 @@ export function getMouseClickColumnStyleProperty() {
    return 'backgroundColor';
 }
 
-export function getMouseClickColumnStyleValue(column) {
-    const columnColors = getColumnColors();
-    if (!columnColors[column]) {
-        columnColors[column] = randomRGB();
-    }
-    return columnColors[column];
+export function getMouseClickColumnStyleValue() {
+    return INACTIVE_COLOR;
 }
 
 export function getMouseMoveRowStyleData() {
     return {
         styleProperty: 'border',
-        styleValue: `1px solid ${MOUSE_MOVE_COLOR}`
+        styleValue: `1px solid ${ACTIVE_COLOR}`
     }
 }
 
 export function getMouseMoveColumnStyleData() {
     return {
         styleProperty: 'backgroundColor',
-        styleValue: MOUSE_MOVE_COLOR
+        styleValue: ACTIVE_COLOR
     }
 }
 
+export function getExploring() {
+    return _exploring;
+}
+
+export function setExploring(exploring) {
+    _exploring = exploring;
+}
+
+export function getCurrentColumnSelector() {
+    return _currentColumnSelector;
+}
+
+export function setCurrentColumnSelector(value) {
+    _currentColumnSelector = value;
+}
+
+export function getMultipleExamples() {
+    return _multipleExamples;
+}
+
+export function setMultipleExamples(value) {
+    _multipleExamples = true;
+}

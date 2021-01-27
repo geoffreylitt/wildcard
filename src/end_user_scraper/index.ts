@@ -8,6 +8,8 @@ import {
 } from './eventListeners';
 
 import {
+    createAdapterAndSave,
+    createInitialAdapter,
     deleteAdapter
 } from './adapterHelpers';
 
@@ -19,10 +21,19 @@ import {
 
 import {
     getAdapterKey,
+    getColumn,
+    getColumnMap,
+    getRowElementSelector,
     resetScraperState
 } from './state';
+import { mapToArrayOfValues } from './utils';
+
+import {
+    MIN_COLUMNS
+} from './constants';
 
 export function startScrapingListener() {
+    createInitialAdapter();
     addScrapingListeners();
     initTutorial();
 }
@@ -37,9 +48,22 @@ export function stopScrapingListener({ save }) {
             run({ creatingAdapter: false });
         })
     } else {
-        resetScraperState();
-        removeTutorial();
-        run({ creatingAdapter: false });
+        const columnMap = getColumnMap();
+        if (columnMap.size > MIN_COLUMNS) {
+            // delete placeholder column
+            const lastColumn = columnMap.size - 1;
+            columnMap.delete(lastColumn);
+        } 
+        createAdapterAndSave(
+            adapterKey,
+            mapToArrayOfValues(columnMap),
+            getRowElementSelector(),
+            () => {
+                resetScraperState();
+                removeTutorial();
+                run({ creatingAdapter: false });
+            }
+        );
     }
 }
 
@@ -48,6 +72,6 @@ export function resetScrapingListener() {
     deleteAdapter(adapterKey, () => {
         resetScraperState();
         resetTutorial();
-        run({ creatingAdapter: true });
+        createInitialAdapter();
     });
 }

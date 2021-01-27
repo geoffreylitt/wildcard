@@ -56,7 +56,7 @@ export function getElementsBySelector(selector) {
 
 export function areAllSiblings(node, selector) {
     return Array
-        .from(document.querySelectorAll(selector))
+        .from(getElementsBySelector(selector))
         .every(element => element.parentNode.isSameNode(node.parentNode));
 }
 

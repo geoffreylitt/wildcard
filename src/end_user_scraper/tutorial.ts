@@ -5,34 +5,34 @@ import {
 import {
     getColumn,
     setColumn,
-    getColumnMap
+    getColumnMap,
+    setMultipleExamples,
 } from './state';
 
 import {
-    MOUSE_MOVE_COLOR
+    ACTIVE_COLOR,
+    INACTIVE_COLOR
 } from './constants';
+import { indexToAlpha } from './utils';
 
-const _defaultTutorialMessage = '1. Hover over a row of the dataset until all the relevant rows have a border and then alt + click any them to proceed to step 2';
+const TUTORIAL_BACKGROUND_COLOR = 'rgb(255, 255, 255)';
+const TUTORIAL_TEXT_COLOR = 'rgb(0, 0, 0)';
+
 const _tutorialHTML = `
-    <div id='wc-scraper-tutorial' style='display: flex; flex-direction: column; justify-content: center; z-index: 1000; width: 100vw; background-color: ${MOUSE_MOVE_COLOR}; color: white; position: fixed; top: 0; left: 0; opacity: 0.9; font-size: 0.9em;'>
-        <div class='instructions' style='margin: 1px; text-align: center;'>
+    <div id='wc-scraper-tutorial' style='display: flex; flex-direction: column; justify-content: center; z-index: 1000; width: 100vw; background-color: ${TUTORIAL_BACKGROUND_COLOR}; color: ${TUTORIAL_TEXT_COLOR}; position: fixed; top: 0; left: 0; opacity: 0.95; font-size: 1em; box-shadow: 0 0 20px rgba(0,0,0,0.8); border-radius: 5px; padding: 1px; margin: 1px;'>
+        <div class='instructions' style='margin: 1px; text-align: center;display:flex;justify-content:flex-end;'>
             <span id='message' style='padding: 2.5px; margin: 2.5px;'>
-            ${_defaultTutorialMessage}
+              Alt + click (option instead of alt on Mac) on a field you wish to scrape
             </span>
         </div>
-    </div>
-`;
-const _scraperControlsHTML = `
-    <div id='wc-scraper-tutorial-column-controls' style='margin: 1px; display: flex; justify-content: center;'>
-        <div style='padding: 1px; margin: 1px; border: 1px solid white; margin-right: 10px;'>
-            <button id='prevButton' style='margin: 1px;'> Prev Column</button>
-            <span id='columnNumber' style='margin: 1px;'>A</span>
-            <button id='nextButton' style='margin: 1px;'>Next Column</button>
-        </div>
-        <div style='padding: 1px; margin: 1px; border:1px solid white; margin-left: 10px;'>
-            <button id='startOverButton' style='margin: 1px;'> Start Over</button>
-            <button id='cancelButton' style='margin: 1px;'> Cancel</button>
-            <button id='saveButton' style='margin: 1px;'> Save</button>
+        <div id='wc-scraper-tutorial-column-controls' style='margin: 1px; display: flex; height: 52px;'>
+            <div style='padding: 1px; margin: 1px;flex: 1;display:flex;flex-direction:row;' id='columnContainer'>
+            </div>
+            <div style='padding: 1px; margin: 1px;display:flex;align-items:center'>
+                <button id='startOverButton' style='margin: 1px;'> Restart</button>
+                <button id='cancelButton' style='margin: 1px;'>Cancel</button>
+                <button id='saveButton' style='margin: 1px;'>Done</button>
+            </div>
         </div>
     </div>
 `;
@@ -40,18 +40,72 @@ const _scraperControlsHTML = `
 let _tutorialElement;
 let _scraperControlsElement;
 
-function removeScraperControls() {
-    if (_scraperControlsElement) {
-        removeScraperControlsListeners();
-        _scraperControlsElement.remove();
-        _scraperControlsElement = null;
+function createColumnBoxString({ column, color, index }) {
+    return `
+        <div id=${index} class='column-box' style='padding:2px;margin:2px;height:40px;width:50px;background-color:${color};font-size:1.25em;color:white;display:flex;align-items:center;justify-content:center;border-radius:5px;cursor:pointer;'>
+            ${column}
+        </div>
+    `
+}
+
+function createColumnBoxElement({ column, color, index }) {
+    const html = createColumnBoxString({ column, color, index });
+    return htmlToElement(html);
+}
+
+function columnBoxListener(event) {
+    const target = event.target;
+    if (target.classList.contains('column-box')) {
+        const columnMap = getColumnMap();
+        const column = parseInt(target.id);
+        setColumn(column);
+        if (column === columnMap.size - 1) {
+            setMultipleExamples(false);
+        } else {
+            setMultipleExamples(true);
+        }
+        renderColumnBoxes(columnMap);
     }
 }
 
-function updateTutorialMessage({ message }) {
-    if (_tutorialElement){
-        _tutorialElement.querySelector('#message').textContent = message;
+function clearColumnBoxes() {
+    const columnContainer = document.querySelector('#columnContainer');
+    columnContainer.innerHTML = '';
+    removeColumnBoxListener();
+}
+
+function populateColumnBoxes(columnMap, column?) {
+    const columnContainer = document.querySelector('#columnContainer');
+    const columns = columnMap.size;
+    const activeColumn = Number.isInteger(column) ? column : getColumn();
+    if (columns) {
+        for (let i = 0; i < columns; i++) {
+            const columnBoxElement = createColumnBoxElement({
+                column: indexToAlpha(i),
+                color: i === activeColumn ? ACTIVE_COLOR : INACTIVE_COLOR,
+                index: i
+            });
+            columnContainer.appendChild(columnBoxElement);
+        }
+        addColumnBoxListener();
     }
+}
+
+function addColumnBoxListener() {
+    if (_tutorialElement) {
+        document.querySelector('#columnContainer').addEventListener('click', columnBoxListener);
+    }
+}
+
+function removeColumnBoxListener(){
+    if (_tutorialElement) {
+        document.querySelector('#columnContainer').addEventListener('click', columnBoxListener);
+    }
+}
+
+export function renderColumnBoxes(columnMap, column?) {
+    clearColumnBoxes();
+    populateColumnBoxes(columnMap, column);
 }
 
 function createColumnLabel(columnIndex) {
@@ -100,22 +154,18 @@ function scraperControlsListener(event) {
 }
 
 function addColumnControlListeners() {
-    if (_scraperControlsElement) {
-        _scraperControlsElement.querySelector('#prevButton').addEventListener('click', columnControlListener);
-        _scraperControlsElement.querySelector('#nextButton').addEventListener('click', columnControlListener);
-        _scraperControlsElement.querySelector('#startOverButton').addEventListener('click', scraperControlsListener);
-        _scraperControlsElement.querySelector('#cancelButton').addEventListener('click', scraperControlsListener);
-        _scraperControlsElement.querySelector('#saveButton').addEventListener('click', scraperControlsListener);
+    if (_tutorialElement) {
+        _tutorialElement.querySelector('#startOverButton').addEventListener('click', scraperControlsListener);
+        _tutorialElement.querySelector('#cancelButton').addEventListener('click', scraperControlsListener);
+        _tutorialElement.querySelector('#saveButton').addEventListener('click', scraperControlsListener);
     }
 }
 
-function removeScraperControlsListeners() {
-    if (_scraperControlsElement) {
-        _scraperControlsElement.querySelector('#prevButton').removeEventListener('click', columnControlListener);
-        _scraperControlsElement.querySelector('#nextButton').removeEventListener('click', columnControlListener);
-        _scraperControlsElement.querySelector('#startOverButton').removeEventListener('click', scraperControlsListener);
-        _scraperControlsElement.querySelector('#cancelButton').removeEventListener('click', scraperControlsListener);
-        _scraperControlsElement.querySelector('#saveButton').removeEventListener('click', scraperControlsListener);
+function removeColumnControlListeners() {
+    if (_tutorialElement) {
+        _tutorialElement.querySelector('#startOverButton').removeEventListener('click', scraperControlsListener);
+        _tutorialElement.querySelector('#cancelButton').removeEventListener('click', scraperControlsListener);
+        _tutorialElement.querySelector('#saveButton').removeEventListener('click', scraperControlsListener);
     }
 }
 
@@ -126,11 +176,14 @@ export function getTutorialElement() {
 export function initTutorial() {
     _tutorialElement = htmlToElement(_tutorialHTML);
     document.body.prepend(_tutorialElement);
+    addColumnControlListeners();
+    renderColumnBoxes(getColumnMap());
 }
 
 export function removeTutorial() {
     if (_tutorialElement) {
-        removeScraperControls();
+        clearColumnBoxes();
+        removeColumnControlListeners();
         _tutorialElement.remove();
         _tutorialElement = null;
     }
@@ -139,15 +192,4 @@ export function removeTutorial() {
 export function resetTutorial() {
     removeTutorial();
     initTutorial();  
-}
-
-export function initScraperControls() {
-    updateTutorialMessage({ message: `
-        2. Alt + click on a field within the selected rows to add it to the current column
-        of the table and alt + click on it again to remove it.
-    `});
-    _scraperControlsElement = htmlToElement(_scraperControlsHTML);
-    _tutorialElement.append(_scraperControlsElement);
-    setColumn(getColumn() + 1);
-    addColumnControlListeners();
 }
