@@ -34,7 +34,8 @@ import {
     setColumn,
     getCurrentColumnSelector,
     setCurrentColumnSelector,
-    getMultipleExamples
+    getMultipleExamples,
+    setColumnMap,
 } from './state';
 
 import {
@@ -81,6 +82,7 @@ function scraperClickListener(event) {
     const columnMap = getColumnMap();
     const column = getColumn();
     const multipleExamples = getMultipleExamples();
+    const eventMaps = getEventMaps()
     if (
         newSelector(currentColumnSelector, columnMap) &&
         !target.childElementCount &&
@@ -89,7 +91,7 @@ function scraperClickListener(event) {
     ) {
         const nextColumn = column + 1;
         tempColumnMap.set(nextColumn, []);
-        applyToColumnMap(tempColumnMap);
+        setColumnMap(tempColumnMap);
         setColumn(nextColumn);
         exploring && setExploring(false);
     } else if (
@@ -99,7 +101,35 @@ function scraperClickListener(event) {
         !target.childElementCount &&
         target.textContent
     ) {
-        applyToColumnMap(tempColumnMap);
+        setColumnMap(tempColumnMap);
+    } else if (
+        !newSelector(currentColumnSelector, columnMap) &&
+        rowElement.contains(target)
+    ) {
+        const columnToRemove = getColumnForSelector(columnMap, currentColumnSelector);
+        columnMap.delete(columnToRemove);
+        for (let i = columnToRemove + 1; i < tempColumnMap.size; i++) {
+            columnMap.set(i-1, columnMap.get(i))
+        } 
+        const nextColumn = column - 1;
+        columnMap.delete(columnMap.size - 1);
+        setColumn(nextColumn);
+        setColumnMap(columnMap);
+        clearElementMap(eventMaps.mouseClickColumnElement, true);
+        styleColumnElementsOnClick(rowElementSelector);
+        renderColumnBoxes(columnMap);
+    } else if (
+        multipleExamples &&
+        !newSelector(currentColumnSelector, columnMap) &&
+        inSelectorElements({ selector: rowElementSelector, node: target })
+    ) {
+        const columnToRemove = getColumnForSelector(columnMap, currentColumnSelector);
+        const columnSelectors = columnMap.get(columnToRemove);
+        const indexOfSelector = columnSelectors.indexOf(currentColumnSelector);
+        columnSelectors.splice(indexOfSelector, 1);
+        setColumnMap(columnMap);
+        clearElementMap(eventMaps.mouseClickColumnElement, true);
+        styleColumnElementsOnClick(rowElementSelector);
     }
 }
 

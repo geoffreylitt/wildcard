@@ -31,7 +31,7 @@ let _column = 0;
 let _exploring = true;
 let _currentColumnSelector;
 let _multipleExamples = false;
-const _columnMap = new Map<number, string[]>();
+let _columnMap = new Map<number, string[]>();
 _columnMap.set(_column, []);
 
 export function initState({ rowSelector, columnSelectors, id }) {
@@ -135,6 +135,10 @@ export function setColumn(column) {
 
 export function getColumnMap() {
     return _columnMap;
+}
+
+export function setColumnMap(map) {
+    _columnMap = new Map([...map.entries()].sort());
 }
 
 export function setTempColumnMap(value) {
