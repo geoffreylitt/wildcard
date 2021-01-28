@@ -35,7 +35,7 @@ function _createAdapterId() {
     return document.title;
 }
 
-function createAdapterKey() {
+export function createAdapterKey() {
     return `${ADAPTERS_BASE_KEY}:${_createAdapterId()}`
 }
 
@@ -81,6 +81,8 @@ export function saveAdapter(adapterKey, config, callback?) {
                         config,
                         callback || _callback
                     );
+                } else if (callback) {
+                    callback();
                 }
             } else {
                 _saveAdapter(
@@ -115,14 +117,19 @@ export function deleteAdapter(adapterKey, callback) {
     }
 }
 
-export function generateAdapter(columnSelectors, rowElementSelector) {
+export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
     return {
         name: document.title,
         urls: [window.location.href],
         matches: [window.location.href],
         attributes: createTableColumns(Math.max(columnSelectors.length, MIN_COLUMNS)),
+        metadata: {
+            id: adapterKey,
+            columnSelectors,
+            rowSelector
+        },
         scrapePage: `() => {
-            const rowElements = ${!!rowElementSelector} ? document.querySelectorAll("${rowElementSelector}") : [];
+            const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
             return Array.from(rowElements).map((element, rowIndex) => {
                 const dataValues = {};
                 const columnSelectors = ${JSON.stringify(columnSelectors)};
@@ -148,7 +155,7 @@ export function generateAdapter(columnSelectors, rowElementSelector) {
 }
 
 export function createAdapterAndSave(adapterKey, columnSelectors, rowSelector, callback?) {
-    const config = generateAdapter(columnSelectors, rowSelector);
+    const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
     saveAdapter(adapterKey, config, callback);
 }
 

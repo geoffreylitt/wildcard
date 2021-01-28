@@ -19,7 +19,7 @@ import thunk from 'redux-thunk';
 import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
 import { TableAdapterMiddleware } from './tableAdapterMiddleware'
-import { startScrapingListener, stopScrapingListener, resetScrapingListener } from './end_user_scraper';
+import { startScrapingListener, stopScrapingListener, resetScrapingListener, editScraper } from './end_user_scraper';
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
@@ -132,6 +132,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
     case 'resetAdapter': 
       resetScrapingListener();
+      break;
+    case 'editAdapter':
+      editScraper();
       break;
     default:
       break;

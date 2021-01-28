@@ -7,13 +7,20 @@ import {
     setColumn,
     getColumnMap,
     setMultipleExamples,
+    getEventMaps,
+    clearElementMap
 } from './state';
 
 import {
     ACTIVE_COLOR,
     INACTIVE_COLOR
 } from './constants';
+
 import { indexToAlpha } from './utils';
+
+import {
+    styleRowElementsOnHover
+} from './eventListeners';
 
 const TUTORIAL_BACKGROUND_COLOR = 'rgb(255, 255, 255)';
 const TUTORIAL_TEXT_COLOR = 'rgb(0, 0, 0)';
@@ -65,6 +72,9 @@ function columnBoxListener(event) {
             setMultipleExamples(true);
         }
         renderColumnBoxes(columnMap);
+        const eventMaps = getEventMaps();
+        clearElementMap(eventMaps.mouseMoveRowElement);
+        styleRowElementsOnHover();
     }
 }
 

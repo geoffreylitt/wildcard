@@ -84,6 +84,14 @@ const ShareButton = styled(ToggleButton)`
   right: calc(2vw + 165px);
   display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
 `
+
+const EditButton = styled(ToggleButton)`
+  /* right: ${props => props.right}; */
+  right: calc(2vw + 180px);
+  display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
+`
+
+
 // Declare our functional React component
 
 const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter }) => {
@@ -304,10 +312,11 @@ console.log("saved changes");
     return <>
       {!creatingAdapter && (
         <>
-          <ShareButton hidden={hidden} codeEditorHidden={codeEditorHidden}
-            onClick={() => {window.open(marketplaceUrl + "/upload.html?key=" + _adapterKey);
-          }}> Share
-          </ShareButton>
+          <EditButton hidden={hidden} codeEditorHidden={codeEditorHidden}
+            onClick={() => {
+              chrome.runtime.sendMessage({ command: 'editAdapter' });
+          }}> Edit Scraper
+          </EditButton>
           <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
           codeEditorHidden={codeEditorHidden}>
             { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }

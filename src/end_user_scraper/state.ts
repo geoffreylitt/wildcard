@@ -1,13 +1,19 @@
 import {
+    mapToArrayOfValues,
     randomRGB
 } from './utils';
 
 import {
     MIN_COLUMNS,
-    MOUSE_CLICK_ROW_COLOR,
     ACTIVE_COLOR,
     INACTIVE_COLOR
 } from './constants';
+
+import {
+    styleColumnElementsOnClick,
+    styleRowElementsOnClick
+} from './eventListeners';
+import { createAdapterAndSave } from './adapterHelpers';
 
 const _eventMaps = {
     mouseMoveRowElement: new Map(),
@@ -27,6 +33,29 @@ let _currentColumnSelector;
 let _multipleExamples = false;
 const _columnMap = new Map<number, string[]>();
 _columnMap.set(_column, []);
+
+export function initState({ rowSelector, columnSelectors, id }) {
+    _exploring = false;
+    _rowElementSelector = rowSelector;
+    _rowElement = document.querySelector(rowSelector);
+    _adapterKey = id;
+    let addedPlaceholderColumn = false;
+    columnSelectors.forEach((selectors, index) => {
+        _columnMap.set(index, selectors);
+    });
+    if (!columnSelectors[columnSelectors.length - 1].length) {
+        _column = columnSelectors.length - 1;
+    } else {
+        _column = columnSelectors.length;
+        _columnMap.set(_column, []);
+        addedPlaceholderColumn = true;
+    }
+    styleColumnElementsOnClick(rowSelector);
+    styleRowElementsOnClick();
+    if (addedPlaceholderColumn) {
+        createAdapterAndSave(id, mapToArrayOfValues(_columnMap), rowSelector);
+    }
+}
 
 export function setStyleAndAddToMap({ map, node, styleProperty, styleValue }) {
     if (!_eventMaps.defaults.has(node)) {
@@ -145,7 +174,7 @@ export function resetScraperState() {
 export function getMouseClickRowStyleData() {
     return {
         styleProperty: 'border',
-        styleValue: `1px solid ${MOUSE_CLICK_ROW_COLOR}`
+        styleValue: `1px solid ${ACTIVE_COLOR}`
     }
 }
 
@@ -192,5 +221,5 @@ export function getMultipleExamples() {
 }
 
 export function setMultipleExamples(value) {
-    _multipleExamples = true;
+    _multipleExamples = value;
 }

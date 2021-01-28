@@ -54,7 +54,8 @@ const handlers = {
   getReadingTime: getReadingTime,
   deleteAdapter: forwardToContentScripts,
   saveAdapter: forwardToContentScripts,
-  resetAdapter: forwardToContentScripts
+  resetAdapter: forwardToContentScripts,
+  editAdapter: forwardToContentScripts
 }
 
 chrome.runtime.onMessage.addListener(

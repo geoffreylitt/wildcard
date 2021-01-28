@@ -10,7 +10,8 @@ import {
 import {
     createAdapterAndSave,
     createInitialAdapter,
-    deleteAdapter
+    deleteAdapter,
+    createAdapterKey
 } from './adapterHelpers';
 
 import {
@@ -21,16 +22,20 @@ import {
 
 import {
     getAdapterKey,
-    getColumn,
     getColumnMap,
     getRowElementSelector,
+    initState,
     resetScraperState
 } from './state';
-import { mapToArrayOfValues } from './utils';
+
+import {
+    mapToArrayOfValues
+} from './utils';
 
 import {
     MIN_COLUMNS
 } from './constants';
+import { readFromChromeLocalStorage } from '../utils';
 
 export function startScrapingListener() {
     createInitialAdapter();
@@ -59,9 +64,9 @@ export function stopScrapingListener({ save }) {
             mapToArrayOfValues(columnMap),
             getRowElementSelector(),
             () => {
-                resetScraperState();
-                removeTutorial();
                 run({ creatingAdapter: false });
+                resetScraperState();
+                removeTutorial();  
             }
         );
     }
@@ -74,4 +79,19 @@ export function resetScrapingListener() {
         resetTutorial();
         createInitialAdapter();
     });
+}
+
+export function editScraper() {
+    const adapterKey = createAdapterKey();
+    readFromChromeLocalStorage([adapterKey])
+        .then((results) => {
+            const adapterConfigString = results[adapterKey];
+            if (adapterConfigString) {
+                const adapterConfig = JSON.parse(adapterConfigString);
+                const adapterMetadata = adapterConfig.metadata;
+                initState(adapterMetadata);
+                addScrapingListeners();
+                initTutorial();
+            }
+        })
 }

@@ -76,10 +76,13 @@ function scraperClickListener(event) {
     const exploring = getExploring();
     const rowElement = getRowElement();
     const rowElementSelector = getRowElementSelector();
+    const currentColumnSelector = getCurrentColumnSelector();
     const tempColumnMap = getTempColumnMap();
+    const columnMap = getColumnMap();
     const column = getColumn();
     const multipleExamples = getMultipleExamples();
     if (
+        newSelector(currentColumnSelector, columnMap) &&
         !target.childElementCount &&
         target.textContent &&
         rowElement.contains(target)
@@ -91,6 +94,7 @@ function scraperClickListener(event) {
         exploring && setExploring(false);
     } else if (
         multipleExamples &&
+        newSelector(currentColumnSelector, columnMap) &&
         inSelectorElements({ selector: rowElementSelector, node: target }) &&
         !target.childElementCount &&
         target.textContent
@@ -141,7 +145,7 @@ function scraperMouseMoveListener(event) {
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
                     styleColumnElementsOnClick(rowElementSelector);
                     styleColumnElementsOnHover(rowElementSelector, columnSelectors);
-                    styleRowElementsOnHover([rowElement]);
+                    styleRowElementsOnHover();
                     renderColumnBoxes(columnMap);
                 }
             }     
@@ -174,7 +178,7 @@ function scraperMouseMoveListener(event) {
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
                     styleColumnElementsOnClick(rowElementSelector);
                     styleColumnElementsOnHover(rowElementSelector, columnSelectors);
-                    styleRowElementsOnHover([rowElement]);
+                    styleRowElementsOnHover();
                     renderColumnBoxes(columnMap);
                 }  
             } else {
@@ -214,7 +218,7 @@ function scraperMouseMoveListener(event) {
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
                     styleColumnElementsOnClick(rowElementSelector);
                     styleColumnElementsOnHover(rowElementSelector, columnSelectors);
-                    styleRowElementsOnHover([rowElement]);
+                    styleRowElementsOnHover();
                     renderColumnBoxes(columnMap);
                 }  
             } else {
@@ -239,7 +243,18 @@ function scraperMouseMoveListener(event) {
     }
 }
 
-function styleRowElementsOnHover(rowElements) {
+function getRowElements() {
+    const multipleExamples = getMultipleExamples();
+    const rowElement = getRowElement();
+    const rowElementSelector = getRowElementSelector();
+    if (multipleExamples) {
+        return getElementsBySelector(rowElementSelector);
+    }
+    return [rowElement];
+}
+
+export function styleRowElementsOnHover() {
+    const rowElements = getRowElements();
     const eventMaps = getEventMaps();
     const { styleProperty, styleValue } = getMouseMoveRowStyleData();
     Array.from(rowElements)
@@ -253,7 +268,8 @@ function styleRowElementsOnHover(rowElements) {
         });
 }
 
-function styleRowElementsOnClick(rowElements) {
+export function styleRowElementsOnClick() {
+    const rowElements = getRowElements();
     const eventMaps = getEventMaps();
     const { styleProperty, styleValue } = getMouseClickRowStyleData();
     Array.from(rowElements)
@@ -287,7 +303,7 @@ function styleColumnElementsOnHover(rowElementSelector, columnSelectors) {
     });
 }
 
-function styleColumnElementsOnClick(rowElementSelector) {
+export function styleColumnElementsOnClick(rowElementSelector) {
     const columnMap = getColumnMap();
     const eventMaps = getEventMaps();
     const rows = getElementsBySelector(rowElementSelector);
