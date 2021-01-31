@@ -76,7 +76,7 @@ chrome.contextMenus.create({
   contexts: ["page"]
 }, () => {
   chrome.contextMenus.create({
-    title: "Create Adapter",
+    title: "Create Web Scraper",
     contexts: ["page"],
     parentId: "wildcard",
     onclick: function () {
@@ -92,29 +92,29 @@ chrome.contextMenus.create({
       });
     }
   });
-  chrome.contextMenus.create({
-    title: "Edit Adapter",
-    contexts: ["page"],
-    parentId: "wildcard",
-    onclick: function () {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs && tabs.length) {
-          // send message to active tab
-          chrome.tabs.sendMessage(tabs[0].id, { command: "openCodeEditor" }, (response) => {
-            if (response.error) {
-              alert(response.error);
-            }
-          });
-        }
-      });
-    }
-  });
-  chrome.contextMenus.create({
-    title: "Open Options Page",
-    contexts: ["page"],
-    parentId: "wildcard",
-    onclick: function () {
-      chrome.runtime.openOptionsPage();
-    }
-  });
+  // chrome.contextMenus.create({
+  //   title: "Edit Adapter",
+  //   contexts: ["page"],
+  //   parentId: "wildcard",
+  //   onclick: function () {
+  //     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  //       if (tabs && tabs.length) {
+  //         // send message to active tab
+  //         chrome.tabs.sendMessage(tabs[0].id, { command: "openCodeEditor" }, (response) => {
+  //           if (response.error) {
+  //             alert(response.error);
+  //           }
+  //         });
+  //       }
+  //     });
+  //   }
+  // });
+  // chrome.contextMenus.create({
+  //   title: "Open Options Page",
+  //   contexts: ["page"],
+  //   parentId: "wildcard",
+  //   onclick: function () {
+  //     chrome.runtime.openOptionsPage();
+  //   }
+  // });
 });
