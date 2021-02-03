@@ -32,9 +32,11 @@ let _exploring = true;
 let _currentColumnSelector;
 let _multipleExamples = false;
 let _columnMap = new Map<number, string[]>();
+let _editing = false;
 _columnMap.set(_column, []);
 
 export function initState({ rowSelector, columnSelectors, id }) {
+    _editing = true;
     _exploring = false;
     _rowElementSelector = rowSelector;
     _rowElement = document.querySelector(rowSelector);
@@ -162,6 +164,7 @@ export function getEventMaps() {
 }
 
 export function resetScraperState() {
+    _editing = false;
     _adapterKey = null;
     _rowElementSelector = null;
     _column = 0;
@@ -226,4 +229,12 @@ export function getMultipleExamples() {
 
 export function setMultipleExamples(value) {
     _multipleExamples = value;
+}
+
+export function getEditing() {
+    return _editing;
+}
+
+export function setEditing(value) {
+    _editing = value;
 }

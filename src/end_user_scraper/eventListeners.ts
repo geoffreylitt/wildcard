@@ -82,7 +82,8 @@ function scraperClickListener(event) {
     const columnMap = getColumnMap();
     const column = getColumn();
     const multipleExamples = getMultipleExamples();
-    const eventMaps = getEventMaps()
+    const eventMaps = getEventMaps();
+    const adapterKey = getAdapterKey();
     if (
         newSelector(currentColumnSelector, columnMap) &&
         !target.childElementCount &&
@@ -93,6 +94,7 @@ function scraperClickListener(event) {
         tempColumnMap.set(nextColumn, []);
         setColumnMap(tempColumnMap);
         setColumn(nextColumn);
+        renderColumnBoxes(tempColumnMap);
         exploring && setExploring(false);
     } else if (
         multipleExamples &&
@@ -107,7 +109,6 @@ function scraperClickListener(event) {
         rowElement.contains(target)
     ) {
         const columnToRemove = getColumnForSelector(columnMap, currentColumnSelector);
-        columnMap.delete(columnToRemove);
         for (let i = columnToRemove + 1; i < tempColumnMap.size; i++) {
             columnMap.set(i-1, columnMap.get(i))
         } 
@@ -115,7 +116,10 @@ function scraperClickListener(event) {
         columnMap.delete(columnMap.size - 1);
         setColumn(nextColumn);
         setColumnMap(columnMap);
+        setCurrentColumnSelector(null);
+        createAdapterAndSave(adapterKey, mapToArrayOfValues(columnMap), rowElementSelector); 
         clearElementMap(eventMaps.mouseClickColumnElement, true);
+        clearElementMap(eventMaps.mouseMoveColumnElement);
         styleColumnElementsOnClick(rowElementSelector);
         renderColumnBoxes(columnMap);
     } else if (

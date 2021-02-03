@@ -12,7 +12,8 @@
           "<all_urls>"
         ],
         "css": [
-          "dist/wildcard.css"
+          "dist/wildcard.css",
+          "vendor/bootstrap/css/bootstrap.css"
         ]
       },
       {

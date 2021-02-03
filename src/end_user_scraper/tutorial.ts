@@ -8,7 +8,8 @@ import {
     getColumnMap,
     setMultipleExamples,
     getEventMaps,
-    clearElementMap
+    clearElementMap,
+    getEditing
 } from './state';
 
 import {
@@ -25,27 +26,34 @@ import {
 const TUTORIAL_BACKGROUND_COLOR = 'rgb(255, 255, 255)';
 const TUTORIAL_TEXT_COLOR = 'rgb(0, 0, 0)';
 
-const _tutorialHTML = `
-    <div id='wc-scraper-tutorial' style='display: flex; flex-direction: column; justify-content: center; z-index: 1000; width: 100vw; background-color: ${TUTORIAL_BACKGROUND_COLOR}; color: ${TUTORIAL_TEXT_COLOR}; position: fixed; top: 0; left: 0; opacity: 0.95; font-size: 1em; box-shadow: 0 0 20px rgba(0,0,0,0.8); border-radius: 5px; padding: 1px; margin: 1px;'>
-        <div class='instructions' style='margin: 1px; text-align: center;display:flex;justify-content:flex-end;'>
-            <span id='message' style='padding: 2.5px; margin: 2.5px;'>
-              Alt + click (option instead of alt on Mac) on a field you wish to scrape
-            </span>
-        </div>
-        <div id='wc-scraper-tutorial-column-controls' style='margin: 1px; display: flex; height: 52px;'>
-            <div style='padding: 1px; margin: 1px;flex: 1;display:flex;flex-direction:row;' id='columnContainer'>
-            </div>
-            <div style='padding: 1px; margin: 1px;display:flex;align-items:center'>
-                <button id='startOverButton' style='margin: 1px;'> Restart</button>
-                <button id='cancelButton' style='margin: 1px;'>Cancel</button>
-                <button id='saveButton' style='margin: 1px;'>Done</button>
-            </div>
-        </div>
-    </div>
-`;
+
 
 let _tutorialElement;
 let _scraperControlsElement;
+
+function getTutorialHTMLString() {
+    const editting = getEditing();
+    const cancelButtonText = editting ? 'Delete' : 'Cancel';
+    const saveButtonText = editting ? 'Save' : 'Done';
+    return `
+        <div id='wc-scraper-tutorial' style='display: flex; flex-direction: column; justify-content: center; z-index: 100000; width: 100vw; background-color: ${TUTORIAL_BACKGROUND_COLOR}; color: ${TUTORIAL_TEXT_COLOR}; position: fixed; top: 0; left: 0; opacity: 0.95; font-size: 1em; box-shadow: 0 0 20px rgba(0,0,0,0.8); border-radius: 5px; padding: 1px; margin: 1px;'>
+            <div class='instructions' style='margin: 1px; text-align: center;display:flex;justify-content:flex-end;'>
+                <span id='message' style='padding: 2.5px; margin: 2.5px;'>
+                Alt + click (option instead of alt on Mac) on a field you wish to scrape
+                </span>
+            </div>
+            <div id='wc-scraper-tutorial-column-controls' style='margin: 1px; display: flex; height: 52px;'>
+                <div style='padding: 1px; margin: 1px;flex: 1;display:flex;flex-direction:row;' id='columnContainer'>
+                </div>
+                <div style='padding: 1px; margin: 1px;display:flex;align-items:center'>
+                    <button id='startOverButton' class="btn btn-outline-secondary" style='margin: 1px;'>Restart</button>
+                    <button id='cancelButton' class="btn btn-outline-secondary" style='margin: 1px;'>${cancelButtonText}</button>
+                    <button id='saveButton' class="btn btn-outline-secondary" style='margin: 1px;'>${saveButtonText}</button>
+                </div>
+            </div>
+        </div>
+`;
+}
 
 function createColumnBoxString({ column, color, index }) {
     return `
@@ -184,7 +192,7 @@ export function getTutorialElement() {
 }
 
 export function initTutorial() {
-    _tutorialElement = htmlToElement(_tutorialHTML);
+    _tutorialElement = htmlToElement(getTutorialHTMLString());
     document.body.prepend(_tutorialElement);
     addColumnControlListeners();
     renderColumnBoxes(getColumnMap());
