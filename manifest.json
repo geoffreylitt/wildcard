@@ -13,7 +13,7 @@
         ],
         "css": [
           "dist/wildcard.css",
-          "vendor/bootstrap/css/bootstrap.css"
+          "vendor/bootstrap/css/bootstrap.min.css"
         ]
       },
       {
