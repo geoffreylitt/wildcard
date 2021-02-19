@@ -1,0 +1,45 @@
+{
+  "name": "Hacker News",
+  "urls": [
+    "news.ycombinator.com"
+  ],
+  "matches": [
+    "news.ycombinator.com",
+    "news.ycombinator.com/news",
+    "news.ycombinator.com/newest"
+  ],
+  "attributes": [
+    {
+      "name": "id",
+      "type": "text",
+      "hidden": true
+    },
+    {
+      "name": "rank",
+      "type": "numeric"
+    },
+    {
+      "name": "title",
+      "type": "text"
+    },
+    {
+      "name": "link",
+      "type": "text"
+    },
+    {
+      "name": "points",
+      "type": "numeric"
+    },
+    {
+      "name": "user",
+      "type": "text"
+    },
+    {
+      "name": "comments",
+      "type": "numeric"
+    }
+  ],
+  "scrapePage": "() => {\n    return Array.from(document.querySelectorAll(\"tr.athing\")).map(el => {\n      let detailsRow = el.nextElementSibling\n      let spacerRow = detailsRow.nextElementSibling\n\n      return {\n        id: String(el.getAttribute(\"id\")),\n        rowElements: [el, detailsRow, spacerRow],\n          // todo: Both of these steps should be handled by the framework...\n          // .filter(e => e) // Only include if the element is really there\n          // .map(e => (e)), // Convert to HTMLElement type\n        dataValues: {\n          rank: el.querySelector(\"span.rank\"),\n          title: el.querySelector(\"a.storylink\"),\n          link: el.querySelector(\"a.storylink\").getAttribute(\"href\"),\n          // These elements contain text like \"162 points\";\n          // Wildcard takes care of extracting a number automatically.\n          points: detailsRow.querySelector(\"span.score\"),\n          user: detailsRow.querySelector(\"a.hnuser\"),\n          comments: extractNumber(Array.from(detailsRow.querySelectorAll(\"a\"))\n            .find(e => e.textContent.indexOf(\"comment\") !== -1), 0)\n        },\n        annotationContainer: detailsRow.querySelector(\"td.subtext\"),\n        annotationTemplate: \"| <span style='color: #f60;'>$annotation</span>\"\n      }\n    })\n  }",
+  "onRowSelected": "(row) => {\n      row.rowElements.forEach(el => {\n          if (el.style) {\n              el.style[\"background-color\"] = \"#def3ff\";\n          }\n      });\n      row.rowElements[0].scrollIntoView({ behavior: \"smooth\", block: \"center\" });\n  }",
+  "onRowUnselected": "(row) => {\n      row.rowElements.forEach(el => {\n          if(el.style) {\n              el.style[\"background-color\"] = \"\";\n          }\n      })\n  }"
+}

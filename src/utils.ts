@@ -49,3 +49,29 @@ export function onDomReady(fn) {
   if (document.readyState != 'loading') fn();
   else document.addEventListener('DOMContentLoaded', fn)
 }
+
+export function readFromChromeLocalStorage(keys) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(keys, (results) => {
+      resolve(results)
+    });
+  });
+}
+
+export function saveToChromeLocalStorage(entries) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.set(entries);
+    resolve();
+  });
+}
+
+export function removeFromChromeLocalStorage(keys) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.remove(keys);
+    resolve();
+  });
+}
+
+export function compileJavascript(code) {
+  return eval(code);
+}

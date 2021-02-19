@@ -2,6 +2,8 @@
 declare const browser;
 
 import { TableAdapter, Record, Attribute, TableCallback, RecordEdit } from './core/types'
+import { createDomScrapingAdapter } from './site_adapters/domScrapingBase';
+import { readFromChromeLocalStorage, compileJavascript } from './utils'
 
 let table = {
   tableId: "user",
@@ -54,7 +56,7 @@ const editRecords = (edits:Array<RecordEdit>) => {
   return Promise.resolve(loadTable());
 }
 
-const userStore:TableAdapter = {
+export const userStore:TableAdapter = {
    tableId: "user",
    name: "User Local Storage",
    initialize: (ns) => {
@@ -102,4 +104,31 @@ const userStore:TableAdapter = {
    handleOtherTableUpdated() {},
 }
 
-export default userStore;
+export const adapterStore = {
+  getLocalAdapters: async () => {
+    const localAdaptersKey = 'localStorageAdapter:adapters';
+    const keysToEvaluate = ['scrapePage', 'onRowSelected', 'onRowUnselected', 'addScrapeTriggers'];
+    const result = [];
+    try {
+      const localAdapters = (await readFromChromeLocalStorage([localAdaptersKey]) as Object)[localAdaptersKey] || [];
+      for (let i = 0; i < localAdapters.length; i++) {
+        const adapter = localAdapters[i];
+        const localAdapterKey = `${localAdaptersKey}:${adapter}`;
+        const adapterConfigString = (await readFromChromeLocalStorage([localAdapterKey]) as Object)[localAdapterKey];
+        // sometimes we can end up with malformed adapters; just ignore and keep going
+        if(!adapterConfigString) continue;
+        const adapterConfig = JSON.parse(adapterConfigString);
+        Object.keys(adapterConfig)
+          .filter(key => keysToEvaluate.includes(key))
+          .forEach(key => {
+            adapterConfig[key] = compileJavascript(adapterConfig[key]);
+          });
+        const localAdapter = createDomScrapingAdapter(adapterConfig);
+        result.push(localAdapter);
+      }
+    } catch(error){
+      console.error('error while retrieving local adapters:', error);
+    }
+    return result;
+  }
+}

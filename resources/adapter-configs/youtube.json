@@ -1,0 +1,36 @@
+{
+  "name": "YouTube",
+  "urls": [
+    "youtube.com"
+  ],
+  "matches": [
+    "youtube.com"
+  ],
+  "attributes": [
+    {
+      "name": "id",
+      "type": "text",
+      "hidden": true
+    },
+    {
+      "name": "Title",
+      "type": "text"
+    },
+    {
+      "name": "Time",
+      "type": "text"
+    },
+    {
+      "name": "Uploader",
+      "type": "text"
+    },
+    {
+      "name": "% Watched",
+      "type": "numeric"
+    }
+  ],
+  "scrapePage": "() => {\n        function progressToNumber(progress){\n            let strippedProgress = progress.slice(0, -1);\n            return parseInt(strippedProgress);\n        }\n        let tableRows = document.querySelector('#contents').children;\n        if (tableRows.length == 1) {\n            // for use on video listing page e.g. https://www.youtube.com/user/*/videos\n            tableRows = document.querySelector('#contents #items').children;\n        }\n        return Array.from(tableRows).map((el, index) => {\n            let elAsHTMLElement = el;\n\n            // on /user/*/videos, link is in #thumbnail, not #video-title-link\n            if((el.querySelector('#video-title-link') !== null || el.querySelector('#thumbnail') !== null) && el.querySelector('#overlays') != null && el.querySelector('#overlays').children[0] != null){\n\n                let overlayChildrenAmount = el.querySelector('#overlays').children.length;\n                let timeStampExists = overlayChildrenAmount > 1 && el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1] !== undefined;\n                let timeStamp = timeStampExists\n                    ? el.querySelector('#overlays').children[overlayChildrenAmount - 2].children[1].textContent.replace(new RegExp(\"|\\\\r\\\\n|\\\\n|\\\\r\", \"gm\"),\"\")\n                    : \"N/A\";\n                let watchedPercentage = el.querySelector('#progress') !== null\n                    ? progressToNumber((el.querySelector('#progress')).style.width)\n                    : 0;\n\n                return {\n                    rowElements: [elAsHTMLElement],\n                    id: (el.querySelector('#video-title-link') || el.querySelector('#thumbnail')).getAttribute(\"href\"),\n                    dataValues: {\n                        Title: el.querySelector('#video-title'),\n                        Time: timeStamp,\n                        Uploader: el.querySelector('#text').children[0],\n                        '% Watched': watchedPercentage,\n                    },\n                }\n            } else {\n                return null;\n            }\n        }).filter(el => el !== null)\n    }",
+  "addScrapeTriggers": "(reload) => {\n        document.addEventListener(\"click\", (e) => { reload() });\n        document.addEventListener(\"keydown\", (e) => { reload() });\n        document.addEventListener(\"scroll\", debounce((e) => { reload() }, 50));\n    }",
+  "onRowSelected": "(row) => {\n        row.rowElements.forEach(el => {\n            if (el.style) {\n                el.style[\"background-color\"] = \"#c9ebff\";\n            }\n        });\n        row.rowElements[0].scrollIntoView({ behavior: \"smooth\", block: \"center\" });\n    }",
+  "onRowUnselected": "(row) => {\n        row.rowElements.forEach(el => {\n            if (el.style) {\n                el.style[\"background-color\"] = \"\";\n            }\n        });\n    }"
+}

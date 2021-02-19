@@ -4,10 +4,12 @@
 
 'use strict';
 
+window['state'] = {};
+
 // to add functionality only available in background scripts,
 // add a message handler to this list
 
-let fetchWithTimeout:any = (url, options, timeout) => {
+let fetchWithTimeout: any = (url, options, timeout) => {
   return new Promise((resolve, reject) => {
     fetch(url, options).then(resolve, reject);
 
@@ -20,12 +22,12 @@ let fetchWithTimeout:any = (url, options, timeout) => {
 
 const getVisits = (request, sender, sendResponse) => {
   chrome.history.getVisits({ url: request.url }, (visits) => {
-    sendResponse({visits: visits});
+    sendResponse({ visits: visits });
   })
 }
 
 const getReadingTime = (request, sender, sendResponse) => {
-  const apiUrl= `https://klopets.com/readtime/?url=${request.url}&json`
+  const apiUrl = `https://klopets.com/readtime/?url=${request.url}&json`
   fetchWithTimeout(apiUrl, {}, 5000)
     .then(r => r.json())
     .catch(err => sendResponse({ error: "couldn't fetch read time" }))
@@ -39,13 +41,25 @@ const getReadingTime = (request, sender, sendResponse) => {
     })
 }
 
+const forwardToContentScripts = (request, sender, sendResponse) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs && tabs.length) {
+      chrome.tabs.sendMessage(tabs[0].id, request);
+    }
+  });
+}
+
 const handlers = {
   getVisits: getVisits,
-  getReadingTime: getReadingTime
+  getReadingTime: getReadingTime,
+  deleteAdapter: forwardToContentScripts,
+  saveAdapter: forwardToContentScripts,
+  resetAdapter: forwardToContentScripts,
+  editAdapter: forwardToContentScripts
 }
 
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  function (request, sender, sendResponse) {
     let handler = handlers[request.command]
 
     if (handler) {
@@ -54,3 +68,53 @@ chrome.runtime.onMessage.addListener(
 
     return true;
   });
+
+chrome.contextMenus.create({
+  title: "Wildcard",
+  id: "wildcard",
+  type: "normal",
+  contexts: ["page"]
+}, () => {
+  chrome.contextMenus.create({
+    title: "Create Adapter",
+    contexts: ["page"],
+    parentId: "wildcard",
+    onclick: function () {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs.length) {
+          // send message to active tab
+          chrome.tabs.sendMessage(tabs[0].id, { command: "createAdapter" }, (response) => {
+            if (response.error) {
+              alert(response.error);
+            }
+          });
+        }
+      });
+    }
+  });
+  // chrome.contextMenus.create({
+  //   title: "Edit Adapter",
+  //   contexts: ["page"],
+  //   parentId: "wildcard",
+  //   onclick: function () {
+  //     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  //       if (tabs && tabs.length) {
+  //         // send message to active tab
+  //         chrome.tabs.sendMessage(tabs[0].id, { command: "openCodeEditor" }, (response) => {
+  //           if (response.error) {
+  //             alert(response.error);
+  //           }
+  //         });
+  //       }
+  //     });
+  //   }
+  // });
+  // chrome.contextMenus.create({
+  //   title: "Open Options Page",
+  //   contexts: ["page"],
+  //   parentId: "wildcard",
+  //   onclick: function () {
+  //     chrome.runtime.openOptionsPage();
+  //   }
+  // });
+});

@@ -13,11 +13,11 @@ import WeatherChannelAdapter from './weatherchannel'
 import YoutubeAdapter from './youtube'
 import GithubAdapter from './github'
 import HarvardBookWarehouse from './harvardbookwarehouse'
-
-import { Table, Record, SortConfig, recordId, Attribute } from '../core/types'
+import { adapterStore } from '../localStorageAdapter'
+import { TableAdapter } from '../core/types'
 
 export const siteAdapters = [
-  HNAdapter,
+  // HNAdapter,
   FluxAdapter,
   // ExpediaAdapter,
   AirbnbAdapter,
@@ -31,9 +31,12 @@ export const siteAdapters = [
   HarvardBookWarehouse
 ]
 
-export function getActiveAdapter(): any {
-  const adaptersForPage = siteAdapters.filter(adapter => adapter.enabled())
-
+export async function getActiveAdapter(): Promise<undefined | TableAdapter> {
+  const localAdapters = await adapterStore.getLocalAdapters();
+  const adaptersForPage = [
+    ...localAdapters,
+    ...siteAdapters
+  ].filter(adapter => adapter.enabled())
   if (adaptersForPage.length === 0) { return undefined; }
 
   const activeAdapter = adaptersForPage[0];

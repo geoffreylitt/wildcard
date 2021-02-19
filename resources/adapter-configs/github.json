@@ -1,0 +1,30 @@
+{
+  "name": "Github",
+  "urls": [
+    "https://github.com/geoffreylitt?tab=repositories"
+  ],
+  "matches": [
+    "github.com.*tab=repositories"
+  ],
+  "attributes": [
+    {
+      "name": "name",
+      "type": "text"
+    },
+    {
+      "name": "stars",
+      "type": "numeric"
+    },
+    {
+      "name": "forks",
+      "type": "text"
+    },
+    {
+      "name": "updated",
+      "type": "text"
+    }
+  ],
+  "scrapePage": "() => {\n    return Array.from(document.querySelectorAll(\"li.source\")).map(el => {\n      let name_el = el.querySelector('a[itemprop=\"name codeRepository\"]')\n      let name = name_el.textContent.trim()\n\n      let stars_el = el.querySelector('*[href*=\"/stargazers\"')\n      let stars = extractNumber(stars_el, 0)\n\n      let forks_el = el.querySelector('*[href*=\"/network/members\"]')\n      let forks = extractNumber(forks_el, 0)\n\n      let lang_el = el.querySelector('*[itemprop=\"programmingLanguage\"]')\n      // some repos don't have language set\n      let lang = lang_el == null ? null : lang_el.textContent.trim()\n\n      let updated_el = el.querySelector('relative-time')\n      let updated = updated_el.getAttribute('datetime')\n\n      return {\n          id: name,\n          rowElements: [el],\n          dataValues: {\n              name: name,\n              stars: stars,\n              forks: forks,\n              updated: updated,\n          }\n      }\n    })\n  }",
+  "onRowSelected": "(row) => {\n      row.rowElements.forEach(el => {\n          if (el.style) {\n              el.style[\"background-color\"] = \"#def3ff\"\n          }\n      });\n      row.rowElements[0].scrollIntoView({ behavior: \"smooth\", block: \"center\" })\n  }",
+  "onRowUnselected": "(row) => {\n      row.rowElements.forEach(el => {\n          if(el.style) {\n              el.style[\"background-color\"] = \"\";\n          }\n      })\n  }"
+}

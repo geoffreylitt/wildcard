@@ -6,15 +6,37 @@
     "content_scripts": [
       {
         "js": [
-          "dist/wildcard.js"
+          "dist/wildcard.js",
+          "vendor/bootstrap/css/bootstrap.min.css"
         ],
         "matches": [
           "<all_urls>"
         ],
-        "css" : ["dist/wildcard.css"]
+        "css": [
+          "dist/wildcard.css",
+          "vendor/bootstrap/css/bootstrap.min.css"
+        ]
+      },
+      {
+        "js": [
+          "dist/marketplace.js"
+        ],
+        "matches": [
+          "https://wildcard-marketplace.herokuapp.com/adapter.html?aid=*",
+          "https://wildcard-marketplace.herokuapp.com/upload.html?key=*",
+          "http://wildcard-marketplace.herokuapp.com/adapter.html?aid=*",
+          "http://wildcard-marketplace.herokuapp.com/upload.html?key=*",
+          "http://localhost:3000/adapter.html?aid=*",
+          "http://localhost:3000/upload.html?key=*"
+        ]
       }
     ],
-    "background": {"scripts": ["dist/wildcard-background.js", "src/wildcard-ajax.js"]},
+    "background": {
+      "scripts": [
+        "dist/wildcard-background.js",
+        "src/wildcard-ajax.js"
+      ]
+    },
     "permissions": [
       "storage",
       "*://localhost/*",
@@ -23,6 +45,8 @@
       "https://*/*",
       "webRequest",
       "webRequestBlocking",
-      "<all_urls>"
-    ]
+      "<all_urls>",
+      "contextMenus"
+    ],
+    "options_page": "options.html"
   }

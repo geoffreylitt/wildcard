@@ -1,11 +1,14 @@
 import React, { useRef, useState } from "react";
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-typescript";
+import "ace-builds/src-noconflict/theme-monokai";
 import "./overrides.css";
-
 import styled from 'styled-components'
-
 import { Record, Attribute } from '../core/types'
+
+const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
 function formatRecordsForHot(records:Array<Record>) {
   return records.map(record => ({
@@ -26,21 +29,18 @@ function formatAttributesForHot(attributes:Array<Attribute>) {
 
 const ToggleButton = styled.div`
   display: block;
-
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 14px;
-
   border-radius: 10px;
   z-index: 10000;
   padding: 10px;
   position: fixed;
   bottom: ${props => props.hidden ? 20 : 300}px;
-  right: 20px;
+  right: ${props => props.codeEditorHidden ? 2 : 31}vw;
   background-color: white;
   box-shadow: 0px 0px 10px -1px #d5d5d5;
   border: none;
   cursor: pointer;
-
   &:hover {
     background-color: #eee;
   }
@@ -51,15 +51,12 @@ const Panel = styled.div`
   bottom: 0;
   left: 0;
   height: ${props => props.hidden ? 0 : 280}px;
-  width: 98vw;
+  width: ${props => props.codeEditorHidden ? 98 : 68.5}vw;
   z-index: 2200;
-
   box-shadow: 0px -5px 10px 1px rgba(170,170,170,0.5);
   border-top: solid thin #9d9d9d;
-
   overflow: hidden;
   background-color: white;
-
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 14px;
 `
@@ -69,11 +66,42 @@ const ControlBar = styled.div`
   padding: 5px 10px;
 `
 
+const CodeEditor = styled(AceEditor)`
+  display: ${props => props.codeEditorHidden ? 'none' : 'block'};
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  z-index: 2500;
+`
+const EditorButton = styled(ToggleButton)`
+  display: ${props => props.codeEditorHidden ? 'none' : 'block'};
+  bottom: 20px;
+  right: ${props => props.right};
+`
+
+const ShareButton = styled(ToggleButton)`
+  /* right: ${props => props.right}; */
+  right: calc(2vw + 165px);
+  display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
+`
+
+const EditButton = styled(ToggleButton)`
+  /* right: ${props => props.right}; */
+  right: calc(2vw + 180px);
+  display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
+`
+
+
 // Declare our functional React component
 
-const WcPanel = ({ records, attributes, query, actions }) => {
+const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter }) => {
   const hotRef = useRef(null);
   const [hidden, setHidden] = useState(false);
+  // Declare a new state variable for adapter code
+  const [adapterCode, setAdapterCode] = useState("");
+  const [codeEditorHidden, setCodeEditorHidden] = useState(true);
+  const _adapterKey = "localStorageAdapter:adapters:" + adapter.name;
+
 
   const hotSettings = {
     data: formatRecordsForHot(records),
@@ -99,7 +127,7 @@ const WcPanel = ({ records, attributes, query, actions }) => {
     contextMenu: {
       items: {
         "insert_user_attribute": {
-          name: 'Insert new user column',
+          name: 'Insert User Column',
           callback: function(key, selection, clickEvent) {
             // TODO: For now, new columns always get added to the user table.
             // Eventually, do we want to allow adding to the main site table?
@@ -107,29 +135,51 @@ const WcPanel = ({ records, attributes, query, actions }) => {
             actions.addAttribute("user");
           }
         },
-        "rename_user_attribute": {
-          // todo: disable this on site columns
-          name: 'Rename column',
-          callback: function(key, selection, clickEvent) {
-            alert('not implemented yet');
-          }
-        },
-        "toggle_column_visibility":{
-          name: 'Toggle visibility',
-          disabled: () => {
-            // only allow toggling visibility on user table
-            const colIndex = getHotInstance().getSelectedLast()[1]
-            const attribute = attributes[colIndex]
+        // "rename_user_attribute": {
+        //   // todo: disable this on site columns
+        //   name: 'Rename column',
+        //   callback: function(key, selection, clickEvent) {
+        //     alert('not implemented yet');
+        //   }
+        // },
+        // "toggle_column_visibility":{
+        //   name: 'Toggle visibility',
+        //   disabled: () => {
+        //     // only allow toggling visibility on user table
+        //     const colIndex = getHotInstance().getSelectedLast()[1]
+        //     const attribute = attributes[colIndex]
 
-            return attribute.tableId !== "user"
-          },
-          callback: function(key, selection, clickEvent) {
-            const attribute = attributes[selection[0].start.col];
+        //     return attribute.tableId !== "user"
+        //   },
+        //   callback: function(key, selection, clickEvent) {
+        //     const attribute = attributes[selection[0].start.col];
 
-            // NOTE! idx assumes that id is hidden.
-            actions.toggleVisibility(attribute.tableId, attribute.name);
-          }
-        }
+        //     // NOTE! idx assumes that id is hidden.
+        //     actions.toggleVisibility(attribute.tableId, attribute.name);
+        //   }
+        // },
+        // "column_type": {
+        //   name: "Column Type",
+        //   submenu: {
+        //     items: [
+        //       {
+        //         key: "column_type:text",
+        //         name: "Text",
+        //         callback: (key, selection, clickEvent) => {
+        //           console.log(selection);
+        //           alert(`Not implemented: you set column type to ${key.split(":").pop()}`)
+        //         },
+        //       },
+        //       {
+        //         key: "column_type:numeric",
+        //         name: "Number",
+        //         callback: (key, selection, clickEvent) => {
+        //           alert(`Not implemented: you set the column type to ${key.split(":").pop()}`)
+        //         }
+        //       }
+        //     ]
+        //   }
+        // }
       }
     }
   }
@@ -220,12 +270,60 @@ const WcPanel = ({ records, attributes, query, actions }) => {
     actions.selectRecord(recordId, attribute)
   }
 
+
+  const loadAdapterCode = function () {
+    let loaded = false;
+    // setup listener
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      switch (request.command) {
+        case 'openCodeEditor':
+          // show code editor
+          setCodeEditorHidden(false);
+          sendResponse({ codeEditorHidden: false });
+
+          // load adapter code
+          if (!loaded) {
+            loaded = true;
+            chrome.storage.local.get(_adapterKey, (results) => {
+              setAdapterCode(results[_adapterKey]);
+              console.log("loaded code from storage");
+            });
+          }
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  const onBlurCodeEditor = function(e, code){
+    const data = code.getValue();
+    console.log('Editor Data: ',data);
+    setAdapterCode(data);
+  }
+
+  const saveAdapterCode = function() {
+    chrome.storage.local.set({ [_adapterKey]: adapterCode }, function() {
+console.log("saved changes");
+    });
+  }
+
   if (records && records.length > 0) {
     return <>
-      <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}>
-        { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
-      </ToggleButton>
-      <Panel hidden={hidden}>
+      {!creatingAdapter && (
+        <>
+          <EditButton hidden={hidden} codeEditorHidden={codeEditorHidden}
+            onClick={() => {
+              chrome.runtime.sendMessage({ command: 'editAdapter' });
+          }}> Edit Adapter
+          </EditButton>
+          <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
+          codeEditorHidden={codeEditorHidden}>
+            { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
+          </ToggleButton>
+        </>
+      )}
+      <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
         </ControlBar>
@@ -238,6 +336,19 @@ const WcPanel = ({ records, attributes, query, actions }) => {
           settings = {hotSettings}
           ref={hotRef} />
       </Panel>
+      <CodeEditor mode="typescript" theme="monokai" value={adapterCode}
+         codeEditorHidden={codeEditorHidden} 
+         onLoad ={loadAdapterCode}
+         onBlur={(e, code) => setAdapterCode(code.getValue())}
+        //  onBlur={onBlurCodeEditor}
+         width="30vw" height="100vh" 
+      />
+      <EditorButton codeEditorHidden={codeEditorHidden} right="70px"
+        onClick={() => {saveAdapterCode();}}> Save
+      </EditorButton>
+      <EditorButton codeEditorHidden={codeEditorHidden} right="10px"
+        onClick={() => setCodeEditorHidden(true)}> Close
+      </EditorButton>
     </>;
   } else {
     return null;
