@@ -181,7 +181,7 @@ export function resetScraperState() {
 export function getMouseClickRowStyleData() {
     return {
         styleProperty: 'border',
-        styleValue: `1px solid ${ACTIVE_COLOR}`
+        styleValue: `2px solid ${ACTIVE_COLOR}`
     }
 }
 
@@ -196,7 +196,7 @@ export function getMouseClickColumnStyleValue() {
 export function getMouseMoveRowStyleData() {
     return {
         styleProperty: 'border',
-        styleValue: `1px solid ${ACTIVE_COLOR}`
+        styleValue: `2px solid ${ACTIVE_COLOR}`
     }
 }
 

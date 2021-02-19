@@ -85,6 +85,14 @@ function scraperClickListener(event) {
     const eventMaps = getEventMaps();
     const adapterKey = getAdapterKey();
     if (
+        multipleExamples &&
+        newSelector(currentColumnSelector, columnMap) &&
+        inSelectorElements({ selector: rowElementSelector, node: target }) &&
+        !target.childElementCount &&
+        target.textContent
+    ) {
+        setColumnMap(tempColumnMap);
+    } else if (
         newSelector(currentColumnSelector, columnMap) &&
         !target.childElementCount &&
         target.textContent &&
@@ -96,14 +104,6 @@ function scraperClickListener(event) {
         setColumn(nextColumn);
         renderColumnBoxes(tempColumnMap);
         exploring && setExploring(false);
-    } else if (
-        multipleExamples &&
-        newSelector(currentColumnSelector, columnMap) &&
-        inSelectorElements({ selector: rowElementSelector, node: target }) &&
-        !target.childElementCount &&
-        target.textContent
-    ) {
-        setColumnMap(tempColumnMap);
     } else if (
         !newSelector(currentColumnSelector, columnMap) &&
         rowElement.contains(target)

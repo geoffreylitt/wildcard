@@ -6,7 +6,8 @@
     "content_scripts": [
       {
         "js": [
-          "dist/wildcard.js"
+          "dist/wildcard.js",
+          "vendor/bootstrap/css/bootstrap.min.css"
         ],
         "matches": [
           "<all_urls>"

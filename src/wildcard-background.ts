@@ -76,7 +76,7 @@ chrome.contextMenus.create({
   contexts: ["page"]
 }, () => {
   chrome.contextMenus.create({
-    title: "Create Web Scraper",
+    title: "Create Adapter",
     contexts: ["page"],
     parentId: "wildcard",
     onclick: function () {

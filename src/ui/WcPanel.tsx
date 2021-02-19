@@ -127,7 +127,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     contextMenu: {
       items: {
         "insert_user_attribute": {
-          name: 'Insert new user column',
+          name: 'Insert User Column',
           callback: function(key, selection, clickEvent) {
             // TODO: For now, new columns always get added to the user table.
             // Eventually, do we want to allow adding to the main site table?
@@ -135,51 +135,51 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
             actions.addAttribute("user");
           }
         },
-        "rename_user_attribute": {
-          // todo: disable this on site columns
-          name: 'Rename column',
-          callback: function(key, selection, clickEvent) {
-            alert('not implemented yet');
-          }
-        },
-        "toggle_column_visibility":{
-          name: 'Toggle visibility',
-          disabled: () => {
-            // only allow toggling visibility on user table
-            const colIndex = getHotInstance().getSelectedLast()[1]
-            const attribute = attributes[colIndex]
+        // "rename_user_attribute": {
+        //   // todo: disable this on site columns
+        //   name: 'Rename column',
+        //   callback: function(key, selection, clickEvent) {
+        //     alert('not implemented yet');
+        //   }
+        // },
+        // "toggle_column_visibility":{
+        //   name: 'Toggle visibility',
+        //   disabled: () => {
+        //     // only allow toggling visibility on user table
+        //     const colIndex = getHotInstance().getSelectedLast()[1]
+        //     const attribute = attributes[colIndex]
 
-            return attribute.tableId !== "user"
-          },
-          callback: function(key, selection, clickEvent) {
-            const attribute = attributes[selection[0].start.col];
+        //     return attribute.tableId !== "user"
+        //   },
+        //   callback: function(key, selection, clickEvent) {
+        //     const attribute = attributes[selection[0].start.col];
 
-            // NOTE! idx assumes that id is hidden.
-            actions.toggleVisibility(attribute.tableId, attribute.name);
-          }
-        },
-        "column_type": {
-          name: "Column Type",
-          submenu: {
-            items: [
-              {
-                key: "column_type:text",
-                name: "Text",
-                callback: (key, selection, clickEvent) => {
-                  console.log(selection);
-                  alert(`Not implemented: you set column type to ${key.split(":").pop()}`)
-                },
-              },
-              {
-                key: "column_type:numeric",
-                name: "Number",
-                callback: (key, selection, clickEvent) => {
-                  alert(`Not implemented: you set the column type to ${key.split(":").pop()}`)
-                }
-              }
-            ]
-          }
-        }
+        //     // NOTE! idx assumes that id is hidden.
+        //     actions.toggleVisibility(attribute.tableId, attribute.name);
+        //   }
+        // },
+        // "column_type": {
+        //   name: "Column Type",
+        //   submenu: {
+        //     items: [
+        //       {
+        //         key: "column_type:text",
+        //         name: "Text",
+        //         callback: (key, selection, clickEvent) => {
+        //           console.log(selection);
+        //           alert(`Not implemented: you set column type to ${key.split(":").pop()}`)
+        //         },
+        //       },
+        //       {
+        //         key: "column_type:numeric",
+        //         name: "Number",
+        //         callback: (key, selection, clickEvent) => {
+        //           alert(`Not implemented: you set the column type to ${key.split(":").pop()}`)
+        //         }
+        //       }
+        //     ]
+        //   }
+        // }
       }
     }
   }
@@ -315,7 +315,7 @@ console.log("saved changes");
           <EditButton hidden={hidden} codeEditorHidden={codeEditorHidden}
             onClick={() => {
               chrome.runtime.sendMessage({ command: 'editAdapter' });
-          }}> Edit Scraper
+          }}> Edit Adapter
           </EditButton>
           <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
           codeEditorHidden={codeEditorHidden}>

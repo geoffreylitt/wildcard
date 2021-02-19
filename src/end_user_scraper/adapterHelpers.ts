@@ -121,7 +121,7 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
     return {
         name: document.title,
         urls: [window.location.href],
-        matches: [window.location.href],
+        matches: [`${window.location.origin}${window.location.pathname}`],
         attributes: createTableColumns(Math.max(columnSelectors.length, MIN_COLUMNS)),
         metadata: {
             id: adapterKey,
