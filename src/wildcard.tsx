@@ -88,7 +88,6 @@ export const run = async function ({ creatingAdapter }) {
   chrome.storage.local.get(`query:${activeSiteAdapter.name}`, (result) => {
     const query = result[`query:${activeSiteAdapter.name}`]
     if (query) {
-      console.log("found query", query)
       store.dispatch(actions.sortRecords(query.sortConfig))
     } else {
       console.log("no query")

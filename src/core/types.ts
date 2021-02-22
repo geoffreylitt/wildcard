@@ -34,6 +34,9 @@ export interface Attribute {
   *  Making a column editable requires extracting [[PageValue]]s as Elements.*/
   editable?: boolean;
 
+  /** The formula for computing this cell. (If missing, cell is considered manual data) */
+  formula?: string;
+
   /** Specify a custom [Handsontable editor](https://handsontable.com/docs/7.3.0/tutorial-cell-editor.html)
   * as a class (see Expedia adapter for an example) */
   editor?: string;
@@ -108,6 +111,16 @@ export interface TableAdapter {
 
   handleRecordSelected(recordId: recordId, attribute: string);
 
+  /** clear the contents of the table */
+  clear():void
+
+  addAttribute():Promise<Table>;
+
+  toggleVisibility(colName: string):void;
+  
+  setFormula(attrName: string, formula: string);
+
+
   /** Update the UI to match arbitrary table state
    *  (To implement performantly, probably do a diff inside the adapter
    *  and only update the UI where necessary) */
@@ -119,7 +132,4 @@ export interface TableAdapter {
 
   handleOtherTableUpdated(table:Table):void;
 
-  addAttribute():Promise<Table>;
-
-  toggleVisibility(colName: string):void;
 }

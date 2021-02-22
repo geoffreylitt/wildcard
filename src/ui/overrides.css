@@ -4,3 +4,12 @@
 .htContextMenu:not(.htGhostTable) {
   z-index: 2300;
 }
+
+th span.formula-header:before {
+  content: "f(x)";
+  margin-right: 10px;
+  margin-left: -10px;
+  font-style: italic;
+  font-size: 12px;
+  color: #888;
+}

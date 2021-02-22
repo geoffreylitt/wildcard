@@ -2,6 +2,10 @@
 
 import ohm from 'ohm-js/dist/ohm';
 import _ from "lodash";
+import { Attribute, Record } from './core/types';
+
+// An object to store results of calling functions
+const functionCache = {}
 
 const GRAMMAR_SRC = `
 Formula {
@@ -65,7 +69,7 @@ async function visited(url) {
 let getReadingTime = (url) => {
   return new Promise((resolve, _reject) => {
     chrome.runtime.sendMessage({command: "getReadingTime", url: url}, function(response) {
-      let result = response.seconds || null
+      let result = response.seconds || -1 // -1 is our error value... rethink?
       resolve(result)
     });
   })
@@ -155,7 +159,23 @@ class FnNode {
     let fn = functions[this.fnName]
     if (!fn) { return null }
     return Promise.all(this.args.map(arg => arg.eval(row))).then(values => {
-      return fn.apply(this, values)
+      // Compute a cache key representing executing this function on these inputs
+      // of the form "FunctionName:Arg1:Arg2".
+      // Then look it up in our in-memory cache. (the cache isn't persisted,
+      // it's just there to make re-evals smoother within pageloads)
+      // Technically this could go wrong in very weird cases where the input
+      // contains this separator character, and we should do something better like
+      // hash a key-value object or something... but this seems good enough for now.
+      const cacheKey = `${this.fnName}:${values.join("_:_")}`
+      console.log("cacheKey", cacheKey)
+
+      if(functionCache[cacheKey]) {
+        return functionCache[cacheKey]
+      } else {
+        const result =  fn.apply(this, values)
+        functionCache[cacheKey] = result
+        return result
+      }
     })
   }
 
@@ -255,3 +275,45 @@ export function formulaParse(s) {
   }
 }
 
+// This function is responsible for actually evaluating formulas and
+// turning them into data results.
+// Accepts a callback, which it calls with results as it goes through the table.
+export async function evalFormulas(records: Record[], attributes: Attribute[], callback: any){
+  // todo: actually correctly evaluate in topo sort order here.
+  // as-is, this will break if deps aren't properly ordered.
+  const sortedFormulaAttributes = attributes.filter(attr => attr.formula)
+
+  // parse formula text into AST, once per attribute
+  const parsedFormulas = {}
+  sortedFormulaAttributes.forEach(attr => {
+    parsedFormulas[attr.name] = formulaParse(attr.formula)
+  })
+
+  // Start by initializing an empty results object of the right shape,
+  // so that we can start incrementally sending back results to the table
+  const evalResults = {}
+  for (const record of records) {
+    evalResults[record.id] = {}
+    for (const attr of sortedFormulaAttributes) {
+      evalResults[record.id][attr.name] = null
+    }
+  }
+
+  callback(evalResults)
+
+  // Loop through records and attributes, iteratively evaluating formulas
+  for (const attr of sortedFormulaAttributes) {
+    const results = await Promise.all(records.map(record => parsedFormulas[attr.name].eval(record.values)))
+    for (const [index, result] of results.entries()) {
+      const record = records[index]
+
+      // Set the result in the output
+      evalResults[record.id][attr.name] = result
+
+      // Also mutate the result in our local state, so that later formulas
+      // can use the evaluation result of this column
+      record.values[attr.name] = result
+    }
+    callback(evalResults)
+  }
+}

@@ -48,6 +48,7 @@
     "concurrently": "^5.1.0",
     "docsify": "^4.11.3",
     "esbuild": "^0.8.8",
+    "random-words": "^1.1.1",
     "redux-devtools-extension": "^2.13.8",
     "socket.io": "^2.3.0",
     "typescript": "^3.7.4",

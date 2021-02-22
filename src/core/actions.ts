@@ -7,19 +7,33 @@
 // which will update the redux state on completion.
 // We use async redux-thunk action creators for this.
 
-import { Table, TableAdapter, tableId, recordId, RecordEdit } from './types'
+import { Table, TableAdapter, tableId, recordId, RecordEdit, Record, Attribute } from './types'
 import includes from 'lodash/includes'
 import keys from 'lodash/keys'
 import groupBy from 'lodash/groupBy'
 import forIn from 'lodash/forIn'
 import pick from 'lodash/pick'
+import { getFinalAttributes, getFinalRecords } from './getFinalTable'
+import { evalFormulas } from '../formula'
 
 export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter }) => {
-  const tableReloaded = (table:Table) =>
-    ({ type: "TABLE_RELOADED", table })
-
   return {
-    tableReloaded: tableReloaded,
+    tableReloaded (table:Table) {
+      return (dispatch, getState) => {
+        // load the new data into the UI immediately
+        dispatch({ type: "TABLE_RELOADED", table })
+
+        // asynchronously trigger formula re-evaluation
+        const state = getState()
+        const finalRecords:Record[] = getFinalRecords(state)
+        const finalAttributes:Attribute[] = getFinalAttributes(state)
+
+        evalFormulas(finalRecords, finalAttributes, (values) => {
+          console.log("eval complete!", values)
+          dispatch({ type: "FORMULAS_EVALUATED", values })
+        })
+      }
+    },
 
     addAttribute (tableId:tableId) {
       return (dispatch) => {
@@ -35,6 +49,13 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
       }
     },
 
+    clear (tableId:tableId) {
+      return (dispatch) => {
+        const TableAdapter = TableAdapters[tableId];
+        TableAdapter.clear()
+      }
+    },
+
     toggleVisibility (tableId:tableId, colName:string) {
       return (dispatch) => {
         dispatch({
@@ -42,6 +63,16 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
         })
         const TableAdapter = TableAdapters[tableId];
         TableAdapter.toggleVisibility(colName);
+      }
+    },
+
+    setFormula (tableId:tableId, attrName:string, formula) {
+      return (dispatch) => {
+        dispatch({
+          type: "HIDE_COL_REQUESTED"
+        })
+        const TableAdapter = TableAdapters[tableId];
+        TableAdapter.setFormula(attrName, formula);
       }
     },
 

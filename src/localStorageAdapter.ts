@@ -5,11 +5,13 @@ import { TableAdapter, Record, Attribute, TableCallback, RecordEdit } from './co
 import { createDomScrapingAdapter } from './site_adapters/domScrapingBase';
 import { readFromChromeLocalStorage, compileJavascript } from './utils'
 
-let table = {
+const emptyTable = {
   tableId: "user",
   attributes: [],
   records: []
 }
+
+let table = emptyTable
 
 // todo: could we use tableId instead of a separate "namespace" here?
 // especially because we might not always want to launch the same user table
@@ -67,6 +69,10 @@ export const userStore:TableAdapter = {
      })
    },
    enabled: () => true , // user store is always enabled
+   clear: () => {
+     table = emptyTable
+     loadTable()
+   },
    loadTable: loadTable,
    subscribe(callback:TableCallback) {
      subscribers = [...subscribers, callback];
@@ -94,6 +100,12 @@ export const userStore:TableAdapter = {
     loadTable();
 
     return;
+  },
+  setFormula(attrName, formula) {
+    table = { ...table,
+      attributes: table.attributes.map(attr => attr.name === attrName ? { ...attr, formula } : attr )}
+
+    loadTable(); 
   },
 
    // These changes to the table are no-ops

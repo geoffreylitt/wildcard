@@ -2,6 +2,7 @@
   "compilerOptions": {
     "typeRoots": ["node_modules/@types"],
     "allowSyntheticDefaultImports": true,
-    "jsx": "react"
+    "jsx": "react",
+    "downlevelIteration": true
   }
 }

@@ -43,10 +43,24 @@ const query = (state = { sortConfig: null }, action):QueryState => {
   }
 }
 
+const formulaResults = (state = { }, action) => {
+  switch(action.type) {
+    case "FORMULAS_EVALUATED":
+      return {
+        ...state,
+        ...action.values
+      }
+    
+    default:
+      return state;
+  }
+}
+
 const rootReducer = combineReducers({
   appTable: createTableReducer("app"),
   userTable: createTableReducer("user"),
-  query
+  query,
+  formulaResults
 })
 
 export type RootState = ReturnType<typeof rootReducer>

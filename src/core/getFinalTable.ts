@@ -16,32 +16,47 @@ import { createSelector } from 'reselect';
 import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
 import { RootState } from './reducer';
+import { Attribute, Record, SortConfig } from './types';
 
-const getAppRecords = (state:RootState) => state.appTable.records
-const getAppAttributes = (state:RootState) => state.appTable.attributes
+const getAppRecords = (state:RootState):Record[] => state.appTable.records
+const getAppAttributes = (state:RootState): Attribute[] => state.appTable.attributes
 
-const getUserRecords = (state:RootState) => state.userTable.records
-const getUserAttributes = (state:RootState) => state.userTable.attributes
+const getUserRecords = (state:RootState):Record[] => state.userTable.records
+const getUserAttributes = (state:RootState):Attribute[] => state.userTable.attributes
 
-const getSortConfig = (state:RootState) => state.query.sortConfig
+const getSortConfig = (state:RootState):SortConfig => state.query.sortConfig
+const getFormulaResults = (state:RootState):any => state.formulaResults
 
-// this selector is just cached on the whole state
+// todo: this selector is just cached on the whole state --
+// probably pointless to use this selector concept here?
 export const getFinalRecords = createSelector(
-  [getAppRecords, getUserRecords, getSortConfig],
-  (appRecords, userRecords, sortConfig) => {
+  [getAppRecords, getUserRecords, getAppAttributes, getUserAttributes, getSortConfig, getFormulaResults],
+  (appRecords, userRecords, appAttributes, userAttributes, sortConfig, formulaResults) => {
 
     const userRecordsById = keyBy(userRecords, r => r.id);
 
-    let finalRecords = appRecords.slice();
-
-    // left join user records to app records
-    finalRecords = finalRecords.map(r => ({
-      id: r.id,
-      values: {
-        ...r.values,
-        ...(userRecordsById[r.id] || {}).values
+    let finalRecords = appRecords.slice().map(r => {
+      // join app records to user records
+      const finalRecord = {
+        id: r.id,
+        values: {
+          ...r.values,
+          ...(userRecordsById[r.id] || {}).values
+        }
       }
-    }));
+
+      // add formula results to the table, where available.
+      // (any missing results are still in process of being computed,
+      // and we'll re-run the reducer once they are available)
+      userAttributes.filter(attr => attr.formula).forEach(attr => {
+        const result = formulaResults?.[finalRecord.id]?.[attr.name]
+        if(result !== undefined) {
+          finalRecord.values[attr.name] = result
+        }
+      })
+
+      return finalRecord
+    })
 
     // sort
     if (sortConfig) {
@@ -57,11 +72,26 @@ export const getFinalRecords = createSelector(
 )
 
 export const getFinalAttributes = createSelector(
-  [getAppAttributes, getUserAttributes],
-  (appAttributes, userAttributes) => {
+  [getAppAttributes, getUserAttributes, getFormulaResults],
+  (appAttributes, userAttributes, formulaResults) => {
     // annotate attrs with a table id
     appAttributes = (appAttributes || []).map( a => ({ ...a, tableId: "app" }))
     userAttributes = (userAttributes || []).map(a => ({ ...a, tableId: "user" }))
+
+    // set column type for formulas based on first row
+    userAttributes.forEach(attr => {
+      if(attr.formula) {
+        const sampleValue = formulaResults[Object.keys(formulaResults)[0]][attr.name]
+        if(typeof sampleValue === 'number') {
+          attr.type = "numeric"
+        } else if (typeof sampleValue === 'boolean') {
+          attr.type = "checkbox"
+        } else {
+          attr.type = "text"
+        }
+      }
+    })
+
     return appAttributes.concat(userAttributes)
   }
 )

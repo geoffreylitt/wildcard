@@ -7,6 +7,7 @@ import "ace-builds/src-noconflict/theme-monokai";
 import "./overrides.css";
 import styled from 'styled-components'
 import { Record, Attribute } from '../core/types'
+import Handsontable from "handsontable";
 
 const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
@@ -25,7 +26,6 @@ function formatAttributesForHot(attributes:Array<Attribute>) {
     editor: attribute.editor
   }))
 }
-
 
 const ToggleButton = styled.div`
   display: block;
@@ -62,7 +62,7 @@ const Panel = styled.div`
 `
 
 const ControlBar = styled.div`
-  height: 20px;
+  height: 30px;
   padding: 5px 10px;
 `
 
@@ -91,11 +91,24 @@ const EditButton = styled(ToggleButton)`
   display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
 `
 
+const CellEditorBox = styled.input`
+  display: inline-block;
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: solid thin #ddd;
+  min-width: 600px;
+  height: 100%;
+
+  &:focus {
+    border: none;
+  }
+`
 
 // Declare our functional React component
 
 const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter }) => {
   const hotRef = useRef(null);
+  const cellEditorRef = useRef(null);
   const [hidden, setHidden] = useState(false);
   // Declare a new state variable for adapter code
   const [adapterCode, setAdapterCode] = useState("");
@@ -103,11 +116,50 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   const _adapterKey = "localStorageAdapter:adapters:" + adapter.name;
 
 
+  // Keep track of the currently selected cell
+  const [activeCell, setActiveCell] = useState(null)
+
+  // The value of the selected cell.
+  // (Including in-progress updates that we are making in the UI)
+  const [activeCellValue, setActiveCellValue] = useState(null)
+
+  const onCellEditorKeyPress = (e) => {
+    const key = e.key
+    if (key === 'Enter') {
+      cellEditorRef.current.blur()
+    }
+  }
+
+  const commitActiveCellValue = () => {
+    if(activeCellValue[0] === "=") {
+      actions.setFormula(
+        activeCell.attribute.tableId,
+        activeCell.attribute.name,
+        activeCellValue
+      )
+    } else {
+      actions.editRecords([
+        {
+          tableId: activeCell.attribute.tableId,
+          recordId: activeCell.record.id,
+          attribute: activeCell.attribute.name,
+          value: activeCellValue
+        }
+      ])
+    }
+  }
+
   const hotSettings = {
     data: formatRecordsForHot(records),
     rowHeaders: true,
     columns: formatAttributesForHot(attributes),
-    colHeaders: attributes.map(attr => attr.name),
+    colHeaders: attributes.map(attr => {
+      if(attr.formula) {
+        return `<span class="formula-header">${attr.name}</span>`
+      } else {
+        return `<span class="data-header">${attr.name}</span>`
+      }
+    }),
     columnSorting: true,
 
     // Set a low column width,
@@ -120,6 +172,15 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
 
     // todo: parameterize height, make whole panel stretchable
     height: 250,
+
+    cells: (row, col, prop) => {
+      const cellProperties:any = {}
+      const attr = attributes.find(a => a.name === prop)
+      if (attr.formula) {
+        cellProperties.placeholder = "loading..."
+      }
+      return cellProperties
+    },
 
     hiddenColumns: {
       columns: attributes.map((attr, idx) => attr.hidden ? idx : null).filter(e => Number.isInteger(e))
@@ -135,51 +196,55 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
             actions.addAttribute("user");
           }
         },
-        // "rename_user_attribute": {
-        //   // todo: disable this on site columns
-        //   name: 'Rename column',
-        //   callback: function(key, selection, clickEvent) {
-        //     alert('not implemented yet');
-        //   }
-        // },
-        // "toggle_column_visibility":{
-        //   name: 'Toggle visibility',
-        //   disabled: () => {
-        //     // only allow toggling visibility on user table
-        //     const colIndex = getHotInstance().getSelectedLast()[1]
-        //     const attribute = attributes[colIndex]
+        "rename_user_attribute": {
+          // todo: disable this on site columns
+          name: 'Rename column',
+          callback: function(key, selection, clickEvent) {
+            alert('not implemented yet');
+          }
+        },
+        "clear_user_table": {
+          name: 'Clear user columns',
+          callback: function(key, selection, clickEvent) {
+            // TODO: For now, new columns always get added to the user table.
+            // Eventually, do we want to allow adding to the main site table?
+            // Perhaps that'd be a way of extending scrapers using formulas...
+            actions.clear("user");
+          }
+        },
+        "toggle_column_visibility":{
+          name: 'Show/hide column in page',
+          disabled: () => {
+            // only allow toggling visibility on user table
+            const colIndex = getHotInstance().getSelectedLast()[1]
+            const attribute = attributes[colIndex]
 
-        //     return attribute.tableId !== "user"
-        //   },
-        //   callback: function(key, selection, clickEvent) {
-        //     const attribute = attributes[selection[0].start.col];
+            return attribute.tableId !== "user"
+          },
+          callback: function(key, selection, clickEvent) {
+            const attribute = attributes[selection[0].start.col];
 
-        //     // NOTE! idx assumes that id is hidden.
-        //     actions.toggleVisibility(attribute.tableId, attribute.name);
-        //   }
-        // },
-        // "column_type": {
-        //   name: "Column Type",
-        //   submenu: {
-        //     items: [
-        //       {
-        //         key: "column_type:text",
-        //         name: "Text",
-        //         callback: (key, selection, clickEvent) => {
-        //           console.log(selection);
-        //           alert(`Not implemented: you set column type to ${key.split(":").pop()}`)
-        //         },
-        //       },
-        //       {
-        //         key: "column_type:numeric",
-        //         name: "Number",
-        //         callback: (key, selection, clickEvent) => {
-        //           alert(`Not implemented: you set the column type to ${key.split(":").pop()}`)
-        //         }
-        //       }
-        //     ]
-        //   }
-        // }
+            // NOTE! idx assumes that id is hidden.
+            actions.toggleVisibility(attribute.tableId, attribute.name);
+          }
+        },
+        "set_column_formula":{
+          name: 'Edit formula',
+          disabled: () => {
+            // only allow editing formulas on user table
+            const colIndex = getHotInstance().getSelectedLast()[1]
+            const attribute = attributes[colIndex]
+
+            return attribute.tableId !== "user"
+          },
+          callback: function(key, selection, clickEvent) {
+            const attribute = attributes[selection[0].start.col];
+
+            // NOTE! idx assumes that id is hidden.
+            const formula = prompt("Edit formula:")
+            actions.setFormula(attribute.tableId, attribute.name, formula);
+          }
+        }
       }
     }
   }
@@ -264,10 +329,14 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   }
 
   const onAfterSelection = (rowIndex, prop) => {
-    const recordId = records[rowIndex].id;
-    const attribute = prop;
+    const record = records[rowIndex]
+    const attribute = attributes.find(attr => attr.name === prop)
 
-    actions.selectRecord(recordId, attribute)
+    actions.selectRecord(record.id, prop)
+
+    setActiveCell({ record, attribute })
+    const activeCellValue = (attribute.formula || record.values[attribute.name] || "")
+    setActiveCellValue(activeCellValue)
   }
 
 
@@ -326,6 +395,13 @@ console.log("saved changes");
       <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
+          <CellEditorBox
+            ref={cellEditorRef}
+            value={activeCellValue}
+            onChange={(e) => setActiveCellValue(e.target.value)}
+            onKeyPress={onCellEditorKeyPress}
+            placeholder="Enter cell value..."
+            onBlur={commitActiveCellValue} />
         </ControlBar>
         <HotTable
           licenseKey='non-commercial-and-evaluation'
@@ -337,11 +413,11 @@ console.log("saved changes");
           ref={hotRef} />
       </Panel>
       <CodeEditor mode="typescript" theme="monokai" value={adapterCode}
-         codeEditorHidden={codeEditorHidden} 
+         codeEditorHidden={codeEditorHidden}
          onLoad ={loadAdapterCode}
          onBlur={(e, code) => setAdapterCode(code.getValue())}
         //  onBlur={onBlurCodeEditor}
-         width="30vw" height="100vh" 
+         width="30vw" height="100vh"
       />
       <EditorButton codeEditorHidden={codeEditorHidden} right="70px"
         onClick={() => {saveAdapterCode();}}> Save
