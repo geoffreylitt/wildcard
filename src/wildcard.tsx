@@ -130,7 +130,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     case 'deleteAdapter':
       stopScrapingListener({ save: false });
       break;
-    case 'resetAdapter': 
+    case 'resetAdapter':
       resetScrapingListener();
       break;
     case 'editAdapter':

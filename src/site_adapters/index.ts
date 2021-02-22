@@ -17,7 +17,7 @@ import { adapterStore } from '../localStorageAdapter'
 import { TableAdapter } from '../core/types'
 
 export const siteAdapters = [
-  // HNAdapter,
+  HNAdapter,
   FluxAdapter,
   // ExpediaAdapter,
   AirbnbAdapter,
