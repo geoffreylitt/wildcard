@@ -66,7 +66,7 @@ async function visited(url) {
 let getReadingTime = (url) => {
   return new Promise((resolve, _reject) => {
     chrome.runtime.sendMessage({command: "getReadingTime", url: url}, function(response) {
-      let result = response.seconds || null
+      let result = response.seconds || -1 // -1 is our error value... rethink?
       resolve(result)
     });
   })
@@ -256,8 +256,11 @@ export function formulaParse(s) {
   }
 }
 
-export async function evalFormulas(records: Record[], attributes: Attribute[]): Promise<any> {
-  // todo: actually correctly evaluate in topo sort order here. 
+// This function is responsible for actually evaluating formulas and
+// turning them into data results.
+// Accepts a callback, which it calls with results as it goes through the table.
+export async function evalFormulas(records: Record[], attributes: Attribute[], callback: any){
+  // todo: actually correctly evaluate in topo sort order here.
   // as-is, this will break if deps aren't properly ordered.
   const sortedFormulaAttributes = attributes.filter(attr => attr.formula)
 
@@ -267,18 +270,33 @@ export async function evalFormulas(records: Record[], attributes: Attribute[]): 
     parsedFormulas[attr.name] = formulaParse(attr.formula)
   })
 
-  // todo: memoize results to avoid re-evaling everything
-  const evalResults = await Promise.all(records.map(async record => await Promise.all(
-    sortedFormulaAttributes.map(attr => parsedFormulas[attr.name].eval(record.values)
-    ))))
-      
-  const values = {};
-  evalResults.forEach((record, i) => {
-    values[records[i].id] = {}
-    record.forEach((value, j) => {
-      values[records[i].id][sortedFormulaAttributes[j].name] = value
-    })
-  })
+  // Start by initializing an empty results object of the right shape,
+  // so that we can start incrementally sending back results to the table
+  const evalResults = {}
+  for (const record of records) {
+    evalResults[record.id] = {}
+    for (const attr of sortedFormulaAttributes) {
+      evalResults[record.id][attr.name] = null
+    }
+  }
 
-  return values
+  callback(evalResults)
+
+  // Loop through records and attributes, iteratively evaluating formulas
+  for (const attr of sortedFormulaAttributes) {
+    console.log("starting evaling attr", attr.name)
+    const results = await Promise.all(records.map(record => parsedFormulas[attr.name].eval(record.values)))
+    console.log("finished evaling attr", attr.name, results)
+    for (const [index, result] of results.entries()) {
+      const record = records[index]
+
+      // Set the result in the output
+      evalResults[record.id][attr.name] = result
+
+      // Also mutate the result in our local state, so that later formulas
+      // can use the evaluation result of this column
+      record.values[attr.name] = result
+    }
+    callback(evalResults)
+  }
 }

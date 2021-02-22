@@ -72,8 +72,8 @@ const ControlBar = styled.div`
 const CellEditorBox = styled.input`
   display: inline-block;
   margin-left: 10px;
-  padding: 3px 10px;
-  border: none;
+  padding: 5px 10px;
+  border: solid thin #ddd;
   min-width: 600px;
   height: 100%;
 
@@ -90,7 +90,7 @@ const WcPanel = ({ records, attributes, query, actions }) => {
   const [hidden, setHidden] = useState(false);
 
   // Keep track of the currently selected cell
-  const [activeCell, setActiveCell] = useState(null)  
+  const [activeCell, setActiveCell] = useState(null)
 
   // The value of the selected cell.
   // (Including in-progress updates that we are making in the UI)
@@ -99,7 +99,6 @@ const WcPanel = ({ records, attributes, query, actions }) => {
   const onCellEditorKeyPress = (e) => {
     const key = e.key
     if (key === 'Enter') {
-      console.log("enter!")
       cellEditorRef.current.blur()
     }
   }
@@ -178,7 +177,7 @@ const WcPanel = ({ records, attributes, query, actions }) => {
           }
         },
         "clear_user_table": {
-          name: 'Clear user table',
+          name: 'Clear user columns',
           callback: function(key, selection, clickEvent) {
             // TODO: For now, new columns always get added to the user table.
             // Eventually, do we want to allow adding to the main site table?
@@ -187,7 +186,7 @@ const WcPanel = ({ records, attributes, query, actions }) => {
           }
         },
         "toggle_column_visibility":{
-          name: 'Toggle visibility',
+          name: 'Show/hide column in page',
           disabled: () => {
             // only allow toggling visibility on user table
             const colIndex = getHotInstance().getSelectedLast()[1]
@@ -326,6 +325,7 @@ const WcPanel = ({ records, attributes, query, actions }) => {
             value={activeCellValue}
             onChange={(e) => setActiveCellValue(e.target.value)}
             onKeyPress={onCellEditorKeyPress}
+            placeholder="Enter cell value..."
             onBlur={commitActiveCellValue} />
         </ControlBar>
         <HotTable
