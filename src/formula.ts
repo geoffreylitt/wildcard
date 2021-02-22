@@ -4,6 +4,9 @@ import ohm from 'ohm-js/dist/ohm';
 import _ from "lodash";
 import { Attribute, Record } from './core/types';
 
+// An object to store results of calling functions
+const functionCache = {}
+
 const GRAMMAR_SRC = `
 Formula {
   Formula
@@ -156,7 +159,23 @@ class FnNode {
     let fn = functions[this.fnName]
     if (!fn) { return null }
     return Promise.all(this.args.map(arg => arg.eval(row))).then(values => {
-      return fn.apply(this, values)
+      // Compute a cache key representing executing this function on these inputs
+      // of the form "FunctionName:Arg1:Arg2".
+      // Then look it up in our in-memory cache. (the cache isn't persisted,
+      // it's just there to make re-evals smoother within pageloads)
+      // Technically this could go wrong in very weird cases where the input
+      // contains this separator character, and we should do something better like
+      // hash a key-value object or something... but this seems good enough for now.
+      const cacheKey = `${this.fnName}:${values.join("_:_")}`
+      console.log("cacheKey", cacheKey)
+
+      if(functionCache[cacheKey]) {
+        return functionCache[cacheKey]
+      } else {
+        const result =  fn.apply(this, values)
+        functionCache[cacheKey] = result
+        return result
+      }
     })
   }
 
