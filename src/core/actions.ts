@@ -67,9 +67,6 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
 
     setFormula (tableId:tableId, attrName:string, formula) {
       return (dispatch) => {
-        dispatch({
-          type: "HIDE_COL_REQUESTED"
-        })
         const TableAdapter = TableAdapters[tableId];
         TableAdapter.setFormula(attrName, formula);
       }
@@ -87,7 +84,6 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
         forIn(editsByTable, (edits, tableId) => {
           const TableAdapter = TableAdapters[tableId];
           const editsForTable:Array<RecordEdit> = edits.map(e => pick(e, "recordId", "attribute", "value"))
-          console.log("edit command to", tableId, editsForTable)
           TableAdapter.editRecords(editsForTable);
         });
       }
