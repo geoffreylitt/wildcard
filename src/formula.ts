@@ -167,7 +167,6 @@ class FnNode {
       // contains this separator character, and we should do something better like
       // hash a key-value object or something... but this seems good enough for now.
       const cacheKey = `${this.fnName}:${values.join("_:_")}`
-      console.log("cacheKey", cacheKey)
 
       if(functionCache[cacheKey]) {
         return functionCache[cacheKey]
@@ -263,8 +262,35 @@ class Formula {
     if (this.match.succeeded()) {
       let colrefs = formulaSemantics(this.match).toAst().colrefs();
       return colrefs;
+    } else {
+      console.error(`Couldn't parse formula: ${this.match.message}`)
+      return `Error: ${this.match.message}`;
     }
   }
+}
+
+// Given a map from attribute names to Formulas,
+// return a list of topologically sorted attribute names
+// (if B depends on A, then A comes before B in the ordering)
+// This is a simple implementation and could be much more optimized, but
+// should be negligible perf impact for small # of columns
+function sortAttributesByDependencies(parsedFormulas: { [key: string]: Formula }) {
+  const formulaAttrs = Object.keys(parsedFormulas)
+
+  // Create a map from each attr to the other formula cols it depends on
+  const dependencies = _.mapValues(parsedFormulas, formula => _.intersection(formula.colrefs(), formulaAttrs))
+
+  const result = []
+  while(result.length < Object.entries(dependencies).length) {
+    for(const [attr, deps] of Object.entries(dependencies)) {
+      const outstandingDeps = _.difference(deps, result)
+      if (outstandingDeps.length === 0) {
+        result.push(attr)
+      }
+    }
+  }
+
+  return result
 }
 
 export function formulaParse(s) {
@@ -279,15 +305,17 @@ export function formulaParse(s) {
 // turning them into data results.
 // Accepts a callback, which it calls with results as it goes through the table.
 export async function evalFormulas(records: Record[], attributes: Attribute[], callback: any){
-  // todo: actually correctly evaluate in topo sort order here.
-  // as-is, this will break if deps aren't properly ordered.
-  const sortedFormulaAttributes = attributes.filter(attr => attr.formula)
+  const formulaAttributes = attributes.filter(attr => attr.formula)
 
   // parse formula text into AST, once per attribute
-  const parsedFormulas = {}
-  sortedFormulaAttributes.forEach(attr => {
+  const parsedFormulas: {[key: string]: Formula} = {}
+  formulaAttributes.forEach(attr => {
     parsedFormulas[attr.name] = formulaParse(attr.formula)
   })
+
+  const sortedFormulaAttributes: string[] = sortAttributesByDependencies(parsedFormulas)
+
+  console.log({sortedFormulaAttributes, parsedFormulas})
 
   // Start by initializing an empty results object of the right shape,
   // so that we can start incrementally sending back results to the table
@@ -295,7 +323,7 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
   for (const record of records) {
     evalResults[record.id] = {}
     for (const attr of sortedFormulaAttributes) {
-      evalResults[record.id][attr.name] = null
+      evalResults[record.id][attr] = null
     }
   }
 
@@ -303,16 +331,18 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
 
   // Loop through records and attributes, iteratively evaluating formulas
   for (const attr of sortedFormulaAttributes) {
-    const results = await Promise.all(records.map(record => parsedFormulas[attr.name].eval(record.values)))
+    // Eval all cells in this column, in parallel
+    // (this is safe to do because rows don't depend on each other)
+    const results = await Promise.all(records.map(record => parsedFormulas[attr].eval(record.values)))
     for (const [index, result] of results.entries()) {
       const record = records[index]
 
       // Set the result in the output
-      evalResults[record.id][attr.name] = result
+      evalResults[record.id][attr] = result
 
       // Also mutate the result in our local state, so that later formulas
       // can use the evaluation result of this column
-      record.values[attr.name] = result
+      record.values[attr] = result
     }
     callback(evalResults)
   }
