@@ -8,6 +8,7 @@ import "./overrides.css";
 import styled from 'styled-components'
 import { Record, Attribute } from '../core/types'
 import Handsontable from "handsontable";
+import { FormulaEditor } from '../ui/cell_editors/formulaEditor'
 
 const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
@@ -177,6 +178,8 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
       const cellProperties:any = {}
       const attr = attributes.find(a => a.name === prop)
       if (attr.formula) {
+        cellProperties.formula = attr.formula
+        cellProperties.editor = FormulaEditor
         cellProperties.placeholder = "loading..."
       }
       return cellProperties
@@ -314,6 +317,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   const onBeforeChange = (changes, source) => {
     const edits = changes.map(([rowIndex, propName, prevValue, nextValue]) => {
       const attribute = attributes.find(a => a.name === propName)
+
       return {
         tableId: attribute.tableId,
         recordId: records[rowIndex].id,
@@ -322,7 +326,20 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
       }
     })
 
-    actions.editRecords(edits);
+    const dataEdits = edits.filter(e => e.value[0] !== "=")
+    const formulaEdits = edits.filter(e => e.value[0] === "=")
+
+    console.log({dataEdits, formulaEdits})
+
+    actions.editRecords(dataEdits);
+
+    for (const formulaEdit of formulaEdits) {
+      actions.setFormula(
+        formulaEdit.tableId,
+        formulaEdit.attribute,
+        formulaEdit.value
+      )
+    }
 
     // don't let HOT edit the value
     return false;
