@@ -231,23 +231,6 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
             actions.toggleVisibility(attribute.tableId, attribute.name);
           }
         },
-        "set_column_formula":{
-          name: 'Edit formula',
-          disabled: () => {
-            // only allow editing formulas on user table
-            const colIndex = getHotInstance().getSelectedLast()[1]
-            const attribute = attributes[colIndex]
-
-            return attribute.tableId !== "user"
-          },
-          callback: function(key, selection, clickEvent) {
-            const attribute = attributes[selection[0].start.col];
-
-            // NOTE! idx assumes that id is hidden.
-            const formula = prompt("Edit formula:")
-            actions.setFormula(attribute.tableId, attribute.name, formula);
-          }
-        }
       }
     }
   }
