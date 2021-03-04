@@ -8,7 +8,8 @@ import "./overrides.css";
 import styled from 'styled-components'
 import { Record, Attribute } from '../core/types'
 import Handsontable from "handsontable";
-import { FormulaEditor } from '../ui/cell_editors/formulaEditor'
+import { FormulaEditor } from '../ui/cell_editors/formulaEditor';
+import Autosuggest from 'react-autosuggest';
 
 const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
@@ -92,18 +93,32 @@ const EditButton = styled(ToggleButton)`
   display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
 `
 
-const CellEditorBox = styled.input`
-  display: inline-block;
-  margin-left: 10px;
-  padding: 5px 10px;
-  border: solid thin #ddd;
-  min-width: 600px;
-  height: 100%;
+// const DataTable = styled(HotTable)`
+//   z-index: 1,
+//   background-color: black,
+// `
 
-  &:focus {
-    border: none;
+const autosuggestTheme = {
+  container: {
+    display: 'inline-block',
+    position: 'absolute',
+    zIndex: '2500',
+  },
+  input: {
+    marginLeft: '10px',
+    padding: '5px',
+    border: 'solid thin #ddd',
+    minWidth: '200px',
+    height: '1.5em',
+    '&:focus': {
+      border: 'none'
+    }
+  },
+  suggestionsContainer: {
+    background: 'white',
+    padding: '5px'
   }
-`
+};
 
 // Declare our functional React component
 
@@ -122,7 +137,10 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
 
   // The value of the selected cell.
   // (Including in-progress updates that we are making in the UI)
-  const [activeCellValue, setActiveCellValue] = useState(null)
+  const [activeCellValue, setActiveCellValue] = useState('')
+
+  // Autosuggest suggestions
+  const [suggestions, setSuggestions] = useState([]);
 
   const onCellEditorKeyPress = (e) => {
     const key = e.key
@@ -376,6 +394,57 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
 console.log("saved changes");
     });
   }
+  // Imagine you have a list of languages that you'd like to autosuggest.
+  const formulae = [
+    {
+      name: '=Concat(',
+    },
+    {
+      name: '=Round(',
+    },
+    {
+      name: '=Visited(',
+    },
+    {
+      name: '=ReadTimeInSeconds(',
+    },
+  ];
+  // Teach Autosuggest how to calculate suggestions for any given input value.
+  const getSuggestions = value => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0 ? [] : formulae.filter(lang =>
+      lang.name.toLowerCase().slice(0, inputLength) === inputValue
+    );
+  };
+
+  // When suggestion is clicked, Autosuggest needs to populate the input
+  // based on the clicked suggestion. Teach Autosuggest how to calculate the
+  // input value for every given suggestion.
+  const getSuggestionValue = suggestion => suggestion.name;
+
+  // Use your imagination to render suggestions.
+  const renderSuggestion = suggestion => (
+    <div>
+      {suggestion.name}
+    </div>
+  );
+  const onChange = function(event, { newValue }) {
+    setActiveCellValue(newValue);
+  }
+
+  // Autosuggest will call this function every time you need to update suggestions.
+  // You already implemented this logic above, so just use it.
+  const onSuggestionsFetchRequested = function({ value }) {
+    console.log("fetch request update");
+    setSuggestions(getSuggestions(value));
+  };
+
+  // Autosuggest will call this function every time you need to clear suggestions.
+  const onSuggestionsClearRequested = function() {
+    setSuggestions([]);
+  };
 
   if (records && records.length > 0) {
     return <>
@@ -395,13 +464,24 @@ console.log("saved changes");
       <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
-          <CellEditorBox
+          {/* <CellEditorBox
             ref={cellEditorRef}
             value={activeCellValue}
             onChange={(e) => setActiveCellValue(e.target.value)}
             onKeyPress={onCellEditorKeyPress}
             placeholder="Enter cell value..."
-            onBlur={commitActiveCellValue} />
+            onBlur={commitActiveCellValue} /> */}
+          <Autosuggest
+            ref={cellEditorRef}
+            placeholder="Enter cell value..."
+            suggestions={suggestions}
+            onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+            onSuggestionsClearRequested={onSuggestionsClearRequested}
+            getSuggestionValue={getSuggestionValue}
+            renderSuggestion={renderSuggestion}
+            inputProps={{value: activeCellValue, onChange: onChange}}
+            theme={autosuggestTheme}
+          />
         </ControlBar>
         <HotTable
           licenseKey='non-commercial-and-evaluation'
