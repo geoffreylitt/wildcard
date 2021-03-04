@@ -93,19 +93,14 @@ const EditButton = styled(ToggleButton)`
   display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
 `
 
-// const DataTable = styled(HotTable)`
-//   z-index: 1,
-//   background-color: black,
-// `
-
 const autosuggestTheme = {
   container: {
     display: 'inline-block',
     position: 'absolute',
+    marginLeft: '10px',
     zIndex: '2500',
   },
   input: {
-    marginLeft: '10px',
     padding: '5px',
     border: 'solid thin #ddd',
     minWidth: '200px',
@@ -114,9 +109,14 @@ const autosuggestTheme = {
       border: 'none'
     }
   },
-  suggestionsContainer: {
+  suggestionsContainerOpen: {
     background: 'white',
-    padding: '5px'
+    padding: '5px',
+  },
+  suggestion: {
+    listStyleType: 'none',
+    margin: '0',
+    padding: '0',
   }
 };
 
@@ -411,12 +411,17 @@ console.log("saved changes");
   ];
   // Teach Autosuggest how to calculate suggestions for any given input value.
   const getSuggestions = value => {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
-
-    return inputLength === 0 ? [] : formulae.filter(lang =>
-      lang.name.toLowerCase().slice(0, inputLength) === inputValue
-    );
+    if (typeof value == 'string' || value instanceof String) {
+      const inputValue = value.trim().toLowerCase();
+      const inputLength = inputValue.length;
+  
+      return inputLength === 0 ? [] : formulae.filter(lang =>
+        lang.name.toLowerCase().slice(0, inputLength) === inputValue
+      );
+    }
+    else {
+      return [];
+    }
   };
 
   // When suggestion is clicked, Autosuggest needs to populate the input
@@ -437,7 +442,6 @@ console.log("saved changes");
   // Autosuggest will call this function every time you need to update suggestions.
   // You already implemented this logic above, so just use it.
   const onSuggestionsFetchRequested = function({ value }) {
-    console.log("fetch request update");
     setSuggestions(getSuggestions(value));
   };
 
@@ -472,14 +476,19 @@ console.log("saved changes");
             placeholder="Enter cell value..."
             onBlur={commitActiveCellValue} /> */}
           <Autosuggest
-            ref={cellEditorRef}
             placeholder="Enter cell value..."
             suggestions={suggestions}
             onSuggestionsFetchRequested={onSuggestionsFetchRequested}
             onSuggestionsClearRequested={onSuggestionsClearRequested}
             getSuggestionValue={getSuggestionValue}
             renderSuggestion={renderSuggestion}
-            inputProps={{value: activeCellValue, onChange: onChange}}
+            inputProps={{
+              ref: cellEditorRef,
+              value: activeCellValue,
+              onChange: onChange,
+              onKeyPress: onCellEditorKeyPress,
+              placeholder: "Enter cell value...",
+              onBlur: commitActiveCellValue}}
             theme={autosuggestTheme}
           />
         </ControlBar>
