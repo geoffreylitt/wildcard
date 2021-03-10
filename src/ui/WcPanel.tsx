@@ -117,6 +117,9 @@ const autosuggestTheme = {
     listStyleType: 'none',
     margin: '0',
     padding: '0',
+  },
+  suggestionHighlighted: {
+    background: 'lightgrey'
   }
 };
 
@@ -349,12 +352,12 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   const onAfterSelection = (rowIndex, prop) => {
     const record = records[rowIndex]
     const attribute = attributes.find(attr => attr.name === prop)
-
+    
     actions.selectRecord(record.id, prop)
-
+    
     setActiveCell({ record, attribute })
-    const activeCellValue = (attribute.formula || record.values[attribute.name] || "")
-    setActiveCellValue(activeCellValue)
+    const newActiveCellValue = (attribute.formula || record.values[attribute.name] || "")
+    setActiveCellValue(newActiveCellValue)
   }
 
 
@@ -468,13 +471,6 @@ console.log("saved changes");
       <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
-          {/* <CellEditorBox
-            ref={cellEditorRef}
-            value={activeCellValue}
-            onChange={(e) => setActiveCellValue(e.target.value)}
-            onKeyPress={onCellEditorKeyPress}
-            placeholder="Enter cell value..."
-            onBlur={commitActiveCellValue} /> */}
           <Autosuggest
             placeholder="Enter cell value..."
             suggestions={suggestions}
