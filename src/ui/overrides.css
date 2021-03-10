@@ -13,3 +13,12 @@ th span.formula-header:before {
   font-size: 12px;
   color: #888;
 }
+
+th span.element-header:before {
+  content: "</>";
+  margin-right: 10px;
+  margin-left: -10px;
+  font-style: italic;
+  font-size: 12px;
+  color: #888;
+}

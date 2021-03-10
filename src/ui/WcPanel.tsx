@@ -9,20 +9,23 @@ import styled from 'styled-components'
 import { Record, Attribute } from '../core/types'
 import Handsontable from "handsontable";
 import { FormulaEditor } from '../ui/cell_editors/formulaEditor'
+import mapValues from 'lodash/mapValues'
 
 const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
 function formatRecordsForHot(records:Array<Record>) {
   return records.map(record => ({
     id: record.id,
-    ...record.values
+    ...mapValues(record.values, v => v instanceof HTMLElement ? v.textContent : v)
   }))
 }
 
 function formatAttributesForHot(attributes:Array<Attribute>) {
   return attributes.map(attribute => ({
     data: attribute.name,
-    type: attribute.type,
+
+    // If it's an "element" attribute, just render it as text
+    type: attribute.type === "element" ? "text" : attribute.type,
     readOnly: !attribute.editable,
     editor: attribute.editor
   }))
@@ -157,6 +160,8 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     colHeaders: attributes.map(attr => {
       if(attr.formula) {
         return `<span class="formula-header">${attr.name}</span>`
+      } else if(attr.type === "element") {
+        return `<span class="element-header">${attr.name}</span>`
       } else {
         return `<span class="data-header">${attr.name}</span>`
       }
@@ -335,7 +340,16 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     actions.selectRecord(record.id, prop)
 
     setActiveCell({ record, attribute })
-    const activeCellValue = (attribute.formula || record.values[attribute.name] || "")
+
+    let activeCellValue
+
+    if (attribute.formula) {
+      activeCellValue = attribute.formula
+    } else if (attribute.type === "element") {
+      activeCellValue = record.values[attribute.name].outerHTML
+    } else {
+      activeCellValue = record.values[attribute.name] || ""
+    }
     setActiveCellValue(activeCellValue)
   }
 
