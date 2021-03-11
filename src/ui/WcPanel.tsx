@@ -394,48 +394,37 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
 
   const saveAdapterCode = function() {
     chrome.storage.local.set({ [_adapterKey]: adapterCode }, function() {
-console.log("saved changes");
+    console.log("saved changes");
     });
   }
-  // Imagine you have a list of languages that you'd like to autosuggest.
-  const formulae = [
-    {
-      name: '=Concat(',
-    },
-    {
-      name: '=Round(',
-    },
-    {
-      name: '=Visited(',
-    },
-    {
-      name: '=ReadTimeInSeconds(',
-    },
-  ];
+  const formulae = ['Concat', 'Round', 'Visited', 'ReadTimeInSeconds'];
   // Teach Autosuggest how to calculate suggestions for any given input value.
   const getSuggestions = value => {
-    if (typeof value == 'string' || value instanceof String) {
-      const inputValue = value.trim().toLowerCase();
-      const inputLength = inputValue.length;
-  
-      return inputLength === 0 ? [] : formulae.filter(lang =>
-        lang.name.toLowerCase().slice(0, inputLength) === inputValue
-      );
+    const inputValue = value.trim()
+    const inputLength = inputValue.length;
+    let regex = /[^=(]+$/;
+    const matchIndex = inputValue.search(regex);
+    
+    if (matchIndex == -1) {
+      return [];
     }
     else {
-      return [];
+      const matchValue = inputValue.slice(matchIndex, inputLength).toLowerCase();;
+      return formulae.filter(formula => formula.toLowerCase().slice(0, matchValue.length) === matchValue)
+        .map(formula => inputValue.slice(0, matchIndex) + formula);
     }
   };
 
   // When suggestion is clicked, Autosuggest needs to populate the input
   // based on the clicked suggestion. Teach Autosuggest how to calculate the
   // input value for every given suggestion.
-  const getSuggestionValue = suggestion => suggestion.name;
-
+  const getSuggestionValue = suggestion => {
+    return suggestion;
+  }
   // Use your imagination to render suggestions.
   const renderSuggestion = suggestion => (
     <div>
-      {suggestion.name}
+      {suggestion}
     </div>
   );
   const onChange = function(event, { newValue }) {
