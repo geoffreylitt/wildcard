@@ -97,19 +97,26 @@ const autosuggestTheme = {
   container: {
     display: 'inline-block',
     position: 'absolute',
+    minWidth: '50%',
     marginLeft: '10px',
     zIndex: '2500',
   },
   input: {
     padding: '5px',
     border: 'solid thin #ddd',
-    minWidth: '200px',
     height: '1.5em',
+    width: '100%',
     '&:focus': {
       border: 'none'
     }
   },
+  suggestionsContainer: {
+    display: 'none',
+  },
   suggestionsContainerOpen: {
+    display: 'block',
+    position: 'absolute',
+    width: '100%',
     background: 'white',
     padding: '5px',
   },
@@ -405,7 +412,10 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     let regex = /[^=(]+$/;
     const matchIndex = inputValue.search(regex);
     
-    if (matchIndex == -1) {
+    if (inputValue === '=') {
+      return formulae.map(formula => '=' + formula);
+    }
+    else if (matchIndex == -1) {
       return [];
     }
     else {
@@ -421,12 +431,53 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   const getSuggestionValue = suggestion => {
     return suggestion;
   }
+
   // Use your imagination to render suggestions.
-  const renderSuggestion = suggestion => (
-    <div>
-      {suggestion}
-    </div>
-  );
+  const renderSuggestion = function(suggestion) {
+    return (<div>{suggestion}</div>)
+  }
+  // Render helper text for functions
+  const renderSuggestionsContainer = function({ containerProps, children }) {
+    let functionName = "";
+    let functionParams = {};
+    let renderFooter = true;
+    const regexConcat = /Concat$/
+    const regexRound = /Round$/
+    const regexReadTimeInSeconds = /ReadTimeInSeconds$/
+    const regexVisited = /Visited$/
+    if (regexRound.test(activeCellValue)) {
+      functionName = "Round";
+      functionParams['numeric'] = "The numeric column to round to integer values.";
+    }
+    else if (regexReadTimeInSeconds.test(activeCellValue)) {
+      functionName = "ReadTimeInSeconds";
+      functionParams['link'] = "The link column to calculate read times for.";
+    }
+    else if (regexConcat.test(activeCellValue)) {
+      functionName = "Concat";
+      functionParams['column1'] = "The column to which following columns will be appended.";
+      functionParams['column2, ...'] = "The columns to append to column1.";
+    }
+    else if (regexVisited.test(activeCellValue)) {
+      functionName = "Visited";
+      functionParams['link'] = "The link column to determine whether its URLs have been visited in browser history.";
+    }
+    else {
+      renderFooter = false;
+    }
+    return (
+      <div {...containerProps}>
+        {children}
+        {
+          renderFooter ? <div className="suggestionFooter" style={{backgroundColor: '#efefef', borderTop: '1px solid black'}}>
+            {functionName + "(" + Object.keys(functionParams).join(", ") + ")"}
+            <div>{Object.keys(functionParams).map(key => <div><b>{key}</b>: {functionParams[key]}</div>)}</div>
+          </div> : <div></div>
+        }
+      </div>
+    )
+  }
+
   const onChange = function(event, { newValue }) {
     setActiveCellValue(newValue);
   }
@@ -467,6 +518,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
             onSuggestionsClearRequested={onSuggestionsClearRequested}
             getSuggestionValue={getSuggestionValue}
             renderSuggestion={renderSuggestion}
+            renderSuggestionsContainer={renderSuggestionsContainer}
             inputProps={{
               ref: cellEditorRef,
               value: activeCellValue,
