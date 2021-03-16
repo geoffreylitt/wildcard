@@ -25,7 +25,7 @@ function createTableColumns(n) {
     for (let i = 0; i < n; i++) {
         columns.push({
             name: indexToAlpha(i),
-            type: "text"
+            type: "element"
         })
     }
     return columns;
@@ -122,7 +122,7 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
         name: document.title,
         urls: [window.location.href],
         matches: [`${window.location.origin}${window.location.pathname}`],
-        attributes: createTableColumns(Math.max(columnSelectors.length, MIN_COLUMNS)),
+        attributes: createTableColumns(columnSelectors.length),
         metadata: {
             id: adapterKey,
             columnSelectors,
@@ -139,7 +139,7 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
                         const selector = selectors[selectorIndex];
                         const selected = element.querySelector(selector);
                         if (selected && selected.textContent) {
-                            dataValues[String.fromCharCode(97 + columnIndex).toUpperCase()] = selected.textContent.trim();
+                            dataValues[String.fromCharCode(97 + columnIndex).toUpperCase()] = selected;
                             break;
                         }
                     }

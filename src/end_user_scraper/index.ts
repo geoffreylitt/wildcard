@@ -35,6 +35,9 @@ import {
 import {
     MIN_COLUMNS
 } from './constants';
+
+import { userStore } from "../localStorageAdapter";
+ 
 import { readFromChromeLocalStorage } from '../utils';
 
 export function startScrapingListener() {
@@ -50,23 +53,21 @@ export function stopScrapingListener({ save }) {
         deleteAdapter(adapterKey, () => {
             resetScraperState();
             removeTutorial();
+            userStore.clear();
             run({ creatingAdapter: false });
-        })
+        });
     } else {
         const columnMap = getColumnMap();
-        if (columnMap.size > MIN_COLUMNS) {
-            // delete placeholder column
-            const lastColumn = columnMap.size - 1;
-            columnMap.delete(lastColumn);
-        } 
+        const lastColumn = columnMap.size - 1;
+        columnMap.delete(lastColumn);
         createAdapterAndSave(
             adapterKey,
             mapToArrayOfValues(columnMap),
             getRowElementSelector(),
             () => {
-                run({ creatingAdapter: false });
                 resetScraperState();
-                removeTutorial();  
+                removeTutorial();
+                run({ creatingAdapter: false });
             }
         );
     }

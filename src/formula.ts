@@ -89,7 +89,7 @@ const functions = {
     return result
   },
   "Concat": function(...args) {
-    return promisify(args.join(" "))
+    return promisify(args.join(""))
   },
   "Divide": function(x, y) {
     return promisify(x / y)
@@ -109,6 +109,9 @@ const functions = {
   "GetAttribute": function(el, attrName) {
     // todo: error handling here?
     return promisify(el.getAttribute(attrName))
+  },
+  "GetParent": function(el) {
+    return promisify(el.parentElement)
   }
 }
 
