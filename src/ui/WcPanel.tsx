@@ -118,12 +118,12 @@ const autosuggestTheme = {
     position: 'absolute',
     width: '100%',
     background: 'white',
-    padding: '5px',
+    // padding: '5px',
   },
   suggestion: {
     listStyleType: 'none',
     margin: '0',
-    padding: '0',
+    padding: '0px 5px',
   },
   suggestionHighlighted: {
     background: 'lightgrey'
@@ -469,8 +469,8 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
       <div {...containerProps}>
         {children}
         {
-          renderFooter ? <div className="suggestionFooter" style={{backgroundColor: '#efefef', borderTop: '1px solid black'}}>
-            {functionName + "(" + Object.keys(functionParams).join(", ") + ")"}
+          renderFooter ? <div className="suggestionFooter" style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
+            {functionName + "("} <b>{Object.keys(functionParams).join(", ")}</b> {")"}
             <div>{Object.keys(functionParams).map(key => <div><b>{key}</b>: {functionParams[key]}</div>)}</div>
           </div> : <div></div>
         }
