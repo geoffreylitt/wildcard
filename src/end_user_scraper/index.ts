@@ -35,8 +35,6 @@ import {
 import {
     MIN_COLUMNS
 } from './constants';
-
-import { userStore } from "../localStorageAdapter";
  
 import { readFromChromeLocalStorage } from '../utils';
 
@@ -53,7 +51,6 @@ export function stopScrapingListener({ save }) {
         deleteAdapter(adapterKey, () => {
             resetScraperState();
             removeTutorial();
-            userStore.clear();
             run({ creatingAdapter: false });
         });
     } else {

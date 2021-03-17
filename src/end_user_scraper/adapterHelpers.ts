@@ -20,6 +20,8 @@ import {
     setAdapterKey
 } from './state';
 
+import { userStore } from '../localStorageAdapter';
+
 function createTableColumns(n) {
     const columns = [];
     for (let i = 0; i < n; i++) {
@@ -107,6 +109,7 @@ export function deleteAdapter(adapterKey, callback) {
                 .then(() => {
                     removeFromChromeLocalStorage([adapterKey, `query:${adapterName}`])
                     .then(() => {
+                        //userStore.clear();
                         callback();
                     });
                 });

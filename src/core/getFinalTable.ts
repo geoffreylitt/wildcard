@@ -81,14 +81,19 @@ export const getFinalAttributes = createSelector(
     // set column type for formulas based on first row
     userAttributes.forEach(attr => {
       if(attr.formula) {
-        const sampleValue = formulaResults[Object.keys(formulaResults)[0]][attr.name]
-        if(typeof sampleValue === 'number') {
-          attr.type = "numeric"
-        } else if (typeof sampleValue === 'boolean') {
-          attr.type = "checkbox"
-        } else {
-          attr.type = "text"
-        }
+        const formulaResultsKeys = Object.keys(formulaResults)
+        if (formulaResultsKeys.length) {
+          const sampleValue = formulaResults[formulaResultsKeys[0]][attr.name]
+          if(typeof sampleValue === 'number') {
+            attr.type = "numeric"
+          } else if (typeof sampleValue === 'boolean') {
+            attr.type = "checkbox"
+          } else if (sampleValue instanceof HTMLElement) {
+            attr.type = "element"
+          } else {
+            attr.type = "text"
+          }
+        } 
       }
     })
 
