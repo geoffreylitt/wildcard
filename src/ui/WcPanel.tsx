@@ -521,7 +521,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
             renderSuggestionsContainer={renderSuggestionsContainer}
             inputProps={{
               ref: cellEditorRef,
-              value: activeCellValue,
+              value: activeCellValue.toString(),
               onChange: onChange,
               onKeyPress: onCellEditorKeyPress,
               placeholder: "Enter cell value...",
