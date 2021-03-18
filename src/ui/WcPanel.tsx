@@ -408,9 +408,15 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
     
   // Teach Autosuggest how to calculate suggestions for any given input value.
-  // const functionSuggestions = Object.keys(functions)
-    // .map(name => {return {name: name, ...functions[name]}})
+  const mathSymbols = {"Plus": "+", "Minus": "-", "Multiply": "*", "Divide": "/"};
   const attributeNames = attributes.map(attribute => attribute.name);
+  const mathSuggestions = Object.keys(functions)
+    .filter(functionName => Object.keys(mathSymbols).indexOf(functionName) != -1)
+    .reduce((obj, functionName) => {
+      const symbol = mathSymbols[functionName];
+      obj[symbol] = functions[functionName];
+      return obj;
+    }, {});
   const allSuggestionNames = Object.keys(functions)
     .filter(functionName => ["Plus", "Minus", "Multiply", "Divide"].indexOf(functionName) == -1)
     .concat(attributeNames);
@@ -428,9 +434,14 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     else {
       // use everything after the regex match index as the prefix for suggestions
       const matchValue = inputValue.slice(matchIndex+1, inputValue.length).toLowerCase();
-      return allSuggestionNames
+      let suggestions = allSuggestionNames
         .filter(suggestion => suggestion.toLowerCase().slice(0, matchValue.length) === matchValue)
         .map(suggestion => inputValue.slice(0, matchIndex+1) + suggestion);
+      const attributeIndex = attributeNames.indexOf(matchValue);
+      if (attributeIndex != -1 && attributes[attributeIndex].type === "numeric" ) {
+        suggestions = suggestions.concat(Object.keys(mathSuggestions).map(suggestion => inputValue + suggestion))
+      }
+      return suggestions;
     }
   };
 
@@ -445,8 +456,12 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   const renderSuggestion = function(suggestion) {
     const matchIndex = suggestion.search(regex);
     const matchValue = suggestion.slice(matchIndex+1, suggestion.length);
+    const lastChar = suggestion[suggestion.length-1];
     if (attributeNames.indexOf(matchValue) != -1) {
       return (<div><b>{matchValue}</b></div>)
+    }
+    else if (lastChar in mathSuggestions) {
+      return (<div>{lastChar}</div>)
     }
     else {
       return (<div>{matchValue}</div>)
@@ -459,10 +474,11 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     const matchIndex = inputValue.search(regex);
     const matchValue = inputValue.slice(matchIndex+1, inputValue.length);
     const attributeIndex = attributeNames.indexOf(matchValue);
+    const lastChar = inputValue[inputValue.length-1];
     
     let footer = (<div></div>)
-    if (matchValue in functions) {
-      const params = functions[matchValue]["parameters"];
+    if (matchValue in functions) { // function
+      const params = functions[matchValue]["help"];
       footer = (
         <div style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
           {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
@@ -470,7 +486,16 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
         </div>
       )
     }
-    else if (attributeIndex != -1) {
+    else if (lastChar in mathSuggestions) { // math symbol
+      const helpText = mathSuggestions[lastChar]["help"];
+      footer = (
+        <div style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
+          numeric1 <b>{lastChar}</b> numeric2
+          <div>{helpText}</div>
+        </div>
+      )
+    }
+    else if (attributeIndex != -1) { // attribute name
       const attribute = attributes[attributeIndex];
       footer = (
         <div style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>

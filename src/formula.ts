@@ -85,7 +85,7 @@ const functions = {
       let result = await visited(arg)
       return result
     },
-    "parameters": {
+    "help": {
       "link": "The link column to determine whether its URLs have been visited in browser history."
     }
   },
@@ -94,7 +94,7 @@ const functions = {
       let result = await readingTime(arg)
       return result
     },
-    "parameters": {
+    "help": {
       "link": "The link column to calculate read times for."
     }
   },
@@ -102,7 +102,7 @@ const functions = {
     "function": function(...args) {
       return promisify(args.join(" "))
     },
-    "parameters": {
+    "help": {
       "column1": "The column to which following columns will be appended.",
       "column2...": "The columns to append to column1."
     }
@@ -111,36 +111,32 @@ const functions = {
     "function": function(x, y) {
       return promisify(x / y)
     },
-    "parameters": {
-    }
+    "help": "Divides one numeric column by another."
   },
   "Multiply": {
     "function": function(x, y) {
       return promisify(x * y)
     },
-    "parameters": {
-    }
+    "help": "Multiplies two numeric columns together."
   },
   "Plus": {
     "function": function(x, y) {
       return promisify(x + y)
     },
-    "parameters": {
-    }
+    "help": "Adds two numeric columns together."
   },
   "Minus": {
     "function": function(x, y) {
       return promisify(x - y)
     },
-    "parameters": {
-    }
+    "help": "Subtracts one numeric column from another."
   },
   "Round": {
     "function": function(x) {
       return promisify(Math.round(x))
     },
     "parameters": {
-      "numeric": "The numeric column to round to integer values."
+      "help": "The numeric column to round to integer values."
     }
   }
 }
