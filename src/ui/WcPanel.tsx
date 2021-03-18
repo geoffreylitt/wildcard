@@ -119,7 +119,6 @@ const autosuggestTheme = {
     position: 'absolute',
     width: '100%',
     background: 'white',
-    // padding: '5px',
   },
   suggestion: {
     listStyleType: 'none',
@@ -128,7 +127,7 @@ const autosuggestTheme = {
   },
   suggestionHighlighted: {
     background: 'lightgrey'
-  }
+  },
 };
 
 // Declare our functional React component
@@ -409,18 +408,19 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
     
   // Teach Autosuggest how to calculate suggestions for any given input value.
-  const functionSuggestions = Object.keys(functions)
-    .map(name => {return {name: name, ...functions[name]}})
-    .filter(func => ["Plus", "Minus", "Multiply", "Divide"].indexOf(func.name) == -1);
-  const attributeSuggestions = attributes.map(attribute => ({ ...attribute, category: "attribute" }));
-  const allSuggestions = functionSuggestions.concat(attributeSuggestions);
+  // const functionSuggestions = Object.keys(functions)
+    // .map(name => {return {name: name, ...functions[name]}})
+  const attributeNames = attributes.map(attribute => attribute.name);
+  const allSuggestionNames = Object.keys(functions)
+    .filter(functionName => ["Plus", "Minus", "Multiply", "Divide"].indexOf(functionName) == -1)
+    .concat(attributeNames);
   const getSuggestions = value => {
     const inputValue = value.trim()
     const matchIndex = inputValue.search(regex);
     
     if (matchIndex == inputValue.length - 1) {
       // include all possible suggestions at the start of a new expression
-      return allSuggestions.map(suggestion => inputValue + suggestion.name);
+      return allSuggestionNames.map(suggestion => inputValue + suggestion);
     }
     else if (matchIndex == -1) {
       return [];
@@ -428,9 +428,9 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     else {
       // use everything after the regex match index as the prefix for suggestions
       const matchValue = inputValue.slice(matchIndex+1, inputValue.length).toLowerCase();
-      return allSuggestions
-        .filter(suggestion => suggestion.name.toLowerCase().slice(0, matchValue.length) === matchValue)
-        .map(suggestion => inputValue.slice(0, matchIndex+1) + suggestion.name);
+      return allSuggestionNames
+        .filter(suggestion => suggestion.toLowerCase().slice(0, matchValue.length) === matchValue)
+        .map(suggestion => inputValue.slice(0, matchIndex+1) + suggestion);
     }
   };
 
@@ -444,20 +444,37 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   // Use your imagination to render suggestions.
   const renderSuggestion = function(suggestion) {
     const matchIndex = suggestion.search(regex);
-    return (<div>{suggestion.slice(matchIndex+1, suggestion.length)}</div>)
+    const matchValue = suggestion.slice(matchIndex+1, suggestion.length);
+    if (attributeNames.indexOf(matchValue) != -1) {
+      return (<div><b>{matchValue}</b></div>)
+    }
+    else {
+      return (<div>{matchValue}</div>)
+    }
+    
   }
   // Render helper text for functions
   const renderSuggestionsContainer = function({ containerProps, children }) {
     const inputValue = activeCellValue.trim()
     const matchIndex = inputValue.search(regex);
     const matchValue = inputValue.slice(matchIndex+1, inputValue.length);
+    const attributeIndex = attributeNames.indexOf(matchValue);
+    
     let footer = (<div></div>)
     if (matchValue in functions) {
       const params = functions[matchValue]["parameters"];
       footer = (
-        <div className="suggestionFooter" style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
+        <div style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
           {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
           <div>{Object.keys(params).map(key => <div><b>{key}</b>: {params[key]}</div>)}</div>
+        </div>
+      )
+    }
+    else if (attributeIndex != -1) {
+      const attribute = attributes[attributeIndex];
+      footer = (
+        <div style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
+          <b>{attribute.name}</b> is a column with type <b>{attribute.type}</b>.
         </div>
       )
     }
