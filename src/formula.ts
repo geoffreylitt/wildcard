@@ -135,8 +135,8 @@ const functions = {
     "function": function(x) {
       return promisify(Math.round(x))
     },
-    "parameters": {
-      "help": "The numeric column to round to integer values."
+    "help": {
+      "numeric": "The numeric column to round to integer values."
     }
   }
 }

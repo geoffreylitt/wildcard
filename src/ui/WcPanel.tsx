@@ -557,7 +557,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
               value: activeCellValue.toString(),
               onChange: onChange,
               onKeyPress: onCellEditorKeyPress,
-              placeholder: "Enter cell value or enter \"=\" to begin a formula...",
+              placeholder: "Enter cell value, or enter \"=\" to begin a formula...",
               onBlur: commitActiveCellValue}}
             theme={autosuggestTheme}
           />
