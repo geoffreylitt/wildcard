@@ -411,12 +411,11 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     .filter(func => ["Plus", "Minus", "Multiply", "Divide"].indexOf(func.name) == -1);
   const attributeSuggestions = attributes.map(attribute => ({ ...attribute, category: "attribute" }));
   const allSuggestions = functionSuggestions.concat(attributeSuggestions);
+  const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
   // Teach Autosuggest how to calculate suggestions for any given input value.
   const getSuggestions = value => {
     const inputValue = value.trim()
     const inputLength = inputValue.length;
-    // const regexMatchAfter = /[^=(\+\-\*\/]+$/; // match everything after = ( + - * /
-    const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
     const matchIndex = inputValue.search(regex);
     
     if (matchIndex == inputValue.length - 1) {
@@ -444,7 +443,8 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
 
   // Use your imagination to render suggestions.
   const renderSuggestion = function(suggestion) {
-    return (<div>{suggestion}</div>)
+    const matchIndex = suggestion.search(regex);
+    return (<div>{suggestion.slice(matchIndex+1, suggestion.length)}</div>)
   }
   // Render helper text for functions
   const renderSuggestionsContainer = function({ containerProps, children }) {
