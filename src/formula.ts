@@ -347,3 +347,5 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
     callback(evalResults)
   }
 }
+
+export {functions};

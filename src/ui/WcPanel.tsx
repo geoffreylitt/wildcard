@@ -10,6 +10,7 @@ import { Record, Attribute } from '../core/types'
 import Handsontable from "handsontable";
 import { FormulaEditor } from '../ui/cell_editors/formulaEditor';
 import Autosuggest from 'react-autosuggest';
+import {functions} from '../formula'
 
 const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
@@ -404,24 +405,29 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     console.log("saved changes");
     });
   }
-  const formulae = ['Concat', 'Round', 'Visited', 'ReadTimeInSeconds'];
+
+  const functionSuggestions = Object.keys(functions).map(name => {return {name: name, category: "function"}});
+  const attributeSuggestions = attributes.map(attribute => ({ ...attribute, category: "attribute" }));
+  const allSuggestions = functionSuggestions.concat(attributeSuggestions);
   // Teach Autosuggest how to calculate suggestions for any given input value.
   const getSuggestions = value => {
     const inputValue = value.trim()
     const inputLength = inputValue.length;
-    let regex = /[^=(]+$/;
+  let regex = /[^=(]+$/;
     const matchIndex = inputValue.search(regex);
     
-    if (inputValue === '=') {
-      return formulae.map(formula => '=' + formula);
+    if (inputValue === '=' || inputValue[inputValue.length - 1] === '(') {
+      // include all possible suggestions
+      return allSuggestions.map(suggestion => inputValue + suggestion.name);
     }
     else if (matchIndex == -1) {
       return [];
     }
     else {
-      const matchValue = inputValue.slice(matchIndex, inputLength).toLowerCase();;
-      return formulae.filter(formula => formula.toLowerCase().slice(0, matchValue.length) === matchValue)
-        .map(formula => inputValue.slice(0, matchIndex) + formula);
+      // use everything after the regex match as the prefix for suggestions
+      const matchValue = inputValue.slice(matchIndex, inputLength).toLowerCase();
+      return allSuggestions.filter(suggestion => suggestion.name.toLowerCase().slice(0, matchValue.length) === matchValue)
+        .map(suggestion => inputValue.slice(0, matchIndex) + suggestion.name);
     }
   };
 
@@ -512,7 +518,6 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
         <ControlBar>
           <strong>Wildcard v0.2</strong>
           <Autosuggest
-            placeholder="Enter cell value..."
             suggestions={suggestions}
             onSuggestionsFetchRequested={onSuggestionsFetchRequested}
             onSuggestionsClearRequested={onSuggestionsClearRequested}
@@ -524,7 +529,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
               value: activeCellValue.toString(),
               onChange: onChange,
               onKeyPress: onCellEditorKeyPress,
-              placeholder: "Enter cell value...",
+              placeholder: "Enter cell value or enter \"=\" to begin a formula...",
               onBlur: commitActiveCellValue}}
             theme={autosuggestTheme}
           />
