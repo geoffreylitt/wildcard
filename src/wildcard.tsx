@@ -44,6 +44,7 @@ const connectRedux = (component, actions) => {
 }
 
 export const run = async function ({ creatingAdapter }) {
+  console.log("hey reload")
   const wcRoot = document.getElementById('wc--root');
   if (wcRoot) {
     wcRoot.remove();

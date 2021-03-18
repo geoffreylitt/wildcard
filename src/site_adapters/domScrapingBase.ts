@@ -93,7 +93,7 @@ function onDomReady(fn) {
 // Takes in as input a site-specific DOM scraping configuration;
 // returns a TableAdapter that conforms to the abstract adapter spec.
 export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdapter {
-  const attributes = config.attributes;
+  const attributes = config.attributes
 
   // Mutable state to be managed for this adapter, as a closure
   let scrapedRows: Array<ScrapedRow> = [];

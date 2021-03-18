@@ -21,7 +21,7 @@ Formula {
     | ColRef
 
   StringLiteral
-    = "\\\"" alnum+ "\\\""
+    = "\\\"" StringChar+ "\\\""
 
   NumberLiteral
     = digit+
@@ -31,6 +31,9 @@ Formula {
 
   ColRef
     = ColRefChar+
+
+  StringChar
+    = alnum | "."
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -109,6 +112,9 @@ const functions = {
   "GetAttribute": function(el, attrName) {
     // todo: error handling here?
     return promisify(el.getAttribute(attrName))
+  },
+  "QuerySelector": function(el, selector) {
+    return promisify(el ? el.querySelector(selector) : "")
   }
 }
 
@@ -164,13 +170,23 @@ class FnNode {
     if (!fn) { return null }
     return Promise.all(this.args.map(arg => arg.eval(row))).then(values => {
       // Compute a cache key representing executing this function on these inputs
-      // of the form "FunctionName:Arg1:Arg2".
+      // of the form "FunctionName:RowId:Arg1:Arg2".
       // Then look it up in our in-memory cache. (the cache isn't persisted,
       // it's just there to make re-evals smoother within pageloads)
-      // Technically this could go wrong in very weird cases where the input
+
+      // Note 1:
+      // Technically this could go wrong in weird cases where the input
       // contains this separator character, and we should do something better like
       // hash a key-value object or something... but this seems good enough for now.
-      const cacheKey = `${this.fnName}:${values.join("_:_")}`
+
+      // Note 2:
+      // If any of the arguments is a DOM element, we don't cache.
+      // We don't have an easy way to test equality.
+      if(values.find(v => v instanceof HTMLElement)) {
+        return fn.apply(this, values)
+      }
+
+      const cacheKey = `${this.fnName}:${row.id}:${values.join("_:_")}`;
 
       if(functionCache[cacheKey]) {
         return functionCache[cacheKey]
@@ -337,7 +353,7 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
   for (const attr of sortedFormulaAttributes) {
     // Eval all cells in this column, in parallel
     // (this is safe to do because rows don't depend on each other)
-    const results = await Promise.all(records.map(record => parsedFormulas[attr].eval(record.values)))
+    const results = await Promise.all(records.map(record => parsedFormulas[attr].eval({...record.values, id: record.id})))
     for (const [index, result] of results.entries()) {
       const record = records[index]
 

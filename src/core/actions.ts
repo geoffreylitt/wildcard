@@ -8,8 +8,6 @@
 // We use async redux-thunk action creators for this.
 
 import { Table, TableAdapter, tableId, recordId, RecordEdit, Record, Attribute } from './types'
-import includes from 'lodash/includes'
-import keys from 'lodash/keys'
 import groupBy from 'lodash/groupBy'
 import forIn from 'lodash/forIn'
 import pick from 'lodash/pick'
@@ -29,6 +27,7 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
         const finalAttributes:Attribute[] = getFinalAttributes(state)
 
         evalFormulas(finalRecords, finalAttributes, (values) => {
+          console.log("dispatching FORMULAS_EVALUATED", values)
           dispatch({ type: "FORMULAS_EVALUATED", values })
         })
       }
