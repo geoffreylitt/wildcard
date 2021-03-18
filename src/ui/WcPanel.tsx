@@ -406,16 +406,16 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     });
   }
 
+  const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
+    
+  // Teach Autosuggest how to calculate suggestions for any given input value.
   const functionSuggestions = Object.keys(functions)
-    .map(name => {return {name: name, category: "function"}})
+    .map(name => {return {name: name, ...functions[name]}})
     .filter(func => ["Plus", "Minus", "Multiply", "Divide"].indexOf(func.name) == -1);
   const attributeSuggestions = attributes.map(attribute => ({ ...attribute, category: "attribute" }));
   const allSuggestions = functionSuggestions.concat(attributeSuggestions);
-  const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
-  // Teach Autosuggest how to calculate suggestions for any given input value.
   const getSuggestions = value => {
     const inputValue = value.trim()
-    const inputLength = inputValue.length;
     const matchIndex = inputValue.search(regex);
     
     if (matchIndex == inputValue.length - 1) {
@@ -426,8 +426,8 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
       return [];
     }
     else {
-      // use everything the regex match as the prefix for suggestions
-      const matchValue = inputValue.slice(matchIndex+1, inputLength).toLowerCase();
+      // use everything after the regex match index as the prefix for suggestions
+      const matchValue = inputValue.slice(matchIndex+1, inputValue.length).toLowerCase();
       return allSuggestions
         .filter(suggestion => suggestion.name.toLowerCase().slice(0, matchValue.length) === matchValue)
         .map(suggestion => inputValue.slice(0, matchIndex+1) + suggestion.name);
@@ -448,42 +448,24 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   }
   // Render helper text for functions
   const renderSuggestionsContainer = function({ containerProps, children }) {
-    let functionName = "";
-    let functionParams = {};
-    let renderFooter = true;
-    const regexConcat = /Concat$/
-    const regexRound = /Round$/
-    const regexReadTimeInSeconds = /ReadTimeInSeconds$/
-    const regexVisited = /Visited$/
-    if (regexRound.test(activeCellValue)) {
-      functionName = "Round";
-      functionParams['numeric'] = "The numeric column to round to integer values.";
+    const inputValue = activeCellValue.trim()
+    const matchIndex = inputValue.search(regex);
+    const matchValue = inputValue.slice(matchIndex+1, inputValue.length);
+    let footer = (<div></div>)
+    if (matchValue in functions) {
+      const params = functions[matchValue]["parameters"];
+      footer = (
+        <div className="suggestionFooter" style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
+          {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
+          <div>{Object.keys(params).map(key => <div><b>{key}</b>: {params[key]}</div>)}</div>
+        </div>
+      )
     }
-    else if (regexReadTimeInSeconds.test(activeCellValue)) {
-      functionName = "ReadTimeInSeconds";
-      functionParams['link'] = "The link column to calculate read times for.";
-    }
-    else if (regexConcat.test(activeCellValue)) {
-      functionName = "Concat";
-      functionParams['column1'] = "The column to which following columns will be appended.";
-      functionParams['column2, ...'] = "The columns to append to column1.";
-    }
-    else if (regexVisited.test(activeCellValue)) {
-      functionName = "Visited";
-      functionParams['link'] = "The link column to determine whether its URLs have been visited in browser history.";
-    }
-    else {
-      renderFooter = false;
-    }
+
     return (
       <div {...containerProps}>
         {children}
-        {
-          renderFooter ? <div className="suggestionFooter" style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
-            {functionName + "("} <b>{Object.keys(functionParams).join(", ")}</b> {")"}
-            <div>{Object.keys(functionParams).map(key => <div><b>{key}</b>: {functionParams[key]}</div>)}</div>
-          </div> : <div></div>
-        }
+        {footer}
       </div>
     )
   }

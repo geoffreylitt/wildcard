@@ -80,31 +80,68 @@ async function readingTime(url) {
 }
 
 const functions = {
-  "Visited": async function(arg) {
-    let result = await visited(arg)
-    return result
+  "Visited": {
+    "function": async function(arg) {
+      let result = await visited(arg)
+      return result
+    },
+    "parameters": {
+      "link": "The link column to determine whether its URLs have been visited in browser history."
+    }
   },
-  "ReadTimeInSeconds": async function(arg) {
-    let result = await readingTime(arg)
-    return result
+  "ReadTimeInSeconds": {
+    "function": async function(arg) {
+      let result = await readingTime(arg)
+      return result
+    },
+    "parameters": {
+      "link": "The link column to calculate read times for."
+    }
   },
-  "Concat": function(...args) {
-    return promisify(args.join(" "))
+  "Concat": {
+    "function": function(...args) {
+      return promisify(args.join(" "))
+    },
+    "parameters": {
+      "column1": "The column to which following columns will be appended.",
+      "column2...": "The columns to append to column1."
+    }
   },
-  "Divide": function(x, y) {
-    return promisify(x / y)
+  "Divide": {
+    "function": function(x, y) {
+      return promisify(x / y)
+    },
+    "parameters": {
+    }
   },
-  "Multiply": function(x, y) {
-    return promisify(x * y)
+  "Multiply": {
+    "function": function(x, y) {
+      return promisify(x * y)
+    },
+    "parameters": {
+    }
   },
-  "Plus": function(x, y) {
-    return promisify(x + y)
+  "Plus": {
+    "function": function(x, y) {
+      return promisify(x + y)
+    },
+    "parameters": {
+    }
   },
-  "Minus": function(x, y) {
-    return promisify(x - y)
+  "Minus": {
+    "function": function(x, y) {
+      return promisify(x - y)
+    },
+    "parameters": {
+    }
   },
-  "Round": function(x) {
-    return promisify(Math.round(x))
+  "Round": {
+    "function": function(x) {
+      return promisify(Math.round(x))
+    },
+    "parameters": {
+      "numeric": "The numeric column to round to integer values."
+    }
   }
 }
 
@@ -156,7 +193,7 @@ class FnNode {
   }
 
   eval(row) {
-    let fn = functions[this.fnName]
+    let fn = functions[this.fnName]["function"]
     if (!fn) { return null }
     return Promise.all(this.args.map(arg => arg.eval(row))).then(values => {
       // Compute a cache key representing executing this function on these inputs
