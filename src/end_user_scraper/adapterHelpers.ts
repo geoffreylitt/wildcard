@@ -109,7 +109,7 @@ export function deleteAdapter(adapterKey, callback) {
                 .then(() => {
                     removeFromChromeLocalStorage([adapterKey, `query:${adapterName}`])
                     .then(() => {
-                        //userStore.clear();
+                        userStore.clear();
                         callback();
                     });
                 });
