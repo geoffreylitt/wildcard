@@ -119,6 +119,7 @@ const autosuggestTheme = {
     position: 'absolute',
     width: '100%',
     background: 'white',
+    boxShadow: '0px 0px 3px gray',
   },
   suggestion: {
     listStyleType: 'none',
@@ -405,6 +406,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     });
   }
 
+  // This pattern matches every thing after and including any one of these symbols: = ( + - * /
   const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
     
   // Teach Autosuggest how to calculate suggestions for any given input value.
@@ -425,20 +427,24 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     const matchIndex = inputValue.search(regex);
     
     if (matchIndex == inputValue.length - 1) {
-      // include all possible suggestions at the start of a new expression
+      // If at the start of a new expression, include all possible suggestions
       return allSuggestionNames.map(suggestion => inputValue + suggestion);
     }
     else if (matchIndex == -1) {
       return [];
     }
     else {
-      // use everything after the regex match index as the prefix for suggestions
+      // Use everything after the regex match index (matchValue) as the prefix to determine suggestions
       const matchValue = inputValue.slice(matchIndex+1, inputValue.length).toLowerCase();
       let suggestions = allSuggestionNames
         .filter(suggestion => suggestion.toLowerCase().slice(0, matchValue.length) === matchValue)
         .map(suggestion => inputValue.slice(0, matchIndex+1) + suggestion);
+      
+      // Math operations are suggested after a numeric attribute name or after ")"
       const attributeIndex = attributeNames.indexOf(matchValue);
-      if (attributeIndex != -1 && attributes[attributeIndex].type === "numeric" ) {
+      const isNumericAttribute = attributeIndex != -1 && attributes[attributeIndex].type === "numeric";
+      const lastChar = matchValue[matchValue.length - 1];
+      if (isNumericAttribute || lastChar == ")"){
         suggestions = suggestions.concat(Object.keys(mathSuggestions).map(suggestion => inputValue + suggestion))
       }
       return suggestions;
@@ -452,7 +458,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     return suggestion;
   }
 
-  // Use your imagination to render suggestions.
+  // How suggestions are rendered into HTML.
   const renderSuggestion = function(suggestion) {
     const matchIndex = suggestion.search(regex);
     const matchValue = suggestion.slice(matchIndex+1, suggestion.length);
@@ -516,13 +522,12 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     setActiveCellValue(newValue);
   }
 
-  // Autosuggest will call this function every time you need to update suggestions.
-  // You already implemented this logic above, so just use it.
+  // Autosuggest will call this function every time we need to update suggestions.
   const onSuggestionsFetchRequested = function({ value }) {
     setSuggestions(getSuggestions(value));
   };
 
-  // Autosuggest will call this function every time you need to clear suggestions.
+  // Autosuggest will call this function every time we need to clear suggestions.
   const onSuggestionsClearRequested = function() {
     setSuggestions([]);
   };
