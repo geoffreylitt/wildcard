@@ -34,7 +34,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'"
+    = alnum | "." | ":" | ">" | "-" | "(" | ")"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -266,17 +266,14 @@ const functions = {
       "element": "The element whose parent to get"
     }
   },
-  "QuerySelector": {
-    "function": function(el, selector, index) {
-      if (!el && selector && typeof(index) === 'number') {
-        return promisify(document.querySelectorAll(selector)[index]);
-      }
-      return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
-    },
-    "help": {
-      "element": "The element column to find a descendant of.",
-      "selector": "The selector(s) to match the descendant elements of 'element' against. The first element found that matches this group of selectors is returned.",
+  "GetParent": function(el) {
+    return promisify(el.parentElement);
+  },
+  "QuerySelector": function(el, selector, index) {
+    if (!el && typeof(index) === 'number') {
+      return promisify(document.querySelectorAll(selector)[index]);
     }
+    return promisify(el ? el.querySelector(selector) : "")
   }
 }
 

@@ -21,15 +21,21 @@ import {
     setAdapterKey
 } from './state';
 
-import {
-    createDomScrapingAdapter
-} from '../site_adapters/domScrapingBase';
+import { userStore } from '../localStorageAdapter';
 
-import { compileAdapterJavascript, userStore } from '../localStorageAdapter';
+function createTableColumns(n) {
+    const columns = [];
+    for (let i = 0; i < n; i++) {
+        columns.push({
+            name: indexToAlpha(i),
+            type: "element"
+        })
+    }
+}
 
 function createAdapterData(rowSelector, columnSelectors) {
     const attributes = [];
-    if (rowSelector && columnSelectors && columnSelectors.length) {
+    if (columnSelectors && columnSelectors.length) {
         // add row element attribute
         attributes.push({
             name: "rowElement",
@@ -39,11 +45,10 @@ function createAdapterData(rowSelector, columnSelectors) {
         });
         // add remaining attributes
         columnSelectors.forEach((columnSelectorList, index) => {
-            const columnSelector = columnSelectorList[0];
             attributes.push({
                 name: indexToAlpha(index),
                 type: "element",
-                formula: columnSelector ? `=QuerySelector(rowElement, "${columnSelector}")` : `=QuerySelector(rowElement)`
+                formula: `=QuerySelector(rowElement, "${columnSelectorList[0]}")`
             });
         });
     }
@@ -127,11 +132,8 @@ export function deleteAdapter(adapterKey, callback) {
                     adapters.splice(adapterIndex, 1);
                     saveToChromeLocalStorage({ [ADAPTERS_BASE_KEY]: adapters })
                     .then(() => {
-                        removeFromChromeLocalStorage([adapterKey, `query:${adapterName}`])
-                        .then(() => {
-                            userStore.clear();
-                            callback();
-                        });
+                        userStore.clear();
+                        callback();
                     });
                 }
             } else {
@@ -143,13 +145,7 @@ export function deleteAdapter(adapterKey, callback) {
     }
 }
 
-export function deleteAdapterInMemory(callback?) {
-    setAdapterConfig(null);
-    const _callback = callback || (() => run({ creatingAdapter: true }));
-    _callback();
-}
-
-export function generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors) {
+export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
     const { attributes } = createAdapterData(rowSelector, columnSelectors);
     return {
         name: document.title,
