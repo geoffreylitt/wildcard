@@ -15,10 +15,12 @@ const HNAdapter = createDomScrapingAdapter({
   },
   attributes: [
     { name: "id", type: "text", hidden: true },
+    { name: "mainRow", type: "element" },
+    { name: "detailsRow", type: "element" },
     { name: "rank", type: "numeric" },
-    { name: "title", type: "text" },
-    { name: "link", type: "text" },
-    { name: "points", type: "numeric" },
+    { name: "title", type: "element", formula: `=QuerySelector(mainRow, "a.storylink")` },
+    { name: "link", type: "text", formula: `=GetAttribute(title, "href")` },
+    { name: "points", type: "numeric", formula: `=QuerySelector(detailsRow, "span.score")` },
     { name: "user", type: "text" },
     { name: "comments", type: "numeric" }
   ],
@@ -34,6 +36,8 @@ const HNAdapter = createDomScrapingAdapter({
           // .filter(e => e) // Only include if the element is really there
           // .map(e => (e)), // Convert to HTMLElement type
         dataValues: {
+          mainRow: el,
+          detailsRow: detailsRow,
           rank: el.querySelector("span.rank"),
           title: el.querySelector("a.storylink"),
           link: el.querySelector("a.storylink").getAttribute("href"),

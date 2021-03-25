@@ -93,7 +93,7 @@ function onDomReady(fn) {
 // Takes in as input a site-specific DOM scraping configuration;
 // returns a TableAdapter that conforms to the abstract adapter spec.
 export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdapter {
-  const attributes = config.attributes;
+  const attributes = config.attributes
 
   // Mutable state to be managed for this adapter, as a closure
   let scrapedRows: Array<ScrapedRow> = [];
@@ -283,7 +283,9 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
           extractedValue = value.value;
         }
         else if (value instanceof HTMLElement) {
-          extractedValue = value.textContent;
+          // Return DOM Elements as-is to the table;
+          // we'll extract text contents at display time.
+          extractedValue = value;
         } else {
           extractedValue = value;
         }

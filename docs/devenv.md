@@ -17,37 +17,23 @@ Install dependencies :
 
 Build the project: `yarn run dev`.  This will compile the Typescript project and create files in the `./dist` folder.
 
-Now, follow [the quick start instructions](quickstart.md) to install the built project directory in your browser.
+There are two ways you can install the extension.
 
-If you just want to use the extension, there's no more further steps.
+### Install in your main browser
 
-If you want to add a site adapter or make other code changes,
-keep reading:
+Follow [the quick start instructions](quickstart.md) to install the built project directory in your browser.
 
-## Making changes
+This is nice if you want to use Wildcard while you actually browse the web.
 
-When you want to make changes to the code, run: `yarn run dev`
+But, it's not great for development, because it's hard to reload the extension automatically when you make changes. For dev, there's a better way:
 
-This starts a watcher that compiles the project when any files change, and auto-updates the Chrome extension (see below for autoreload setup steps).
+### Run through web-ext in development
 
-To test if you're able to make changes, try adding a `console.log` statement to a site adapter file like `src/site_adapters/airbnb.ts` and see if it works.
+You can run a special browser which will automatically reload the extension when you make changes. Run `yarn run chrome` to start this up.
 
-In a separate terminal tab, run `yarn run tsc`. This will warn you when you have
-type errors. Type errors will not prevent you from building and running code,
-but you should try to eliminate type errors before you commit code.
+To test if you're able to make changes, try adding a `console.log` statement to `src/wildcard.tsx` and see if it shows up in your browser.
 
-### Extension auto-reloading
-
-Reloading the extension manually on every code change can be quite annoying, so it's helpful to get it to autoreload on change. Chrome reloading is built in to this repo; follow these steps to activate it:
-
-* Install the [Chrome Extension AutoReload](https://github.com/JeromeDane/chrome-extension-auto-reload) as an unpacked extension from source.
-* From the `chrome://extensions` page, click Details -> Extension Options, and change the Reload Method to "Manage API".
-
-Firefox reloading is possible through [this workflow](https://extensionworkshop.com/documentation/develop/getting-started-with-web-ext/).
-
-Sometimes these tools don't seem to work 100% reliably.
-When in doubt, you can try manually reloading the extension
-in the browser extension settings.
+In general while developing you want to run `yarn run dev` and `yarn run chrome` in separate terminal tabs.
 
 ## Documentation
 
