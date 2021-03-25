@@ -505,7 +505,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   }
   // Render helper text for functions in the footer
   const renderSuggestionsContainer = function({ containerProps, children }) {
-    const inputValue = activeCellValue.trim()
+    const inputValue = activeCellValue.toString().trim()
     const matchIndex = inputValue.search(regex);
     const matchValue = inputValue.slice(matchIndex+1, inputValue.length);
     const attributeIndex = attributeNames.indexOf(matchValue);
