@@ -28,6 +28,10 @@ import {
     resetScraperState
 } from './state';
 
+import {
+    mapToArrayOfValues
+} from './utils';
+
 import { readFromChromeLocalStorage } from '../utils';
 
 export function startScrapingListener() {
@@ -46,13 +50,19 @@ export function stopScrapingListener({ save }) {
             run({ creatingAdapter: false });
         });
     } else {
-        const adapterConfig = getAdapterConfig();
-        adapterConfig.attributes.pop();
-        saveAdapter(adapterKey, adapterConfig, () => {
-            resetScraperState();
-            removeTutorial();
-            run({ creatingAdapter: false });
-        });
+        const columnMap = getColumnMap();
+        const lastColumn = columnMap.size - 1;
+        columnMap.delete(lastColumn);
+        createAdapterAndSave(
+            adapterKey,
+            mapToArrayOfValues(columnMap),
+            getRowElementSelector(),
+            () => {
+                resetScraperState();
+                removeTutorial();
+                run({ creatingAdapter: false });
+            }
+        );
     }
 }
 

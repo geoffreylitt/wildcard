@@ -34,7 +34,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'"
+    = alnum | "." | ":" | ">" | "-" | "(" | ")"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -228,55 +228,14 @@ const functions = {
     },
     "help": "Multiplies two numeric values together."
   },
-  "Plus": {
-    "function": function(x, y) {
-      return promisify(parseFloat(x) + parseFloat(y))
-    },
-    "help": "Adds two numeric values together."
+  "GetParent": function(el) {
+    return promisify(el.parentElement);
   },
-  "Minus": {
-    "function": function(x, y) {
-      return promisify(x - y)
-    },
-    "help": "Subtracts one numeric value from another."
-  },
-  "Round": {
-    "function": function(x) {
-      return promisify(Math.round(x))
-    },
-    "help": {
-      "numeric": "The numeric value to round to integers."
-    },
-  },
-  "GetAttribute": {
-    "function": function(el, attrName) {
-      // todo: error handling here?
-      return promisify(el ? el.getAttribute(attrName) : "")
-    },
-    "help": {
-      "element": "The element column to get an attribute from.",
-      "attributeName": "The HTML attribute to get the value of.",
-    },
-  },
-  "GetParent": {
-    "function":  function(el) {
-      return promisify(el.parentElement);
-    },
-    "help": {
-      "element": "The element whose parent to get"
+  "QuerySelector": function(el, selector, index) {
+    if (!el && typeof(index) === 'number') {
+      return promisify(document.querySelectorAll(selector)[index]);
     }
-  },
-  "QuerySelector": {
-    "function": function(el, selector, index) {
-      if (!el && selector && typeof(index) === 'number') {
-        return promisify(document.querySelectorAll(selector)[index]);
-      }
-      return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
-    },
-    "help": {
-      "element": "The element column to find a descendant of.",
-      "selector": "The selector(s) to match the descendant elements of 'element' against. The first element found that matches this group of selectors is returned.",
-    }
+    return promisify(el ? el.querySelector(selector) : "")
   }
 }
 
