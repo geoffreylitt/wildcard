@@ -120,7 +120,6 @@ const autosuggestTheme = {
     display: 'none',
   },
   suggestionsContainerOpen: {
-    // display: 'block',
     position: 'absolute',
     width: '100%',
     maxHeight: '240px',
@@ -132,7 +131,6 @@ const autosuggestTheme = {
   suggestionsList: {
     padding: '0px',
     margin: '0px',
-    // maxHeight: '150px',
     overflow: 'auto',
     flex: '1 1 auto'
   },
@@ -475,7 +473,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     return suggestion;
   }
 
-  // How suggestions are rendered into HTML.
+  // Determine how individual suggestions are rendered into HTML.
   const renderSuggestion = function(suggestion) {
     const matchIndex = suggestion.search(regex);
     const matchValue = suggestion.slice(matchIndex+1, suggestion.length);
@@ -491,7 +489,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     }
     
   }
-  // Render helper text for functions
+  // Render helper text for functions in the footer
   const renderSuggestionsContainer = function({ containerProps, children }) {
     const inputValue = activeCellValue.trim()
     const matchIndex = inputValue.search(regex);
@@ -576,7 +574,6 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
             getSuggestionValue={getSuggestionValue}
             renderSuggestion={renderSuggestion}
             renderSuggestionsContainer={renderSuggestionsContainer}
-            alwaysRenderSuggestions={true}
             inputProps={{
               ref: cellEditorRef,
               value: activeCellValue.toString(),
