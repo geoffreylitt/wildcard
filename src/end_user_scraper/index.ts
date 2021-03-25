@@ -27,6 +27,10 @@ import {
     resetScraperState
 } from './state';
 
+import {
+    mapToArrayOfValues
+} from './utils';
+
 import { readFromChromeLocalStorage } from '../utils';
 
 export function startScrapingListener() {
@@ -45,16 +49,19 @@ export function stopScrapingListener({ save }) {
             run({ creatingAdapter: false });
         });
     } else {
-        const activeAdapter = getCachedActiveAdapter();
-        const adapterConfig = activeAdapter.getConfig();
-        adapterConfig.attributes.pop();
-        adapterConfig.metadata.columnSelectors.pop();
-        adapterConfig.scrapePage = adapterConfig.scrapePage.toString();
-        saveAdapter(adapterKey, adapterConfig, () => {
-            resetScraperState();
-            removeTutorial();
-            run({ creatingAdapter: false });
-        });
+        const columnMap = getColumnMap();
+        const lastColumn = columnMap.size - 1;
+        columnMap.delete(lastColumn);
+        createAdapterAndSave(
+            adapterKey,
+            mapToArrayOfValues(columnMap),
+            getRowElementSelector(),
+            () => {
+                resetScraperState();
+                removeTutorial();
+                run({ creatingAdapter: false });
+            }
+        );
     }
 }
 

@@ -16,11 +16,46 @@ import {
     setAdapterKey
 } from './state';
 
-import {
-    createDomScrapingAdapter
-} from '../site_adapters/domScrapingBase';
+import { userStore } from '../localStorageAdapter';
 
-import { compileAdapterJavascript, userStore } from '../localStorageAdapter';
+function createTableColumns(n) {
+    const columns = [];
+    for (let i = 0; i < n; i++) {
+        columns.push({
+            name: indexToAlpha(i),
+            type: "element"
+        })
+    }
+    return columns;
+}
+
+function createAdapterData(rowSelector, columnSelectors) {
+    const attributes = [];
+    if (columnSelectors && columnSelectors.length) {
+        // add row element attribute
+        attributes.push({
+            name: "rowElement",
+            type: "element",
+            formula: `=QuerySelector(null, "${rowSelector}")`,
+            hidden: true
+        });
+        // add remaining attributes
+        columnSelectors.forEach((columnSelectorList, index) => {
+            attributes.push({
+                name: indexToAlpha(index),
+                type: "element",
+                formula: `=QuerySelector(rowElement, "${columnSelectorList[0]}")`
+            });
+        });
+    }
+    return {
+        attributes
+    }
+}
+
+function _createAdapterId() {
+    return document.title;
+}
 
 export function createAdapterKey() {
     return `${ADAPTERS_BASE_KEY}:${_createAdapterId()}`
@@ -94,11 +129,8 @@ export function deleteAdapter(adapterKey, callback) {
                     adapters.splice(adapterIndex, 1);
                     saveToChromeLocalStorage({ [ADAPTERS_BASE_KEY]: adapters })
                     .then(() => {
-                        removeFromChromeLocalStorage([adapterKey, `query:${adapterName}`])
-                        .then(() => {
-                            userStore.clear();
-                            callback();
-                        });
+                        userStore.clear();
+                        callback();
                     });
                 } else {
                     callback();
@@ -113,7 +145,7 @@ export function deleteAdapter(adapterKey, callback) {
 }
 
 export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
-    const { attributes, scrapePage } = createAdapterData(rowSelector, columnSelectors);
+    const { attributes } = createAdapterData(rowSelector, columnSelectors);
     return {
         name: document.title,
         urls: [window.location.href],
@@ -124,7 +156,17 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
             columnSelectors,
             rowSelector
         },
-        scrapePage
+        scrapePage: `() => {
+            const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
+            return Array.from(rowElements).map((element, rowIndex) => {
+                return {
+                    id: String(rowIndex),
+                    index: rowIndex,
+                    dataValues: {},
+                    rowElements: [element]
+                }
+            });
+        }`
     };
 }
 
