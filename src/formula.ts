@@ -33,7 +33,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "."
+    = alnum | "." | ":" | ">" | "-" | "(" | ")"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -113,7 +113,13 @@ const functions = {
     // todo: error handling here?
     return promisify(el.getAttribute(attrName))
   },
-  "QuerySelector": function(el, selector) {
+  "GetParent": function(el) {
+    return promisify(el.parentElement);
+  },
+  "QuerySelector": function(el, selector, index) {
+    if (!el && typeof(index) === 'number') {
+      return promisify(document.querySelectorAll(selector)[index]);
+    }
     return promisify(el ? el.querySelector(selector) : "")
   }
 }
@@ -182,6 +188,7 @@ class FnNode {
       // Note 2:
       // If any of the arguments is a DOM element, we don't cache.
       // We don't have an easy way to test equality.
+      values = [...values, parseInt(row.id)]
       if(values.find(v => v instanceof HTMLElement)) {
         return fn.apply(this, values)
       }
