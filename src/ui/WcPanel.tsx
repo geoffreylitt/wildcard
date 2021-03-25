@@ -101,12 +101,17 @@ const autosuggestTheme = {
     minWidth: '50%',
     marginLeft: '10px',
     zIndex: '2500',
+    color: 'black',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+    fontSize: '14px',
   },
   input: {
     padding: '5px',
     border: 'solid thin #ddd',
     height: '1.5em',
     width: '100%',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+    fontSize: '14px',
     '&:focus': {
       border: 'none'
     }
@@ -115,19 +120,30 @@ const autosuggestTheme = {
     display: 'none',
   },
   suggestionsContainerOpen: {
-    display: 'block',
+    // display: 'block',
     position: 'absolute',
     width: '100%',
+    maxHeight: '240px',
     background: 'white',
     boxShadow: '0px 0px 3px gray',
+    display: 'flex',
+    flexFlow: 'column',
+  },
+  suggestionsList: {
+    padding: '0px',
+    margin: '0px',
+    // maxHeight: '150px',
+    overflow: 'auto',
+    flex: '1 1 auto'
   },
   suggestion: {
     listStyleType: 'none',
     margin: '0',
     padding: '0px 5px',
+    cursor: 'pointer'
   },
   suggestionHighlighted: {
-    background: 'lightgrey'
+    background: 'rgb(240,240,240)',
   },
 };
 
@@ -417,9 +433,10 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     .reduce((obj, functionName) => {
       const symbol = mathSymbols[functionName];
       obj[symbol] = functions[functionName];
-      return obj;
+      return obj; 
     }, {});
   const allSuggestionNames = Object.keys(functions)
+    .sort()
     .filter(functionName => ["Plus", "Minus", "Multiply", "Divide"].indexOf(functionName) == -1)
     .concat(attributeNames);
   const getSuggestions = value => {
@@ -482,11 +499,11 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     const attributeIndex = attributeNames.indexOf(matchValue);
     const lastChar = inputValue[inputValue.length-1];
     
-    let footer = (<div></div>)
+    let footer = undefined;
     if (matchValue in functions) { // function
       const params = functions[matchValue]["help"];
       footer = (
-        <div style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
+        <div>
           {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
           <div>{Object.keys(params).map(key => <div><b>{key}</b>: {params[key]}</div>)}</div>
         </div>
@@ -495,7 +512,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     else if (lastChar in mathSuggestions) { // math symbol
       const helpText = mathSuggestions[lastChar]["help"];
       footer = (
-        <div style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
+        <div>
           numeric1 <b>{lastChar}</b> numeric2
           <div>{helpText}</div>
         </div>
@@ -504,7 +521,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     else if (attributeIndex != -1) { // attribute name
       const attribute = attributes[attributeIndex];
       footer = (
-        <div style={{backgroundColor: '#efefef', borderTop: '1px solid gray', padding: '5px'}}>
+        <div>
           <b>{attribute.name}</b> is a column with type <b>{attribute.type}</b>.
         </div>
       )
@@ -513,7 +530,9 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     return (
       <div {...containerProps}>
         {children}
-        {footer}
+        <div style={footer ? {backgroundColor: 'rgb(240, 240, 240)', borderTop: '1px solid rgb(204, 204, 204)', padding: '5px', flex: '0 1 auto'} : {}}>
+          {footer}
+        </div>
       </div>
     )
   }
@@ -557,6 +576,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
             getSuggestionValue={getSuggestionValue}
             renderSuggestion={renderSuggestion}
             renderSuggestionsContainer={renderSuggestionsContainer}
+            alwaysRenderSuggestions={true}
             inputProps={{
               ref: cellEditorRef,
               value: activeCellValue.toString(),
