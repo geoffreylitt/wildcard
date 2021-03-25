@@ -37,17 +37,3 @@ build({
     "process.env.NODE_ENV": '"production"'
   },
 })
-
-// Spin up a Chrome browser which runs the extension and auto-reloads it
-webExt.cmd.run({
-  // These are command options derived from their CLI conterpart.
-  // In this example, --source-dir is specified as sourceDir.
-  sourceDir: ".",
-  target: "chromium",
-  keepProfileChanges: true
-}, {
-  // These are non CLI related options for each function.
-  // You need to specify this one so that your NodeJS application
-  // can continue running after web-ext is finished.
-  shouldExitProgram: false,
-})
