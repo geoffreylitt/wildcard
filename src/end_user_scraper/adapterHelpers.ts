@@ -20,15 +20,41 @@ import {
     setAdapterKey
 } from './state';
 
+import { userStore } from '../localStorageAdapter';
+
 function createTableColumns(n) {
     const columns = [];
     for (let i = 0; i < n; i++) {
         columns.push({
             name: indexToAlpha(i),
-            type: "text"
+            type: "element"
         })
     }
     return columns;
+}
+
+function createAdapterData(rowSelector, columnSelectors) {
+    const attributes = [];
+    if (columnSelectors && columnSelectors.length) {
+        // add row element attribute
+        attributes.push({
+            name: "rowElement",
+            type: "element",
+            formula: `=QuerySelector(null, "${rowSelector}")`,
+            hidden: true
+        });
+        // add remaining attributes
+        columnSelectors.forEach((columnSelectorList, index) => {
+            attributes.push({
+                name: indexToAlpha(index),
+                type: "element",
+                formula: `=QuerySelector(rowElement, "${columnSelectorList[0]}")`
+            });
+        });
+    }
+    return {
+        attributes
+    }
 }
 
 function _createAdapterId() {
@@ -107,6 +133,7 @@ export function deleteAdapter(adapterKey, callback) {
                 .then(() => {
                     removeFromChromeLocalStorage([adapterKey, `query:${adapterName}`])
                     .then(() => {
+                        userStore.clear();
                         callback();
                     });
                 });
@@ -118,11 +145,12 @@ export function deleteAdapter(adapterKey, callback) {
 }
 
 export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
+    const { attributes } = createAdapterData(rowSelector, columnSelectors);
     return {
         name: document.title,
         urls: [window.location.href],
         matches: [`${window.location.origin}${window.location.pathname}`],
-        attributes: createTableColumns(Math.max(columnSelectors.length, MIN_COLUMNS)),
+        attributes,
         metadata: {
             id: adapterKey,
             columnSelectors,
@@ -131,22 +159,10 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
         scrapePage: `() => {
             const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
             return Array.from(rowElements).map((element, rowIndex) => {
-                const dataValues = {};
-                const columnSelectors = ${JSON.stringify(columnSelectors)};
-                for (let columnIndex = 0; columnIndex < columnSelectors.length; columnIndex++) {
-                    const selectors = columnSelectors[columnIndex];
-                    for (let selectorIndex = 0; selectorIndex < selectors.length; selectorIndex++) {
-                        const selector = selectors[selectorIndex];
-                        const selected = element.querySelector(selector);
-                        if (selected && selected.textContent) {
-                            dataValues[String.fromCharCode(97 + columnIndex).toUpperCase()] = selected.textContent.trim();
-                            break;
-                        }
-                    }
-                }
                 return {
                     id: String(rowIndex),
-                    dataValues,
+                    index: rowIndex,
+                    dataValues: {},
                     rowElements: [element]
                 }
             });

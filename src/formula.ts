@@ -34,7 +34,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "."
+    = alnum | "." | ":" | ">" | "-" | "(" | ")"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -258,14 +258,14 @@ const functions = {
       "attributeName": "The HTML attribute to get the value of.",
     },
   },
-  "QuerySelector": {
-    "function": function(el, selector) {
-      return promisify(el ? el.querySelector(selector) : "")
-    },
-    "help": {
-      "element": "The element column to find a descendant of.",
-      "selector": "The selector(s) to match the descendant elements of 'element' against. The first element found that matches this group of selectors is returned.",
-    },
+  "GetParent": function(el) {
+    return promisify(el.parentElement);
+  },
+  "QuerySelector": function(el, selector, index) {
+    if (!el && typeof(index) === 'number') {
+      return promisify(document.querySelectorAll(selector)[index]);
+    }
+    return promisify(el ? el.querySelector(selector) : "")
   }
 }
 
@@ -325,18 +325,20 @@ class FnNode {
       // Then look it up in our in-memory cache. (the cache isn't persisted,
       // it's just there to make re-evals smoother within pageloads)
 
-      // Most input arguments are directly stringified into the cache key;
-      // but we need to treat DOM elements specially to compare them.
-      // We hash the HTML of the element as an equality check
-      const inputArguments = values.map(v => {
-        if(v instanceof HTMLElement) {
-          return stringHash(v.outerHTML)
-        } else {
-          return v
-        }
-      })
+      // Note 1:
+      // Technically this could go wrong in weird cases where the input
+      // contains this separator character, and we should do something better like
+      // hash a key-value object or something... but this seems good enough for now.
 
-      const cacheKey = `${this.fnName}:${row.id}:${inputArguments.join("_:_")}`;
+      // Note 2:
+      // If any of the arguments is a DOM element, we don't cache.
+      // We don't have an easy way to test equality.
+      values = [...values, parseInt(row.id)]
+      if(values.find(v => v instanceof HTMLElement)) {
+        return fn.apply(this, values)
+      }
+
+      const cacheKey = `${this.fnName}:${row.id}:${values.join("_:_")}`;
 
       if(functionCache[cacheKey]) {
         return functionCache[cacheKey]
