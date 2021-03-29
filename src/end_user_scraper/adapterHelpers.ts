@@ -23,19 +23,9 @@ import {
 
 import { userStore } from '../localStorageAdapter';
 
-function createTableColumns(n) {
-    const columns = [];
-    for (let i = 0; i < n; i++) {
-        columns.push({
-            name: indexToAlpha(i),
-            type: "element"
-        })
-    }
-}
-
 function createAdapterData(rowSelector, columnSelectors) {
     const attributes = [];
-    if (columnSelectors && columnSelectors.length) {
+    if (rowSelector && columnSelectors && columnSelectors.length) {
         // add row element attribute
         attributes.push({
             name: "rowElement",
@@ -45,10 +35,11 @@ function createAdapterData(rowSelector, columnSelectors) {
         });
         // add remaining attributes
         columnSelectors.forEach((columnSelectorList, index) => {
+            const columnSelector = columnSelectorList[0];
             attributes.push({
                 name: indexToAlpha(index),
                 type: "element",
-                formula: `=QuerySelector(rowElement, "${columnSelectorList[0]}")`
+                formula: columnSelector ? `=QuerySelector(rowElement, "${columnSelector}")` : `=QuerySelector(rowElement)`
             });
         });
     }
@@ -146,7 +137,7 @@ export function deleteAdapter(adapterKey, callback) {
     }
 }
 
-export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
+export function generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors) {
     const { attributes } = createAdapterData(rowSelector, columnSelectors);
     return {
         name: document.title,
@@ -173,17 +164,15 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
     };
 }
 
-export function createAdapterInMemory(adapterKey, columnSelectors, rowSelector, candidateRowElementSelectors, callback?) {
+export function createAdapterAndSave(adapterKey, columnSelectors, rowSelector, candidateRowElementSelectors, callback?) {
     const config = generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors);
-    setAdapterConfig(config);
-    const _callback = callback || (() => run({ creatingAdapter: true }));
-    _callback();
+    saveAdapter(adapterKey, config, callback);
 }
 
 export function createInitialAdapterConfig() {
     const adapterKey = createAdapterKey();
     setAdapterKey(adapterKey);
-    createAdapterInMemory(adapterKey, [], '', []);
+    createAdapterAndSave(adapterKey, [], '', []);
 }
 
 function adaptersAreIdentical(adapter1, adapter2) {
@@ -201,14 +190,4 @@ function adaptersAreIdentical(adapter1, adapter2) {
         }
     } 
     return true;
-}
-
-export function getInMemoryAdapters() {
-    const inMemoryAdapter = getAdapterConfig();
-    if (inMemoryAdapter) {
-        const adapterCopy = {...inMemoryAdapter}
-        compileAdapterJavascript(adapterCopy);
-        return [createDomScrapingAdapter(adapterCopy)]
-    }
-    return [];
 }
