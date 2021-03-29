@@ -33,14 +33,18 @@ let _currentColumnSelector;
 let _multipleExamples = false;
 let _columnMap = new Map<number, string[]>();
 let _editing = false;
+let _candidateRowElementSelectors = [];
+let _candidateColumnElementSelectors = [];
 _columnMap.set(_column, []);
 
-export function initState({ rowSelector, columnSelectors, id }) {
+export function initState({ rowSelector, columnSelectors, id, candidateRowElementSelectors, candidateColumnElementSelectors }) {
     _editing = true;
     _exploring = false;
     _rowElementSelector = rowSelector;
     _rowElement = document.querySelector(rowSelector);
     _adapterKey = id;
+    _candidateRowElementSelectors = candidateRowElementSelectors;
+    _candidateColumnElementSelectors = candidateColumnElementSelectors;
     let addedPlaceholderColumn = false;
     columnSelectors.forEach((selectors, index) => {
         _columnMap.set(index, selectors);
@@ -55,7 +59,7 @@ export function initState({ rowSelector, columnSelectors, id }) {
     styleColumnElementsOnClick(rowSelector);
     styleRowElementsOnClick();
     if (addedPlaceholderColumn) {
-        createAdapterAndSave(id, mapToArrayOfValues(_columnMap), rowSelector);
+        createAdapterAndSave(id, mapToArrayOfValues(_columnMap), rowSelector, candidateRowElementSelectors);
     }
 }
 
@@ -176,6 +180,8 @@ export function resetScraperState() {
     _currentColumnSelector = null;
     _tempColumnMap = null;
     _multipleExamples = false;
+    _candidateRowElementSelectors = [];
+    _candidateColumnElementSelectors = [];
 }
 
 export function getMouseClickRowStyleData() {
@@ -237,4 +243,20 @@ export function getEditing() {
 
 export function setEditing(value) {
     _editing = value;
+}
+
+export function getCandidateRowElementSelectors() {
+    return _candidateRowElementSelectors;
+}
+
+export function setCandidateRowElementSelectors(value) {
+    _candidateRowElementSelectors = value;
+}
+
+export function getCandidateColumnElementSelectors() {
+    return _candidateColumnElementSelectors;
+}
+
+export function setCandidateColumnElementSelectors(value) {
+    _candidateColumnElementSelectors = value;
 }

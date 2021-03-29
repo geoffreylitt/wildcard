@@ -262,10 +262,10 @@ const functions = {
     return promisify(el.parentElement);
   },
   "QuerySelector": function(el, selector, index) {
-    if (!el && typeof(index) === 'number') {
+    if (!el && selector && typeof(index) === 'number') {
       return promisify(document.querySelectorAll(selector)[index]);
     }
-    return promisify(el ? el.querySelector(selector) : "")
+    return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
   }
 }
 
@@ -487,7 +487,7 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
 
   const sortedFormulaAttributes: string[] = sortAttributesByDependencies(parsedFormulas)
 
-  console.log({sortedFormulaAttributes, parsedFormulas})
+  //console.log({sortedFormulaAttributes, parsedFormulas})
 
   // Start by initializing an empty results object of the right shape,
   // so that we can start incrementally sending back results to the table

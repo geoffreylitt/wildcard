@@ -11,7 +11,7 @@ export function findRowElement(nodes, lca) {
     let candidate = lca;
     while (candidate && candidate.tagName !== 'BODY') {
         const candidateEntry = {
-            candidate: candidate,
+            candidate,
             score: 0
         };
         let nextSibling = candidate.nextElementSibling;
@@ -42,9 +42,14 @@ export function findRowElement(nodes, lca) {
     }
     if (candidates.length) {
       candidates.sort((a, b) => b.score - a.score);
+      const  { candidate, score } = candidates[0];
+      const candidateRowElementSelectors = candidates
+        .filter(entry => entry.score === score)
+        .map(entry => generateNodeSelectorFrom(entry.candidate, document.body));
       return {
-          rowElement: candidates[0].candidate,
-          rowElementSelector: generateNodeSelectorFrom(candidates[0].candidate, document.body),
+          rowElement: candidate,
+          rowElementSelector: candidateRowElementSelectors[0],
+          candidateRowElementSelectors
       };
     }
     return null
