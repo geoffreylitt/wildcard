@@ -22,6 +22,7 @@ import {
 
 import {
     getAdapterKey,
+    getCandidateRowElementSelectors,
     getColumnMap,
     getRowElementSelector,
     initState,
@@ -57,6 +58,7 @@ export function stopScrapingListener({ save }) {
             adapterKey,
             mapToArrayOfValues(columnMap),
             getRowElementSelector(),
+            getCandidateRowElementSelectors(),
             () => {
                 resetScraperState();
                 removeTutorial();

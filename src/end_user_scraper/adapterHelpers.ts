@@ -5,7 +5,6 @@ import {
 } from '../utils';
 
 import {
-    MIN_COLUMNS,
     ADAPTERS_BASE_KEY
 } from './constants';
 import {
@@ -22,20 +21,9 @@ import {
 
 import { userStore } from '../localStorageAdapter';
 
-function createTableColumns(n) {
-    const columns = [];
-    for (let i = 0; i < n; i++) {
-        columns.push({
-            name: indexToAlpha(i),
-            type: "element"
-        })
-    }
-    return columns;
-}
-
 function createAdapterData(rowSelector, columnSelectors) {
     const attributes = [];
-    if (columnSelectors && columnSelectors.length) {
+    if (rowSelector && columnSelectors && columnSelectors.length) {
         // add row element attribute
         attributes.push({
             name: "rowElement",
@@ -45,10 +33,11 @@ function createAdapterData(rowSelector, columnSelectors) {
         });
         // add remaining attributes
         columnSelectors.forEach((columnSelectorList, index) => {
+            const columnSelector = columnSelectorList[0];
             attributes.push({
                 name: indexToAlpha(index),
                 type: "element",
-                formula: `=QuerySelector(rowElement, "${columnSelectorList[0]}")`
+                formula: columnSelector ? `=QuerySelector(rowElement, "${columnSelector}")` : `=QuerySelector(rowElement)`
             });
         });
     }
@@ -101,7 +90,7 @@ export function saveAdapter(adapterKey, config, callback?) {
             };
             if (results[adapterKey]) {
                 const currentConfig = JSON.parse(results[adapterKey]);
-                if (currentConfig.scrapePage !== config.scrapePage) {
+                if (!adaptersAreIdentical(currentConfig, config)) {
                     _saveAdapter(
                         adapterKey,
                         config,
@@ -144,7 +133,7 @@ export function deleteAdapter(adapterKey, callback) {
     }
 }
 
-export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
+export function generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors) {
     const { attributes } = createAdapterData(rowSelector, columnSelectors);
     return {
         name: document.title,
@@ -154,7 +143,8 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
         metadata: {
             id: adapterKey,
             columnSelectors,
-            rowSelector
+            rowSelector,
+            candidateRowElementSelectors
         },
         scrapePage: `() => {
             const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
@@ -170,13 +160,30 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
     };
 }
 
-export function createAdapterAndSave(adapterKey, columnSelectors, rowSelector, callback?) {
-    const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
+export function createAdapterAndSave(adapterKey, columnSelectors, rowSelector, candidateRowElementSelectors, callback?) {
+    const config = generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors);
     saveAdapter(adapterKey, config, callback);
 }
 
 export function createInitialAdapter() {
     const adapterKey = createAdapterKey();
     setAdapterKey(adapterKey);
-    createAdapterAndSave(adapterKey, [], '');
+    createAdapterAndSave(adapterKey, [], '', []);
+}
+
+function adaptersAreIdentical(adapter1, adapter2) {
+    if (adapter1.attributes.length !== adapter2.attributes.length) {
+        return false;
+    }
+    if (adapter1.scrapePage !== adapter2.scrapePage) {
+        return false;
+    }
+    for (let i = 0; i < adapter1.attributes.length; i++) {
+        const adapter1Attribute = adapter1.attributes[i];
+        const adapter2Attribute = adapter2.attributes[i];
+        if (adapter1Attribute.formula !== adapter2Attribute.formula) {
+            return false;
+        }
+    } 
+    return true;
 }
