@@ -18,20 +18,9 @@ import {
 
 import { userStore } from '../localStorageAdapter';
 
-function createTableColumns(n) {
-    const columns = [];
-    for (let i = 0; i < n; i++) {
-        columns.push({
-            name: indexToAlpha(i),
-            type: "element"
-        })
-    }
-    return columns;
-}
-
 function createAdapterData(rowSelector, columnSelectors) {
     const attributes = [];
-    if (columnSelectors && columnSelectors.length) {
+    if (rowSelector && columnSelectors && columnSelectors.length) {
         // add row element attribute
         attributes.push({
             name: "rowElement",
@@ -41,10 +30,11 @@ function createAdapterData(rowSelector, columnSelectors) {
         });
         // add remaining attributes
         columnSelectors.forEach((columnSelectorList, index) => {
+            const columnSelector = columnSelectorList[0];
             attributes.push({
                 name: indexToAlpha(index),
                 type: "element",
-                formula: `=QuerySelector(rowElement, "${columnSelectorList[0]}")`
+                formula: columnSelector ? `=QuerySelector(rowElement, "${columnSelector}")` : `=QuerySelector(rowElement)`
             });
         });
     }
@@ -144,7 +134,7 @@ export function deleteAdapter(adapterKey, callback) {
     }
 }
 
-export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
+export function generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors) {
     const { attributes } = createAdapterData(rowSelector, columnSelectors);
     return {
         name: document.title,
@@ -154,7 +144,8 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
         metadata: {
             id: adapterKey,
             columnSelectors,
-            rowSelector
+            rowSelector,
+            candidateRowElementSelectors
         },
         scrapePage: `() => {
             const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
@@ -170,27 +161,15 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
     };
 }
 
-export function createInitialAdapter() {
-    const config = createInitialAdapterConfig();
-    return createDomScrapingAdapter(config as any);
+export function createAdapterAndSave(adapterKey, columnSelectors, rowSelector, candidateRowElementSelectors, callback?) {
+    const config = generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors);
+    saveAdapter(adapterKey, config, callback);
 }
 
 export function createInitialAdapterConfig() {
     const adapterKey = createAdapterKey();
     setAdapterKey(adapterKey);
-    const config = generateAdapter([], '', adapterKey);
-    compileAdapterJavascript(config);
-    return config;
-}
-
-export function updateAdapter(adapterKey, columnSelectors, rowSelector) {
-    const activeAdapter = getCachedActiveAdapter();
-    if (activeAdapter) {
-        const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
-        const configCopy = {...config};
-        compileAdapterJavascript(configCopy);
-        activeAdapter.updateConfig(configCopy);
-    }   
+    createAdapterAndSave(adapterKey, [], '', []);
 }
 
 function adaptersAreIdentical(adapter1, adapter2) {
@@ -208,52 +187,4 @@ function adaptersAreIdentical(adapter1, adapter2) {
         }
     } 
     return true;
-}
-
-function createAdapterData(rowSelector, columnSelectors) {    
-    return {
-        attributes: _createAttributes({ rowSelector, columnSelectors }),
-        scrapePage: _createScrapPage({ rowSelector })
-    }
-}
-
-function _createAttributes({ rowSelector, columnSelectors }) {
-    const attributes = [];
-    if (rowSelector && columnSelectors && columnSelectors.length) {
-        // add row element attribute
-        attributes.push({
-            name: "rowElement",
-            type: "element",
-            formula: `=QuerySelector(null, "${rowSelector}")`,
-            hidden: true
-        });
-        // add remaining attributes
-        columnSelectors.forEach((columnSelectorList, index) => {
-            const columnSelector = columnSelectorList[0];
-            attributes.push({
-                name: indexToAlpha(index),
-                type: "element",
-                formula: columnSelector ? `=QuerySelector(rowElement, "${columnSelector}")` : `=QuerySelector(rowElement)`
-            });
-        });
-    }
-    return attributes;
-}
-
-function _createScrapPage({ rowSelector }) {
-    return `() => {
-        const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
-        return Array.from(rowElements).map((element, rowIndex) => {
-            return {
-                id: String(rowIndex),
-                index: rowIndex,
-                dataValues: {},
-                rowElements: [element]
-            }
-        });
-    }`;
-}
-
-function _createAdapterId() {
-    return document.title;
 }

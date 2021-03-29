@@ -262,10 +262,10 @@ const functions = {
     return promisify(el.parentElement);
   },
   "QuerySelector": function(el, selector, index) {
-    if (!el && typeof(index) === 'number') {
+    if (!el && selector && typeof(index) === 'number') {
       return promisify(document.querySelectorAll(selector)[index]);
     }
-    return promisify(el ? el.querySelector(selector) : "")
+    return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
   }
 }
 
