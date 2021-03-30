@@ -8,10 +8,11 @@ import {
 } from './eventListeners';
 
 import {
-    createAdapterAndSave,
     createInitialAdapter,
     deleteAdapter,
-    createAdapterKey
+    createAdapterKey,
+    deleteAdapterInMemory,
+    saveAdapter
 } from './adapterHelpers';
 
 import {
@@ -21,17 +22,11 @@ import {
 } from './tutorial';
 
 import {
+    getAdapterConfig,
     getAdapterKey,
-    getCandidateRowElementSelectors,
-    getColumnMap,
-    getRowElementSelector,
     initState,
     resetScraperState
 } from './state';
-
-import {
-    mapToArrayOfValues
-} from './utils';
 
 import { readFromChromeLocalStorage } from '../utils';
 
@@ -49,28 +44,20 @@ export function stopScrapingListener({ save }) {
             resetScraperState();
             removeTutorial();
             run({ creatingAdapter: false });
-        })
+        });
     } else {
-        const columnMap = getColumnMap();
-        const lastColumn = columnMap.size - 1;
-        columnMap.delete(lastColumn);
-        createAdapterAndSave(
-            adapterKey,
-            mapToArrayOfValues(columnMap),
-            getRowElementSelector(),
-            getCandidateRowElementSelectors(),
-            () => {
-                resetScraperState();
-                removeTutorial();
-                run({ creatingAdapter: false });
-            }
-        );
+        const adapterConfig = getAdapterConfig();
+        adapterConfig.attributes.pop();
+        saveAdapter(adapterKey, adapterConfig, () => {
+            resetScraperState();
+            removeTutorial();
+            run({ creatingAdapter: false });
+        });
     }
 }
 
 export function resetScrapingListener() {
-    const adapterKey = getAdapterKey();
-    deleteAdapter(adapterKey, () => {
+    deleteAdapterInMemory(() => {
         resetScraperState();
         resetTutorial();
         createInitialAdapter();

@@ -13,7 +13,8 @@ import {
     styleColumnElementsOnClick,
     styleRowElementsOnClick
 } from './eventListeners';
-import { createAdapterAndSave } from './adapterHelpers';
+
+import { createAdapterInMemory } from './adapterHelpers';
 
 const _eventMaps = {
     mouseMoveRowElement: new Map(),
@@ -35,6 +36,7 @@ let _columnMap = new Map<number, string[]>();
 let _editing = false;
 let _candidateRowElementSelectors = [];
 let _candidateColumnElementSelectors = [];
+let _adapterConfig;
 _columnMap.set(_column, []);
 
 export function initState({ rowSelector, columnSelectors, id, candidateRowElementSelectors, candidateColumnElementSelectors }) {
@@ -59,7 +61,7 @@ export function initState({ rowSelector, columnSelectors, id, candidateRowElemen
     styleColumnElementsOnClick(rowSelector);
     styleRowElementsOnClick();
     if (addedPlaceholderColumn) {
-        createAdapterAndSave(id, mapToArrayOfValues(_columnMap), rowSelector, candidateRowElementSelectors);
+        createAdapterInMemory(id, mapToArrayOfValues(_columnMap), rowSelector, candidateRowElementSelectors);
     }
 }
 
@@ -182,6 +184,7 @@ export function resetScraperState() {
     _multipleExamples = false;
     _candidateRowElementSelectors = [];
     _candidateColumnElementSelectors = [];
+    _adapterConfig = null;
 }
 
 export function getMouseClickRowStyleData() {
@@ -259,4 +262,12 @@ export function getCandidateColumnElementSelectors() {
 
 export function setCandidateColumnElementSelectors(value) {
     _candidateColumnElementSelectors = value;
+}
+
+export function getAdapterConfig() {
+    return _adapterConfig;
+}
+
+export function setAdapterConfig(value) {
+    _adapterConfig = value;
 }
