@@ -33,7 +33,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | ":" | ">" | "-" | "(" | ")"
+    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
