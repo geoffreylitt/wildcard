@@ -5,7 +5,8 @@ import mapValues from "lodash/mapValues";
 import keyBy from 'lodash/keyBy'
 import { Attribute, SortConfig, TableAdapter, Table, RecordEdit } from '../core/types'
 import { htmlToElement } from '../utils'
-import { updateFromSetFormula } from '../end_user_scraper/eventListeners'
+import { getAdapterConfig, setAdapterConfig } from "../end_user_scraper/state";
+import { run } from "../wildcard";
 
 type DataValue = string | number | boolean
 declare var browser : any;
@@ -397,19 +398,15 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     toggleVisibility,
     clear: () => {},
     setFormula: (attrName, formula) => {
-      const updated = updateAttribute({ attrName, formula });
-      if (updated) {
-        updateFromSetFormula({ formula });
+      const inMemoryAdapter = getAdapterConfig();
+      if (inMemoryAdapter) {
+        const attributeConfig = inMemoryAdapter.attributes.find(attributeConfig => attributeConfig.name === attrName);
+        if (attributeConfig && attributeConfig.formula !== formula) {
+          attributeConfig.formula = formula;
+          setAdapterConfig(inMemoryAdapter);
+          run({ creatingAdapter: true });
+        }
       }
-    },
-    updateConfig: (_config) => {
-      config.attributes = _config.attributes;
-      config.scrapePage = _config.scrapePage;
-      config.metadata = _config.metadata;
-      loadTable();
-    },
-    getConfig: () => {
-      return config;
     }
   }
 }

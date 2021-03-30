@@ -15,7 +15,7 @@ import GithubAdapter from './github'
 import HarvardBookWarehouse from './harvardbookwarehouse'
 import { adapterStore } from '../localStorageAdapter'
 import { TableAdapter } from '../core/types'
-import { createInitialAdapter } from '../end_user_scraper/adapterHelpers'
+import { getInMemoryAdapters } from '../end_user_scraper/adapterHelpers'
 
 export const siteAdapters = [
   HNAdapter,
@@ -34,7 +34,9 @@ export const siteAdapters = [
 
 export async function getActiveAdapter({ creatingAdapter }): Promise<undefined | TableAdapter> {
   const localAdapters = await adapterStore.getLocalAdapters();
+  const inMemoryAdapters = getInMemoryAdapters();
   const adaptersForPage = [
+    ...inMemoryAdapters,
     ...localAdapters,
     ...siteAdapters
   ].filter(adapter => adapter.enabled())
