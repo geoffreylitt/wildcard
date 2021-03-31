@@ -8,7 +8,7 @@ const GithubAdapter = createDomScrapingAdapter({
   attributes: [
     { name: "name"   , type: "text"},
     { name: "stars"  , type: "numeric"},
-    { name: "forks"  , type: "text"},
+    { name: "forks"  , type: "numeric"},
     { name: "updated", type: "text"},
     // TODO datetime type would be nice? not everything has ISO formatted strings
   ],

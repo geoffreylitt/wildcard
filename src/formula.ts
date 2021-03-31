@@ -83,44 +83,89 @@ async function readingTime(url) {
 }
 
 const functions = {
-  "Visited": async function(arg) {
-    let result = await visited(arg)
-    return result
+  "Visited": {
+    "function": async function(arg) {
+      let result = await visited(arg)
+      return result
+    },
+    "help": {
+      "link": "The link column to determine whether its URLs have been visited in browser history."
+    }
   },
-  "ReadTimeInSeconds": async function(arg) {
-    let result = await readingTime(arg)
-    return result
+  "ReadTimeInSeconds": {
+    "function": async function(arg) {
+      let result = await readingTime(arg)
+      return result
+    },
+    "help": {
+      "link": "The link column to calculate read times for."
+    }
   },
-  "Concat": function(...args) {
-    return promisify(args.join(" "))
+  "Concat": {
+    "function": function(...args) {
+      return promisify(args.join(" "))
+    },
+    "help": {
+      "column1": "The column to which following columns will be appended.",
+      "column2...": "The columns to append to column1."
+    }
   },
-  "Divide": function(x, y) {
-    return promisify(x / y)
+  "Divide": {
+    "function": function(x, y) {
+      return promisify(x / y)
+    },
+    "help": "Divides one numeric column by another."
   },
-  "Multiply": function(x, y) {
-    return promisify(x * y)
+  "Multiply": {
+    "function": function(x, y) {
+      return promisify(x * y)
+    },
+    "help": "Multiplies two numeric columns together."
   },
-  "Plus": function(x, y) {
-    return promisify(x + y)
+  "Plus": {
+    "function": function(x, y) {
+      return promisify(x + y)
+    },
+    "help": "Adds two numeric columns together."
   },
-  "Minus": function(x, y) {
-    return promisify(x - y)
+  "Minus": {
+    "function": function(x, y) {
+      return promisify(x - y)
+    },
+    "help": "Subtracts one numeric column from another."
   },
-  "Round": function(x) {
-    return promisify(Math.round(x))
+  "Round": {
+    "function": function(x) {
+      return promisify(Math.round(x))
+    },
+    "help": {
+      "numeric": "The numeric column to round to integer values."
+    },
   },
-  "GetAttribute": function(el, attrName) {
-    // todo: error handling here?
-    return promisify(el.getAttribute(attrName))
+  "GetAttribute": {
+    "function": function(el, attrName) {
+      // todo: error handling here?
+      return promisify(el.getAttribute(attrName))
+    },
+    "help": {
+      "element": "The element column to get an attribute from.",
+      "attributeName": "The HTML attribute to get the value of.",
+    },
   },
   "GetParent": function(el) {
     return promisify(el.parentElement);
   },
-  "QuerySelector": function(el, selector, index) {
-    if (!el && selector && typeof(index) === 'number') {
-      return promisify(document.querySelectorAll(selector)[index]);
-    }
-    return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
+  "QuerySelector": {
+    "function": function(el, selector, index) {
+      if (!el && selector && typeof(index) === 'number') {
+        return promisify(document.querySelectorAll(selector)[index]);
+      }
+      return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
+    },
+    "help": {
+      "element": "The element column to find a descendant of.",
+      "selector": "The selector(s) to match the descendant elements of 'element' against. The first element found that matches this group of selectors is returned.",
+    },
   }
 }
 
@@ -172,7 +217,7 @@ class FnNode {
   }
 
   eval(row) {
-    let fn = functions[this.fnName]
+    let fn = functions[this.fnName]["function"]
     if (!fn) { return null }
     return Promise.all(this.args.map(arg => arg.eval(row))).then(values => {
       // Compute a cache key representing executing this function on these inputs
@@ -374,3 +419,5 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
     callback(evalResults)
   }
 }
+
+export {functions};

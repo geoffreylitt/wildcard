@@ -28,7 +28,7 @@ export const siteAdapters = [
   BloggerAdapter,
   WeatherChannelAdapter,
   YoutubeAdapter,
-  GithubAdapter,
+  // GithubAdapter,
   HarvardBookWarehouse
 ]
 
