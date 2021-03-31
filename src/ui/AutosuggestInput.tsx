@@ -62,7 +62,7 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
     const mathSymbols = {"Plus": "+", "Minus": "-", "Multiply": "*", "Divide": "/"};
     const attributeNames = attributes.map(attribute => attribute.name);
     const mathSuggestions = Object.keys(functions)
-        .filter(functionName => Object.keys(mathSymbols).indexOf(functionName) != -1)
+        .filter(functionName => Object.keys(mathSymbols).indexOf(functionName) !== -1)
         .reduce((obj, functionName) => {
         const symbol = mathSymbols[functionName];
         obj[symbol] = functions[functionName];
@@ -70,17 +70,17 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
         }, {});
     const allSuggestionNames = Object.keys(functions)
         .sort()
-        .filter(functionName => ["Plus", "Minus", "Multiply", "Divide"].indexOf(functionName) == -1)
+        .filter(functionName => Object.keys(mathSymbols).indexOf(functionName) === -1)
         .concat(attributeNames);
     const getSuggestions = value => {
         const inputValue = value.trim()
         const matchIndex = inputValue.search(regex);
         
-        if (matchIndex == inputValue.length - 1) {
+        if (matchIndex === inputValue.length - 1) {
         // If at the start of a new expression, include all possible suggestions
         return allSuggestionNames.map(suggestion => inputValue + suggestion);
         }
-        else if (matchIndex == -1) {
+        else if (matchIndex === -1) {
         return [];
         }
         else {
@@ -94,19 +94,12 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
         const attributeIndex = attributeNames.indexOf(matchValue);
         const isNumericAttribute = attributeIndex != -1 && attributes[attributeIndex].type === "numeric";
         const lastChar = matchValue[matchValue.length - 1];
-        if (isNumericAttribute || lastChar == ")"){
+        if (isNumericAttribute || lastChar === ")"){
             suggestions = suggestions.concat(Object.keys(mathSuggestions).map(suggestion => inputValue + suggestion))
         }
         return suggestions;
         }
     };
-    
-    // When suggestion is clicked, Autosuggest needs to populate the input
-    // based on the clicked suggestion. Teach Autosuggest how to calculate the
-    // input value for every given suggestion.
-    const getSuggestionValue = suggestion => {
-        return suggestion;
-    }
     
     // Determine how individual suggestions are rendered into HTML.
     const renderSuggestion = function(suggestion) {
@@ -188,7 +181,7 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
         suggestions={suggestions}
         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
         onSuggestionsClearRequested={onSuggestionsClearRequested}
-        getSuggestionValue={getSuggestionValue}
+        getSuggestionValue={(v) => v}
         renderSuggestion={renderSuggestion}
         renderSuggestionsContainer={renderSuggestionsContainer}
         inputProps={{
