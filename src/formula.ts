@@ -33,7 +33,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | "$" | "-"
+    = alnum | "." | "$" | "-" | ":"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -129,8 +129,21 @@ const functions = {
       return arg ? promisify(arg.slice(leftIdx, rightIdx)) : undefined
     },
     "help": {
-      "text": "The string value to search.",
-      "left": "The beginning string value.",
+      "text": "The string value to search (extracts between the first occurence of 'left' and 'right').",
+      "left": "The beginning string value",
+      "right": "The ending string value.",
+    },
+  },
+  "ExtractStart": {
+    "function": function(arg, right) {
+      if (arg == undefined) {
+        return undefined;
+      }
+      const rightIdx = arg.indexOf(right) + right.length
+      return arg ? promisify(arg.slice(0, rightIdx)) : undefined
+    },
+    "help": {
+      "text": "The string value to search (extracts between the start of 'text' and the first occurence of 'right').",
       "right": "The ending string value.",
     },
   },
@@ -143,7 +156,7 @@ const functions = {
       return arg ? promisify(arg.slice(leftIdx, arg.length)) : undefined
     },
     "help": {
-      "text": "The string value to search.",
+      "text": "The string value to search (extracts between the last occurence of 'left' and the end of 'text').",
       "left": "The beginning string value.",
     },
   },
@@ -173,7 +186,7 @@ const functions = {
   },
   "LessThan": {
     "function": function(arg, value) {
-      return promisify(arg > value)
+      return promisify(arg < value)
     },
     "help": {
       "arg": "The numeric value to compare to 'compareValue'",
