@@ -258,14 +258,25 @@ const functions = {
       "attributeName": "The HTML attribute to get the value of.",
     },
   },
-  "GetParent": function(el) {
-    return promisify(el.parentElement);
-  },
-  "QuerySelector": function(el, selector, index) {
-    if (!el && selector && typeof(index) === 'number') {
-      return promisify(document.querySelectorAll(selector)[index]);
+  "GetParent": {
+    "function":  function(el) {
+      return promisify(el.parentElement);
+    },
+    "help": {
+      "element": "The element whose parent to get"
     }
-    return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
+  },
+  "QuerySelector": {
+    "function": function(el, selector, index) {
+      if (!el && selector && typeof(index) === 'number') {
+        return promisify(document.querySelectorAll(selector)[index]);
+      }
+      return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
+    },
+    "help": {
+      "element": "The element column to find a descendant of.",
+      "selector": "The selector(s) to match the descendant elements of 'element' against. The first element found that matches this group of selectors is returned.",
+    }
   }
 }
 
