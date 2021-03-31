@@ -2230,6 +2230,11 @@ es6-promise@^2.0.1:
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-2.3.0.tgz#96edb9f2fdb01995822b263dd8aadab6748181bc"
   integrity sha1-lu258v2wGZWCKyY92KratnSBgbw=
 
+es6-promise@^4.2.8:
+  version "4.2.8"
+  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.8.tgz#4eb21594c972bc40553d276e510539143db53e0a"
+  integrity sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==
+
 es6-promisify@6.1.1:
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/es6-promisify/-/es6-promisify-6.1.1.tgz#46837651b7b06bf6fff893d03f29393668d01621"
@@ -4595,6 +4600,11 @@ oauth-sign@~0.9.0:
   resolved "https://registry.yarnpkg.com/oauth-sign/-/oauth-sign-0.9.0.tgz#47a7b016baa68b5fa0ecf3dee08a85c679ac6455"
   integrity sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==
 
+object-assign@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-3.0.0.tgz#9bedd5ca0897949bca47e7ff408062d549f587f2"
+  integrity sha1-m+3VygiXlJvKR+f/QIBi1Un1h/I=
+
 object-assign@^4.0.1, object-assign@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
@@ -5229,6 +5239,17 @@ react-ace@^9.1.4:
     lodash.isequal "^4.5.0"
     prop-types "^15.7.2"
 
+react-autosuggest@^10.1.0:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/react-autosuggest/-/react-autosuggest-10.1.0.tgz#4d25b8acc78bb518eb70189bb96bcd777dc71ffb"
+  integrity sha512-/azBHmc6z/31s/lBf6irxPf/7eejQdR0IqnZUzjdSibtlS8+Rw/R79pgDAo6Ft5QqCUTyEQ+f0FhL+1olDQ8OA==
+  dependencies:
+    es6-promise "^4.2.8"
+    prop-types "^15.7.2"
+    react-themeable "^1.1.0"
+    section-iterator "^2.0.0"
+    shallow-equal "^1.2.1"
+
 react-dom@^16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.13.1.tgz#c1bd37331a0486c078ee54c4740720993b2e0e7f"
@@ -5254,6 +5275,13 @@ react-redux@^7.2.0:
     loose-envify "^1.4.0"
     prop-types "^15.7.2"
     react-is "^16.9.0"
+
+react-themeable@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-themeable/-/react-themeable-1.1.0.tgz#7d4466dd9b2b5fa75058727825e9f152ba379a0e"
+  integrity sha1-fURm3ZsrX6dQWHJ4JenxUro3mg4=
+  dependencies:
+    object-assign "^3.0.0"
 
 react@^16.13.1:
   version "16.13.1"
@@ -5587,6 +5615,11 @@ scheduler@^0.19.1:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
+section-iterator@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/section-iterator/-/section-iterator-2.0.0.tgz#bf444d7afeeb94ad43c39ad2fb26151627ccba2a"
+  integrity sha1-v0RNev7rlK1Dw5rS+yYVFifMuio=
+
 select@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/select/-/select-1.1.2.tgz#0e7350acdec80b1108528786ec1d4418d11b396d"
@@ -5689,6 +5722,11 @@ sha.js@^2.4.0, sha.js@^2.4.8, sha.js@~2.4.4:
   dependencies:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
+
+shallow-equal@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/shallow-equal/-/shallow-equal-1.2.1.tgz#4c16abfa56043aa20d050324efa68940b0da79da"
+  integrity sha512-S4vJDjHHMBaiZuT9NPb616CSmLf618jawtv3sufLl6ivK8WocjAo58cXwbRV1cgqxH0Qbv+iUt6m05eqEa2IRA==
 
 shallowequal@^1.1.0:
   version "1.1.0"

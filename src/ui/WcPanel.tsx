@@ -8,8 +8,9 @@ import "./overrides.css";
 import styled from 'styled-components'
 import { Record, Attribute } from '../core/types'
 import Handsontable from "handsontable";
-import { FormulaEditor } from '../ui/cell_editors/formulaEditor'
+import { FormulaEditor } from '../ui/cell_editors/formulaEditor';
 import mapValues from 'lodash/mapValues'
+import AutosuggestInput from './AutosuggestInput'
 
 const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
@@ -95,19 +96,6 @@ const EditButton = styled(ToggleButton)`
   display: ${props => props.hidden || !props.codeEditorHidden ? 'none' : 'block'};
 `
 
-const CellEditorBox = styled.input`
-  display: inline-block;
-  margin-left: 10px;
-  padding: 5px 10px;
-  border: solid thin #ddd;
-  min-width: 600px;
-  height: 100%;
-
-  &:focus {
-    border: none;
-  }
-`
-
 // Declare our functional React component
 
 const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter }) => {
@@ -125,7 +113,10 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
 
   // The value of the selected cell.
   // (Including in-progress updates that we are making in the UI)
-  const [activeCellValue, setActiveCellValue] = useState(null)
+  const [activeCellValue, setActiveCellValue] = useState('')
+
+  // Autosuggest suggestions
+  const [suggestions, setSuggestions] = useState([]);
 
   const onCellEditorKeyPress = (e) => {
     const key = e.key
@@ -336,9 +327,9 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
   const onAfterSelection = (rowIndex, prop) => {
     const record = records[rowIndex]
     const attribute = attributes.find(attr => attr.name === prop)
-
+    
     actions.selectRecord(record.id, prop)
-
+    
     setActiveCell({ record, attribute })
 
     let activeCellValue
@@ -387,7 +378,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
 
   const saveAdapterCode = function() {
     chrome.storage.local.set({ [_adapterKey]: adapterCode }, function() {
-console.log("saved changes");
+    console.log("saved changes");
     });
   }
 
@@ -409,13 +400,16 @@ console.log("saved changes");
       <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
         <ControlBar>
           <strong>Wildcard v0.2</strong>
-          <CellEditorBox
-            ref={cellEditorRef}
-            value={activeCellValue}
-            onChange={(e) => setActiveCellValue(e.target.value)}
-            onKeyPress={onCellEditorKeyPress}
-            placeholder="Enter cell value..."
-            onBlur={commitActiveCellValue} />
+        <AutosuggestInput
+          activeCellValue={activeCellValue}
+          setActiveCellValue={setActiveCellValue}
+          suggestions={suggestions}
+          setSuggestions={setSuggestions}
+          cellEditorRef={cellEditorRef}
+          attributes={attributes}
+          onCellEditorKeyPress={onCellEditorKeyPress}
+          commitActiveCellValue={commitActiveCellValue}
+        />
         </ControlBar>
         <HotTable
           licenseKey='non-commercial-and-evaluation'
