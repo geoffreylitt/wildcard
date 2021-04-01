@@ -42,7 +42,7 @@ export function createAdapterKey() {
 function _saveAdapter(adapterKey, config, callback?) {
     const _config = JSON.stringify(config, null, 2);
     if (adapterKey) {
-        const adapterName = adapterKey.split(':').pop();
+        const adapterName = adapterKey.match(/localStorageAdapter\:adapters\:(.*)/)[1]
         readFromChromeLocalStorage([ADAPTERS_BASE_KEY])
         .then(results => {
             let adapters = results[ADAPTERS_BASE_KEY];
@@ -51,7 +51,7 @@ function _saveAdapter(adapterKey, config, callback?) {
             }
             if (!adapters.includes(adapterName)) {
                 adapters.push(adapterName);
-                saveToChromeLocalStorage({ 
+                saveToChromeLocalStorage({
                     [ADAPTERS_BASE_KEY]: adapters,
                     [adapterKey]: _config
                 }).then(() => {
