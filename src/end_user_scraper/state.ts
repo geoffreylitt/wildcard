@@ -14,8 +14,6 @@ import {
     styleRowElementsOnClick
 } from './eventListeners';
 
-import { createAdapterInMemory } from './adapterHelpers';
-
 const _eventMaps = {
     mouseMoveRowElement: new Map(),
     mouseMoveColumnElement: new Map(),
@@ -36,18 +34,15 @@ let _columnMap = new Map<number, string[]>();
 let _editing = false;
 let _candidateRowElementSelectors = [];
 let _candidateColumnElementSelectors = [];
-let _adapterConfig;
+let _activeAdapter;
 _columnMap.set(_column, []);
 
-export function initState({ rowSelector, columnSelectors, id, candidateRowElementSelectors, candidateColumnElementSelectors }) {
+export function initState({ rowSelector, columnSelectors, id }) {
     _editing = true;
     _exploring = false;
     _rowElementSelector = rowSelector;
     _rowElement = document.querySelector(rowSelector);
     _adapterKey = id;
-    _candidateRowElementSelectors = candidateRowElementSelectors;
-    _candidateColumnElementSelectors = candidateColumnElementSelectors;
-    let addedPlaceholderColumn = false;
     columnSelectors.forEach((selectors, index) => {
         _columnMap.set(index, selectors);
     });
@@ -55,9 +50,6 @@ export function initState({ rowSelector, columnSelectors, id, candidateRowElemen
     _columnMap.set(_column, []);
     styleColumnElementsOnClick(rowSelector);
     styleRowElementsOnClick();
-    if (addedPlaceholderColumn) {
-        createAdapterInMemory(id, mapToArrayOfValues(_columnMap), rowSelector, candidateRowElementSelectors);
-    }
 }
 
 export function setStyleAndAddToMap({ map, node, styleProperty, styleValue }) {
@@ -180,7 +172,6 @@ export function resetScraperState() {
     _multipleExamples = false;
     _candidateRowElementSelectors = [];
     _candidateColumnElementSelectors = [];
-    _adapterConfig = null;
 }
 
 export function getMouseClickRowStyleData() {
@@ -260,10 +251,10 @@ export function setCandidateColumnElementSelectors(value) {
     _candidateColumnElementSelectors = value;
 }
 
-export function getAdapterConfig() {
-    return _adapterConfig;
+export function getCachedActiveAdapter() {
+    return _activeAdapter;
 }
 
-export function setAdapterConfig(value) {
-    _adapterConfig = value;
+export function setCachedActiveAdapter(value) {
+    _activeAdapter = value;
 }

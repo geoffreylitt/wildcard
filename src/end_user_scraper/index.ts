@@ -8,11 +8,10 @@ import {
 } from './eventListeners';
 
 import {
-    createInitialAdapter,
     deleteAdapter,
     createAdapterKey,
-    deleteAdapterInMemory,
-    saveAdapter
+    saveAdapter,
+    createInitialAdapterConfig
 } from './adapterHelpers';
 
 import {
@@ -22,8 +21,8 @@ import {
 } from './tutorial';
 
 import {
-    getAdapterConfig,
     getAdapterKey,
+    getCachedActiveAdapter,
     initState,
     resetScraperState
 } from './state';
@@ -46,8 +45,11 @@ export function stopScrapingListener({ save }) {
             run({ creatingAdapter: false });
         });
     } else {
-        const adapterConfig = getAdapterConfig();
+        const activeAdapter = getCachedActiveAdapter();
+        const adapterConfig = activeAdapter.getConfig();
         adapterConfig.attributes.pop();
+        adapterConfig.metadata.columnSelectors.pop();
+        adapterConfig.scrapePage = adapterConfig.scrapePage.toString();
         saveAdapter(adapterKey, adapterConfig, () => {
             resetScraperState();
             removeTutorial();
@@ -57,11 +59,13 @@ export function stopScrapingListener({ save }) {
 }
 
 export function resetScrapingListener() {
-    deleteAdapterInMemory(() => {
-        resetScraperState();
-        resetTutorial();
-        createInitialAdapter();
-    });
+    resetScraperState();
+    resetTutorial();
+    const activeAdapter = getCachedActiveAdapter();
+    if (activeAdapter) {
+        const config = createInitialAdapterConfig()
+        activeAdapter.updateConfig(config);
+    }
 }
 
 export function editScraper() {

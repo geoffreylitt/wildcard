@@ -12,12 +12,7 @@ import {
 } from './utils';
 
 import {
-    run
-} from '../wildcard';
-
-import {
-    getAdapterConfig,
-    setAdapterConfig,
+    getCachedActiveAdapter,
     setAdapterKey
 } from './state';
 
@@ -26,35 +21,6 @@ import {
 } from '../site_adapters/domScrapingBase';
 
 import { compileAdapterJavascript, userStore } from '../localStorageAdapter';
-
-function createAdapterData(rowSelector, columnSelectors) {
-    const attributes = [];
-    if (rowSelector && columnSelectors && columnSelectors.length) {
-        // add row element attribute
-        attributes.push({
-            name: "rowElement",
-            type: "element",
-            formula: `=QuerySelector(null, "${rowSelector}")`,
-            hidden: true
-        });
-        // add remaining attributes
-        columnSelectors.forEach((columnSelectorList, index) => {
-            const columnSelector = columnSelectorList[0];
-            attributes.push({
-                name: indexToAlpha(index),
-                type: "element",
-                formula: columnSelector ? `=QuerySelector(rowElement, "${columnSelector}")` : `=QuerySelector(rowElement)`
-            });
-        });
-    }
-    return {
-        attributes
-    }
-}
-
-function _createAdapterId() {
-    return document.title;
-}
 
 export function createAdapterKey() {
     return `${ADAPTERS_BASE_KEY}:${_createAdapterId()}`
@@ -134,6 +100,8 @@ export function deleteAdapter(adapterKey, callback) {
                             callback();
                         });
                     });
+                } else {
+                    callback();
                 }
             } else {
                 callback();
@@ -144,14 +112,8 @@ export function deleteAdapter(adapterKey, callback) {
     }
 }
 
-export function deleteAdapterInMemory(callback?) {
-    setAdapterConfig(null);
-    const _callback = callback || (() => run({ creatingAdapter: true }));
-    _callback();
-}
-
-export function generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors) {
-    const { attributes } = createAdapterData(rowSelector, columnSelectors);
+export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
+    const { attributes, scrapePage } = createAdapterData(rowSelector, columnSelectors);
     return {
         name: document.title,
         urls: [window.location.href],
@@ -160,34 +122,33 @@ export function generateAdapter(columnSelectors, rowSelector, adapterKey, candid
         metadata: {
             id: adapterKey,
             columnSelectors,
-            rowSelector,
-            candidateRowElementSelectors
+            rowSelector
         },
-        scrapePage: `() => {
-            const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
-            return Array.from(rowElements).map((element, rowIndex) => {
-                return {
-                    id: String(rowIndex),
-                    index: rowIndex,
-                    dataValues: {},
-                    rowElements: [element]
-                }
-            });
-        }`
+        scrapePage
     };
 }
 
-export function createAdapterInMemory(adapterKey, columnSelectors, rowSelector, candidateRowElementSelectors, callback?) {
-    const config = generateAdapter(columnSelectors, rowSelector, adapterKey, candidateRowElementSelectors);
-    setAdapterConfig(config);
-    const _callback = callback || (() => run({ creatingAdapter: true }));
-    _callback();
+export function createInitialAdapter() {
+    const config = createInitialAdapterConfig();
+    return createDomScrapingAdapter(config as any);
 }
 
 export function createInitialAdapterConfig() {
     const adapterKey = createAdapterKey();
     setAdapterKey(adapterKey);
-    createAdapterInMemory(adapterKey, [], '', []);
+    const config = generateAdapter([], '', adapterKey);
+    compileAdapterJavascript(config);
+    return config;
+}
+
+export function updateAdapter(adapterKey, columnSelectors, rowSelector) {
+    const activeAdapter = getCachedActiveAdapter();
+    if (activeAdapter) {
+        const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
+        const configCopy = {...config};
+        compileAdapterJavascript(configCopy);
+        activeAdapter.updateConfig(configCopy);
+    }   
 }
 
 function adaptersAreIdentical(adapter1, adapter2) {
@@ -207,12 +168,50 @@ function adaptersAreIdentical(adapter1, adapter2) {
     return true;
 }
 
-export function getInMemoryAdapters() {
-    const inMemoryAdapter = getAdapterConfig();
-    if (inMemoryAdapter) {
-        const adapterCopy = {...inMemoryAdapter}
-        compileAdapterJavascript(adapterCopy);
-        return [createDomScrapingAdapter(adapterCopy)]
+function createAdapterData(rowSelector, columnSelectors) {    
+    return {
+        attributes: _createAttributes({ rowSelector, columnSelectors }),
+        scrapePage: _createScrapPage({ rowSelector })
     }
-    return [];
+}
+
+function _createAttributes({ rowSelector, columnSelectors }) {
+    const attributes = [];
+    if (rowSelector && columnSelectors && columnSelectors.length) {
+        // add row element attribute
+        attributes.push({
+            name: "rowElement",
+            type: "element",
+            formula: `=QuerySelector(null, "${rowSelector}")`,
+            hidden: true
+        });
+        // add remaining attributes
+        columnSelectors.forEach((columnSelectorList, index) => {
+            const columnSelector = columnSelectorList[0];
+            attributes.push({
+                name: indexToAlpha(index),
+                type: "element",
+                formula: columnSelector ? `=QuerySelector(rowElement, "${columnSelector}")` : `=QuerySelector(rowElement)`
+            });
+        });
+    }
+    return attributes;
+}
+
+function _createScrapPage({ rowSelector }) {
+    return `() => {
+        const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
+        return Array.from(rowElements).map((element, rowIndex) => {
+            return {
+                id: String(rowIndex),
+                index: rowIndex,
+                dataValues: {},
+                rowElements: [element]
+            }
+        });
+    }`;
+}
+
+function _createAdapterId() {
+    return document.title;
 }
