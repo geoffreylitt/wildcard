@@ -33,7 +33,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'"
+    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "*" | "/" | "=" | "'"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -152,8 +152,13 @@ const functions = {
       "attributeName": "The HTML attribute to get the value of.",
     },
   },
-  "GetParent": function(el) {
-    return promisify(el.parentElement);
+  "GetParent": {
+    "function": function(el) {
+      return promisify(el.parentElement);
+    },
+    "help": {
+      "element": "The element column to get the parent of.",
+    },
   },
   "QuerySelector": {
     "function": function(el, selector, index) {
@@ -217,6 +222,7 @@ class FnNode {
   }
 
   eval(row) {
+    // console.log(row);
     let fn = functions[this.fnName]["function"]
     if (!fn) { return null }
     return Promise.all(this.args.map(arg => arg.eval(row))).then(values => {

@@ -53,10 +53,20 @@ const autosuggestTheme = {
     },
   };
 
-const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, setSuggestions, cellEditorRef, attributes, onCellEditorKeyPress, commitActiveCellValue}) => {
+const githubSelectors = [`\"div:nth-child(1)>div:nth-child(1)>h3:nth-child(1)>a:nth-child(1)\"`,
+    `\"div:nth-child(1)>div:nth-child(2)>p:nth-child(1)\"`,
+    `\"a[itemprop="name codeRepository"]\"`,
+    `\"*[href*='/stargazers']\"`,
+    `\"*[href*='/network/members']\"`,
+    `\"*[itemprop='programmingLanguage']\"`,
+    `\"relative-time\"`]
+
+const AutosuggestInput = ({activeCell, activeCellValue, setActiveCellValue, suggestions, setSuggestions, cellEditorRef, attributes, onCellEditorKeyPress, commitActiveCellValue}) => {
 
     // This pattern matches every thing after and including any one of these symbols: = ( + - * /
-const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
+    const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
+    
+    const regexQS = /^= *QuerySelector *\( *rowElement *, */;
     
     // Teach Autosuggest how to calculate suggestions for any given input value.
     const mathSymbols = {"Plus": "+", "Minus": "-", "Multiply": "*", "Divide": "/"};
@@ -74,6 +84,11 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
         .concat(attributeNames);
     const getSuggestions = value => {
         const inputValue = value.trim()
+        const isQuerySelector = regexQS.test(inputValue);
+        if (isQuerySelector) {
+            return githubSelectors.map(suggestion => "=QuerySelector(rowElement, " + suggestion);
+        }
+
         const matchIndex = inputValue.search(regex);
         
         if (matchIndex === inputValue.length - 1) {
@@ -103,17 +118,23 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
     
     // Determine how individual suggestions are rendered into HTML.
     const renderSuggestion = function(suggestion) {
-        const matchIndex = suggestion.search(regex);
+        let matchIndex = suggestion.search(regex);
+
+        if (regexQS.test(suggestion)) {
+            matchIndex = "=QuerySelector(rowElement, ".length - 1;
+        }
+
         const matchValue = suggestion.slice(matchIndex+1, suggestion.length);
         const lastChar = suggestion[suggestion.length-1];
+
         if (attributeNames.indexOf(matchValue) != -1) {
-        return (<div><b>{matchValue}</b></div>)
+            return (<div><b>{matchValue}</b></div>)
         }
         else if (lastChar in mathSuggestions) {
-        return (<div>{lastChar}</div>)
+            return (<div>{lastChar}</div>)
         }
         else {
-        return (<div>{matchValue}</div>)
+            return (<div>{matchValue}</div>)
         }
         
     }
@@ -127,30 +148,50 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
         
         let footer = undefined;
         if (matchValue in functions) { // function
-        const params = functions[matchValue]["help"];
-        footer = (
-            <div>
-            {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
-            <div>{Object.keys(params).map(key => <div><b>{key}</b>: {params[key]}</div>)}</div>
-            </div>
-        )
+            const params = functions[matchValue]["help"];
+            footer = (
+                <div>
+                {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
+                <div>{Object.keys(params).map(key => <div><b>{key}</b>: {params[key]}</div>)}</div>
+                </div>
+            )
         }
         else if (lastChar in mathSuggestions) { // math symbol
         const helpText = mathSuggestions[lastChar]["help"];
-        footer = (
-            <div>
-            numeric1 <b>{lastChar}</b> numeric2
-            <div>{helpText}</div>
-            </div>
-        )
+            footer = (
+                <div>
+                numeric1 <b>{lastChar}</b> numeric2
+                <div>{helpText}</div>
+                </div>
+            )
         }
         else if (attributeIndex != -1) { // attribute name
         const attribute = attributes[attributeIndex];
-        footer = (
-            <div>
-            <b>{attribute.name}</b> is a column with type <b>{attribute.type}</b>.
-            </div>
-        )
+            footer = (
+                <div>
+                <b>{attribute.name}</b> is a column with type <b>{attribute.type}</b>.
+                </div>
+            )
+        }
+        else if (regexQS.test(inputValue) && lastChar !== ")" && activeCell) { // QuerySelector on rowElement
+            const selector = inputValue.slice("=QuerySelector(rowElement, ".length + 1, inputValue.length - 1)
+            let example;
+            try {
+                example = activeCell.record.values.rowElement.querySelector(selector)
+                if (example) {
+                    const text = example.textContent;
+                    footer = (
+                        <div>
+                            <b>Example data from this row:</b>
+                            <p>{text}</p>
+                        </div>
+                    )
+                }
+            }
+            catch(err) {
+
+            }
+            
         }
     
         return (

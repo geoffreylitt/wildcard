@@ -401,6 +401,7 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
         <ControlBar>
           <strong>Wildcard v0.2</strong>
         <AutosuggestInput
+          activeCell={activeCell}
           activeCellValue={activeCellValue}
           setActiveCellValue={setActiveCellValue}
           suggestions={suggestions}
