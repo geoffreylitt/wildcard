@@ -20,6 +20,7 @@ import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
 import { TableAdapterMiddleware } from './tableAdapterMiddleware'
 import { startScrapingListener, stopScrapingListener, resetScrapingListener, editScraper } from './end_user_scraper';
+import { setCachedActiveAdapter } from "./end_user_scraper/state";
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
@@ -49,7 +50,7 @@ export const run = async function ({ creatingAdapter }) {
   if (wcRoot) {
     wcRoot.remove();
   }
-  const activeSiteAdapter = await getActiveAdapter();
+  const activeSiteAdapter = await getActiveAdapter({ creatingAdapter });
   if (!activeSiteAdapter) { return; }
 
   activeSiteAdapter.initialize();
@@ -61,6 +62,11 @@ export const run = async function ({ creatingAdapter }) {
   // pass our TableAdapter objects into action creators,
   // so action creator functions can access them.
   const actions = initializeActions(tables)
+
+  // stash active adapter if we are in creation mode
+  if (creatingAdapter) {
+    setCachedActiveAdapter(activeSiteAdapter);
+  }
 
   // Add extra space to the bottom of the page for the wildcard panel
   // todo: move this elsewhere?

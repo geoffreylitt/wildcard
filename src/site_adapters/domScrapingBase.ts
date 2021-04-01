@@ -5,8 +5,7 @@ import mapValues from "lodash/mapValues";
 import keyBy from 'lodash/keyBy'
 import { Attribute, SortConfig, TableAdapter, Table, RecordEdit } from '../core/types'
 import { htmlToElement } from '../utils'
-import { getAdapterConfig, setAdapterConfig } from "../end_user_scraper/state";
-import { run } from "../wildcard";
+import { updateFromSetFormula } from '../end_user_scraper/eventListeners'
 
 type DataValue = string | number | boolean
 declare var browser : any;
@@ -74,6 +73,7 @@ export interface ScrapedAjaxRow {
 export interface ScrapingAdapterConfig {
   name:string;
   matches?:string[];
+  metadata?: object;
   enabled():boolean;
   attributes:Array<Attribute>;
   scrapePage():Array<ScrapedRow>;
@@ -147,19 +147,10 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
 
   const loadTable = () => {
     scrapedRows = scrapePage();
-
-    if (scrapedRows && scrapedRows.length > 0) {
-      // We got some data! Convert it to the external Table format...
-      const table = tableInExternalFormat();
-
-      // Notify all subscribers that we have new data
-      for (const callback of subscribers) { callback(table); }
-      return table;
-    } else {
-      // If we couldn't load data from the page, try again in 1 second
-      setTimeout(loadTable, 1000);
-      return null;
-    }
+    const table = { ...tableInExternalFormat(), attributes: config.attributes };
+    // Notify all subscribers that we have new data
+    for (const callback of subscribers) { callback(table); }
+    return table;
   }
 
   const initialize = () => {
@@ -317,6 +308,19 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     return Promise.reject("Attributes can only be added to user tables.")
   }
 
+  const updateAttribute = ({ attrName, formula }) => {
+    const attributeIndex = config.attributes.findIndex(attribute => attribute.name === attrName);
+    if (attributeIndex > -1) {
+      const attribute = config.attributes[attributeIndex];
+      if (attribute.formula !== formula) {
+        attribute.formula = formula;
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
   const toggleVisibility = (colName) => {
     return Promise.reject("Visibility can only be toggled for user tables.")
   }
@@ -333,19 +337,19 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
         } else {
           // make the row appear selected in the page
           sr.rowElements[0].scrollIntoView({ behavior: "smooth", block: "center" })
-          sr.rowElements.forEach((el, index) => {
-            if ((el as HTMLElement).style) {
+          // sr.rowElements.forEach((el, index) => {
+          //   if ((el as HTMLElement).style) {
 
-              // oversimplified way to remember old styles before highlighting --
-              // just remember a single original border value across all rows.
-              // (works OK if all rows share same border styling)
-              if (originalBorder === undefined) {
-                originalBorder = (el as HTMLElement).style.border;
-              }
+          //     // oversimplified way to remember old styles before highlighting --
+          //     // just remember a single original border value across all rows.
+          //     // (works OK if all rows share same border styling)
+          //     if (originalBorder === undefined) {
+          //       originalBorder = (el as HTMLElement).style.border;
+          //     }
 
-              (el as HTMLElement).style.border = `solid 2px #c9ebff`
-            }
-          })
+          //     (el as HTMLElement).style.border = `solid 2px #c9ebff`
+          //   }
+          // })
         }
 
       // Handle unhighlighting
@@ -393,15 +397,19 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     toggleVisibility,
     clear: () => {},
     setFormula: (attrName, formula) => {
-      const inMemoryAdapter = getAdapterConfig();
-      if (inMemoryAdapter) {
-        const attributeConfig = inMemoryAdapter.attributes.find(attributeConfig => attributeConfig.name === attrName);
-        if (attributeConfig && attributeConfig.formula !== formula) {
-          attributeConfig.formula = formula;
-          setAdapterConfig(inMemoryAdapter);
-          run({ creatingAdapter: true });
-        }
+      const updated = updateAttribute({ attrName, formula });
+      if (updated) {
+        updateFromSetFormula({ formula });
       }
+    },
+    updateConfig: (_config) => {
+      config.attributes = _config.attributes;
+      config.scrapePage = _config.scrapePage;
+      config.metadata = _config.metadata;
+      loadTable();
+    },
+    getConfig: () => {
+      return config;
     }
   }
 }

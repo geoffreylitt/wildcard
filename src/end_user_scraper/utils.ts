@@ -82,3 +82,12 @@ export function getColumnForSelector(columnMap, selector) {
 export function indexToAlpha(i) {
     return String.fromCharCode(97 + i).toUpperCase();
 }
+
+export function getSelectorFromQueryFormula({ formula }) {
+    const regex = /\=QuerySelector\(rowElement,\s*"(.+)"\)/;
+    const matches = formula.match(regex);
+    if (Array.isArray(matches)){
+        return matches[1];
+    }
+    return null;
+} 

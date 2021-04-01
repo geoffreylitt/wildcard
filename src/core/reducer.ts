@@ -20,8 +20,8 @@ const createTableReducer = (tableId) => {
       case "TABLE_RELOADED":
         return {
           ...state,
-          attributes: action.table.attributes,
-          records: action.table.records,
+          attributes: [...action.table.attributes],
+          records: [...action.table.records],
         }
 
       default:

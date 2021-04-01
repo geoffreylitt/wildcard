@@ -1,5 +1,10 @@
 'use strict';
 
+import {
+  ScrapedRow,
+  ScrapingAdapterConfig
+} from '../site_adapters/domScrapingBase'
+
 // This file defines types used throughout Wildcard
 
 type id = string;
@@ -17,6 +22,7 @@ export interface RecordEdit {
   attribute:string;
   value:any;
 }
+
 
 /**
 * Defines the schema for one column of the table being extracted.
@@ -131,5 +137,9 @@ export interface TableAdapter {
   // ============================================================
 
   handleOtherTableUpdated(table:Table):void;
+
+  updateConfig?(config): void;
+
+  getConfig?(): ScrapingAdapterConfig
 
 }

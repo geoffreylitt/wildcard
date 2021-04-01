@@ -341,12 +341,13 @@ class FnNode {
       // Note 2:
       // If any of the arguments is a DOM element, we don't cache.
       // We don't have an easy way to test equality.
-      values = [...values, parseInt(row.id)]
+      values = [...values, parseInt(row.id)];
+      let cacheKey;
       if(values.find(v => v instanceof HTMLElement)) {
-        return fn.apply(this, values)
+        cacheKey = `${this.fnName}:${row.id}:${values[0].tagName}:${values.join("_:_")}`;
+      } else {
+        cacheKey = `${this.fnName}:${row.id}:${values.join("_:_")}`;
       }
-
-      const cacheKey = `${this.fnName}:${row.id}:${values.join("_:_")}`;
 
       if(functionCache[cacheKey]) {
         return functionCache[cacheKey]

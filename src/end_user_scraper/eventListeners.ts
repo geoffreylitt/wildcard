@@ -31,9 +31,7 @@ import {
     getCurrentColumnSelector,
     setCurrentColumnSelector,
     getMultipleExamples,
-    setColumnMap,
-    getCandidateRowElementSelectors,
-    setCandidateRowElementSelectors,
+    setColumnMap
 } from './state';
 
 import {
@@ -44,15 +42,36 @@ import {
 import {
     mapToArrayOfValues,
     copyMap,
-    applyToColumnMap,
     newSelector,
-    getColumnForSelector
+    getColumnForSelector,
+    getSelectorFromQueryFormula
 } from './utils';
 
 import {
-    createAdapterInMemory,
-    deleteAdapterInMemory,
+    updateAdapter
 } from './adapterHelpers';
+
+export function updateFromSetFormula({ formula }) {
+    const tempColumnMap = getTempColumnMap();
+    const eventMaps = getEventMaps()
+    const rowElementSelector = getRowElementSelector();
+    const column = getColumn();
+    const columnSelectors = tempColumnMap.get(column);
+    const columnSelector = getSelectorFromQueryFormula({ formula });
+    const nextColumn = column + 1;
+    const adapterKey = getAdapterKey();
+    columnSelectors.push(columnSelector);
+    tempColumnMap.set(nextColumn, []);
+    setColumnMap(tempColumnMap);
+    setColumn(nextColumn);
+    renderColumnBoxes(tempColumnMap);
+    clearElementMap(eventMaps.mouseMoveRowElement);
+    clearElementMap(eventMaps.mouseMoveColumnElement);
+    clearElementMap(eventMaps.mouseClickColumnElement, true);
+    styleColumnElementsOnClick(rowElementSelector);
+    styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+    updateAdapter(adapterKey, mapToArrayOfValues(tempColumnMap), rowElementSelector);
+}
 
 function ignoreEvent(event) {
     const target = event.target;
@@ -75,7 +94,6 @@ function scraperClickListener(event) {
     const exploring = getExploring();
     const rowElement = getRowElement();
     const rowElementSelector = getRowElementSelector();
-    const candidateRowElementSelectors = getCandidateRowElementSelectors();
     const currentColumnSelector = getCurrentColumnSelector();
     const tempColumnMap = getTempColumnMap();
     const columnMap = getColumnMap();
@@ -103,7 +121,7 @@ function scraperClickListener(event) {
         setColumn(nextColumn);
         renderColumnBoxes(tempColumnMap);
         exploring && setExploring(false);
-        createAdapterInMemory(adapterKey, mapToArrayOfValues(tempColumnMap), rowElementSelector, candidateRowElementSelectors);
+        updateAdapter(adapterKey, mapToArrayOfValues(tempColumnMap), rowElementSelector);
     } else if (
         !newSelector(currentColumnSelector, columnMap) &&
         rowElement.contains(target)
@@ -117,7 +135,7 @@ function scraperClickListener(event) {
         setColumn(nextColumn);
         setColumnMap(columnMap);
         setCurrentColumnSelector(null);
-        createAdapterInMemory(adapterKey, mapToArrayOfValues(columnMap), rowElementSelector, candidateRowElementSelectors); 
+        updateAdapter(adapterKey, mapToArrayOfValues(columnMap), rowElementSelector); 
         clearElementMap(eventMaps.mouseClickColumnElement, true);
         clearElementMap(eventMaps.mouseMoveColumnElement);
         styleColumnElementsOnClick(rowElementSelector);
@@ -148,7 +166,6 @@ function scraperMouseMoveListener(event) {
     const exploring = getExploring();
     let rowElementSelector = !exploring && getRowElementSelector();
     let rowElement = !exploring && getRowElement();
-    let candidateRowElementSelectors;
     const adapterKey = getAdapterKey();
     const tempColumnMap = getTempColumnMap();
     const columnMap = exploring && tempColumnMap  ? tempColumnMap : copyMap(getColumnMap());
@@ -159,7 +176,6 @@ function scraperMouseMoveListener(event) {
         if (rowElementData) {    
             rowElement = rowElementData.rowElement;
             rowElementSelector = rowElementData.rowElementSelector;
-            candidateRowElementSelectors = rowElementData.candidateRowElementSelectors;
         }
         if (target.textContent && !target.childElementCount) {
             const columnSelector = generateColumnSelectors(rowElementSelector, [target]).shift();
@@ -174,9 +190,8 @@ function scraperMouseMoveListener(event) {
                     setTempColumnMap(columnMap);
                     setRowElementSelector(rowElementSelector);
                     setRowElement(rowElement);
-                    setCandidateRowElementSelectors(candidateRowElementSelectors);
                     const allColumnSelectors = mapToArrayOfValues(columnMap);
-                    createAdapterInMemory(adapterKey, allColumnSelectors, rowElementSelector, candidateRowElementSelectors); 
+                    updateAdapter(adapterKey, allColumnSelectors, rowElementSelector); 
                     clearElementMap(eventMaps.mouseMoveRowElement);
                     clearElementMap(eventMaps.mouseMoveColumnElement);
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
@@ -192,7 +207,7 @@ function scraperMouseMoveListener(event) {
             clearElementMap(eventMaps.mouseClickColumnElement, true);
             renderColumnBoxes(columnMap)
             setCurrentColumnSelector(null);
-            deleteAdapterInMemory();
+            updateAdapter(adapterKey, [], '');
         }
     } else if (rowElement.contains(target) && target.textContent && !target.childElementCount) {
         const columnSelector = generateColumnSelectors(rowElementSelector, [target]).shift();
@@ -207,7 +222,7 @@ function scraperMouseMoveListener(event) {
                     setCurrentColumnSelector(columnSelector);
                     setTempColumnMap(columnMap);
                     const allColumnSelectors = mapToArrayOfValues(columnMap);
-                    createAdapterInMemory(adapterKey, allColumnSelectors, rowElementSelector, candidateRowElementSelectors);
+                    updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
                     clearElementMap(eventMaps.mouseMoveRowElement);
                     clearElementMap(eventMaps.mouseMoveColumnElement);
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
@@ -222,7 +237,7 @@ function scraperMouseMoveListener(event) {
                 const columnSelectors = columnMap.get(column);
                 const allColumnSelectors = mapToArrayOfValues(getColumnMap());
                 setCurrentColumnSelector(columnSelector);
-                createAdapterInMemory(adapterKey, allColumnSelectors, rowElementSelector, candidateRowElementSelectors);
+                updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
                 clearElementMap(eventMaps.mouseMoveColumnElement);
                 styleColumnElementsOnClick(rowElementSelector);
                 styleColumnElementsOnHover(rowElementSelector, columnSelectors);
@@ -247,7 +262,7 @@ function scraperMouseMoveListener(event) {
                     setCurrentColumnSelector(columnSelector);
                     setTempColumnMap(columnMap);
                     const allColumnSelectors = mapToArrayOfValues(columnMap);
-                    createAdapterInMemory(adapterKey, allColumnSelectors, rowElementSelector, candidateRowElementSelectors);
+                    updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
                     clearElementMap(eventMaps.mouseMoveRowElement);
                     clearElementMap(eventMaps.mouseMoveColumnElement);
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
@@ -262,17 +277,17 @@ function scraperMouseMoveListener(event) {
                 const columnSelectors = columnMap.get(column);
                 const allColumnSelectors = mapToArrayOfValues(getColumnMap());
                 setCurrentColumnSelector(columnSelector);
-                createAdapterInMemory(adapterKey, allColumnSelectors, rowElementSelector, candidateRowElementSelectors);
+                updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
                 clearElementMap(eventMaps.mouseMoveColumnElement);
                 styleColumnElementsOnClick(rowElementSelector);
                 styleColumnElementsOnHover(rowElementSelector, columnSelectors);
                 renderColumnBoxes(columnMap, getColumnForSelector(columnMap, columnSelector))
             }
         }
-    } else if (!rowElement) {
+    } else {
         setCurrentColumnSelector(null);
         const allColumnSelectors = mapToArrayOfValues(getColumnMap());
-        createAdapterInMemory(adapterKey, allColumnSelectors, rowElementSelector, candidateRowElementSelectors);
+        updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
         clearElementMap(eventMaps.mouseMoveColumnElement); 
         renderColumnBoxes(columnMap);
     }

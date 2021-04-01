@@ -4,7 +4,7 @@ import { createDomScrapingAdapter } from "./domScrapingBase"
 
 const GithubAdapter = createDomScrapingAdapter({
   name: "Github",
-  enabled: () => false,
+  enabled: () => urlMatches(/github.com.*tab=repositories/),
   attributes: [
     { name: "name"   , type: "text"},
     { name: "stars"  , type: "numeric"},
