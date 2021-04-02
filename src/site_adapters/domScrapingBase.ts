@@ -146,10 +146,12 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   }
 
   const loadTable = () => {
+    console.time("LOADING TABLE")
     scrapedRows = scrapePage();
     const table = { ...tableInExternalFormat(), attributes: config.attributes };
     // Notify all subscribers that we have new data
     for (const callback of subscribers) { callback(table); }
+    console.timeEnd("LOADING TABLE")
     return table;
   }
 
@@ -284,7 +286,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
         }
 
         // do type conversions
-        if (attributes.find(spec => spec.name === attrName).type === "numeric" &&
+        if (attributes.length && attributes.find(spec => spec.name === attrName).type === "numeric" &&
             typeof extractedValue !== "number") {
           extractedValue = extractNumber(extractedValue);
         }
@@ -406,7 +408,9 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
       config.attributes = _config.attributes;
       config.scrapePage = _config.scrapePage;
       config.metadata = _config.metadata;
+      console.time("UPDATING CONFIG")
       loadTable();
+      console.timeEnd("UPDATING CONFIG")
     },
     getConfig: () => {
       return config;

@@ -144,10 +144,13 @@ export function createInitialAdapterConfig() {
 export function updateAdapter(adapterKey, columnSelectors, rowSelector) {
     const activeAdapter = getCachedActiveAdapter();
     if (activeAdapter) {
+        console.time("UPDATING ADAPTER")
         const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
         const configCopy = {...config};
         compileAdapterJavascript(configCopy);
         activeAdapter.updateConfig(configCopy);
+        console.timeEnd("UPDATING ADAPTER")
+
     }   
 }
 
@@ -182,7 +185,6 @@ function _createAttributes({ rowSelector, columnSelectors }) {
         attributes.push({
             name: "rowElement",
             type: "element",
-            formula: `=QuerySelector(null, "${rowSelector}")`,
             hidden: true
         });
         // add remaining attributes
@@ -205,7 +207,9 @@ function _createScrapPage({ rowSelector }) {
             return {
                 id: String(rowIndex),
                 index: rowIndex,
-                dataValues: {},
+                dataValues: {
+                    rowElement: element
+                },
                 rowElements: [element]
             }
         });

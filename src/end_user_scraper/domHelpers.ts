@@ -10,19 +10,20 @@ function getAllClassCombinations(chars) {
     return result;
 }
 
-function generateNodeSelector(node) {
-    let selector = node.tagName.toLowerCase();
+export function generateNodeSelector(node) {
     if (node.classList && node.classList.length) {
         let selectors = [];
+        const nodeTagName = node.tagName.toLowerCase();
         const siblings = Array.from(node.parentNode.children)
             .filter((element: HTMLElement) => !element.isSameNode(node));
         getAllClassCombinations(Array.from(node.classList))
             .forEach((selector, i) => {
+                selector = `${nodeTagName}${selector}`;
                 selectors[i] = {
                     selector,
                     score: 0
                 }
-                const selectorClassNames= selector.substring(1).split('.');
+                const selectorClassNames= selector.substring(nodeTagName.length+1).split('.');
                 siblings
                     .filter((sibling: HTMLElement) => sibling.classList && sibling.classList.length)
                     .map((sibling: HTMLElement) => Array.from(sibling.classList))
@@ -33,15 +34,17 @@ function generateNodeSelector(node) {
                         }
                     });
             });
-        if (selectors.length) {
+        if (selectors.length && selectors.some(({ score }) => score > 0)) {
             selectors.sort((a, b) => b.score - a.score);
             const highestScore = selectors[0].score;
             selectors = selectors.filter(({ score }) => score === highestScore);
-            selectors.sort((a, b) => b.selector.split('.').length - a.selector.split('.').length);
-            selector = selectors.shift().selector;
+            selectors.sort((a, b) => a.selector.split('.').length - b.selector.split('.').length);
+            const shortestLength = selectors[0].selector.split('.').length;
+            selectors = selectors.filter(({ selector }) => selector.split('.').length === shortestLength);
+            return selectors.map(s => s.selector);
         }
     }
-    return selector;
+    return [];
 }
 
 export function generateIndexedNodeSelector(node) {
@@ -67,7 +70,8 @@ export function generateNodeSelectorFrom(node, from) {
     const selectors = [];
     let _node = node;
     while (!_node.isSameNode(from)) {
-        selectors.unshift(generateNodeSelector(_node));
+        const selector = generateNodeSelector(_node)[0] || generateIndexedNodeSelector(_node);
+        selectors.unshift(selector);
         if (areAllSiblings(_node,  selectors.join('>'))) {
             return selectors.join('>');
         }

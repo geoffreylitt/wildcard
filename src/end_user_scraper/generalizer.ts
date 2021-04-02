@@ -42,14 +42,10 @@ export function findRowElement(nodes, lca) {
     }
     if (candidates.length) {
       candidates.sort((a, b) => b.score - a.score);
-      const  { candidate, score } = candidates[0];
-      const candidateRowElementSelectors = candidates
-        .filter(entry => entry.score === score)
-        .map(entry => generateNodeSelectorFrom(entry.candidate, document.body));
+      const  { candidate } = candidates[0];
       return {
           rowElement: candidate,
-          rowElementSelector: candidateRowElementSelectors[0],
-          candidateRowElementSelectors
+          rowElementSelector: generateNodeSelectorFrom(candidate, document.querySelector('body'))
       };
     }
     return null

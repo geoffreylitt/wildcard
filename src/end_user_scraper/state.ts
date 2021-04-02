@@ -1,5 +1,4 @@
 import {
-    mapToArrayOfValues,
     randomRGB
 } from './utils';
 
@@ -35,6 +34,8 @@ let _editing = false;
 let _candidateRowElementSelectors = [];
 let _candidateColumnElementSelectors = [];
 let _activeAdapter;
+let _rowElementSelectorCandidates;
+let _columnElementSelectorCandidates = [];
 _columnMap.set(_column, []);
 
 export function initState({ rowSelector, columnSelectors, id }) {
@@ -172,6 +173,8 @@ export function resetScraperState() {
     _multipleExamples = false;
     _candidateRowElementSelectors = [];
     _candidateColumnElementSelectors = [];
+    _rowElementSelectorCandidates = [];
+    _columnElementSelectorCandidates = [];
 }
 
 export function getMouseClickRowStyleData() {
@@ -257,4 +260,20 @@ export function getCachedActiveAdapter() {
 
 export function setCachedActiveAdapter(value) {
     _activeAdapter = value;
+}
+
+export function getRowElementSelectorCandidates() {
+    return _rowElementSelectorCandidates;
+}
+
+export function setRowElementSelectorCandidates(value) {
+    _rowElementSelectorCandidates = value;
+}
+
+export function getColumnElementSelectorCandidates() {
+    return _columnElementSelectorCandidates;
+}
+
+export function setColumnElementSelectorCandidates(value) {
+    _columnElementSelectorCandidates = value;
 }

@@ -172,7 +172,9 @@ function scraperMouseMoveListener(event) {
     const column = getColumn();
     const multipleExamples = getMultipleExamples();
     if (exploring) {
+        console.time("FINDING ROW")
         const rowElementData = findRowElement([target], target);
+        console.timeEnd("FINDING ROW")
         if (rowElementData) {    
             rowElement = rowElementData.rowElement;
             rowElementSelector = rowElementData.rowElementSelector;

@@ -295,27 +295,26 @@ class FnNode {
       // Then look it up in our in-memory cache. (the cache isn't persisted,
       // it's just there to make re-evals smoother within pageloads)
 
-      // Note 1:
-      // Technically this could go wrong in weird cases where the input
-      // contains this separator character, and we should do something better like
-      // hash a key-value object or something... but this seems good enough for now.
+      // Most input arguments are directly stringified into the cache key;
+      // but we need to treat DOM elements specially to compare them.
+      // We hash the HTML of the element as an equality check
+      const inputArguments = values.map(v => {
+        if(v instanceof HTMLElement) {
+          return stringHash(v.outerHTML)
+        } else {
+          return v
+        }
+      })
 
-      // Note 2:
-      // If any of the arguments is a DOM element, we don't cache.
-      // We don't have an easy way to test equality.
-      values = [...values, parseInt(row.id)];
-      let cacheKey;
-      if(values.find(v => v instanceof HTMLElement)) {
-        cacheKey = `${this.fnName}:${row.id}:${values[0].tagName}:${values.join("_:_")}`;
-      } else {
-        cacheKey = `${this.fnName}:${row.id}:${values.join("_:_")}`;
-      }
+      const cacheKey = `${this.fnName}:${row.id}:${inputArguments.join("_:_")}`;
 
       if(functionCache[cacheKey]) {
+        //console.log("FROM CACHE:", this.fnName, row.id, values[0].tagName, values[1]);
         return functionCache[cacheKey]
       } else {
         const result =  fn.apply(this, values)
         functionCache[cacheKey] = result
+        //console.log("COMPUTED:", this.fnName, row.id, values[0].tagName, values[1]);
         return result
       }
     })
@@ -444,10 +443,15 @@ export function formulaParse(s) {
   }
 }
 
+const parsedFormulaCache = {
+
+}
+
 // This function is responsible for actually evaluating formulas and
 // turning them into data results.
 // Accepts a callback, which it calls with results as it goes through the table.
 export async function evalFormulas(records: Record[], attributes: Attribute[], callback: any){
+  console.time("PREP TABLE FOR FORMULA RESULTS")
   const formulaAttributes = attributes.filter(attr => attr.formula)
 
   // parse formula text into AST, once per attribute
@@ -469,9 +473,11 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
       evalResults[record.id][attr] = null
     }
   }
-
-  callback(evalResults)
-
+  console.timeEnd("PREP TABLE FOR FORMULA RESULTS");
+  console.time("SEND FORMULA PLACEHOLDER RESULTS")
+  //callback(evalResults)
+  console.timeEnd("SEND FORMULA PLACEHOLDER RESULTS")
+  console.time("EVALUATING FORMULAS")
   // Loop through records and attributes, iteratively evaluating formulas
   for (const attr of sortedFormulaAttributes) {
     // Eval all cells in this column, in parallel
@@ -489,6 +495,7 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
     }
     callback(evalResults)
   }
+  console.timeEnd("EVALUATING FORMULAS")
 }
 
 export {functions};
