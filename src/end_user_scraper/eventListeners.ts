@@ -70,6 +70,7 @@ export function updateFromSetFormula({ formula }) {
     clearElementMap(eventMaps.mouseClickColumnElement, true);
     styleColumnElementsOnClick(rowElementSelector);
     styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+    styleRowElementsOnHover();
     updateAdapter(adapterKey, mapToArrayOfValues(tempColumnMap), rowElementSelector);
 }
 
