@@ -10,14 +10,16 @@ function getAllClassCombinations(chars) {
     return result;
 }
 
-export function generateNodeSelector(node) {
+export function generateClassSeleector(node, rowElement, isRow) {
     if (node.classList && node.classList.length) {
         let selectors = [];
         const nodeTagName = node.tagName.toLowerCase();
-        const siblings = Array.from(node.parentNode.children)
-            .filter((element: HTMLElement) => !element.isSameNode(node));
-        getAllClassCombinations(Array.from(node.classList))
-            .forEach((selector, i) => {
+        const allClassCombinations = getAllClassCombinations(Array.from(node.classList));
+        if (isRow) {
+            const siblings = Array
+                .from(node.parentNode.children)
+                .filter((element: HTMLElement) => !element.isSameNode(node));
+            allClassCombinations.forEach((selector, i) => {
                 selector = `${nodeTagName}${selector}`;
                 selectors[i] = {
                     selector,
@@ -34,6 +36,19 @@ export function generateNodeSelector(node) {
                         }
                     });
             });
+        } else {
+            allClassCombinations.forEach((selector, i) => {
+                selector = `${nodeTagName}${selector}`;
+                selectors[i] = {
+                    selector,
+                    score: 0
+                }
+                const selectorMatchesInRow = rowElement.querySelectorAll(selector);
+                if (selectorMatchesInRow.length === 1 && selectorMatchesInRow[0].isSameNode(node)) {
+                    selectors[i].score += 1;
+                }
+            });
+        }
         if (selectors.length && selectors.some(({ score }) => score > 0)) {
             selectors.sort((a, b) => b.score - a.score);
             const highestScore = selectors[0].score;
@@ -47,7 +62,7 @@ export function generateNodeSelector(node) {
     return [];
 }
 
-export function generateIndexedNodeSelector(node) {
+export function generateIndexSelector(node) {
     const tag = node.tagName.toLowerCase();
     const index = Array.prototype.indexOf.call(node.parentNode.children, node) + 1;
     return `${tag}:nth-child(${index})`;
@@ -63,31 +78,34 @@ export function areAllSiblings(node, selector) {
         .every(element => element.parentNode.isSameNode(node.parentNode));
 }
 
-export function generateNodeSelectorFrom(node, from) {
+export function generateClassSelectorFrom(node, from, isRow) {
     if (node.isSameNode(from)) {
         return null;
     }
     const selectors = [];
     let _node = node;
-    while (!_node.isSameNode(from)) {
-        const selector = generateNodeSelector(_node)[0] || generateIndexedNodeSelector(_node);
-        selectors.unshift(selector);
-        if (areAllSiblings(_node,  selectors.join('>'))) {
-            return selectors.join('>');
+    if (isRow) {
+        while (!_node.isSameNode(from)) {
+            const selector = generateClassSeleector(_node, from, isRow)[0] || _node.tagName.toLowerCase();
+            selectors.unshift(selector);
+            if (areAllSiblings(_node,  selectors.join(' '))) {
+                return selectors.join(' ');
+            }
+            _node = _node.parentNode;
         }
-        _node = _node.parentNode;
+        return selectors.join(" ");
     }
-    return selectors.join(">");
+    return generateClassSeleector(_node, from, isRow)[0]  
 }
 
-export function generateIndexedSelectorFrom(node, from) {
+export function generateIndexSelectorFrom(node, from) {
     if (node.isSameNode(from)) {
         return null;
     }
     const selectors = [];
     let _node = node;
     while (!_node.isSameNode(from)) {
-        selectors.unshift(generateIndexedNodeSelector(_node));
+        selectors.unshift(generateIndexSelector(_node));
         _node = _node.parentNode;
     }
     return selectors.join('>');

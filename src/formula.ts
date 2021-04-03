@@ -34,7 +34,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'"
+    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "/" | "*"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -207,9 +207,12 @@ const functions = {
       "compareValue": "The value to check if it is greater than 'arg'"
     },
   },
-  "GreaterThan": {
-    "function": function(arg, value) {
-      return promisify(arg > value)
+  "QuerySelector": {
+    "function": function(el, selector, index) {
+      if (!el && selector && typeof(index) === 'number') {
+        return promisify(document.querySelectorAll(selector)[index]);
+      }
+      return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) || " " : " ")
     },
     "help": {
       "arg": "The numeric value to compare to 'compareValue'",
