@@ -31,7 +31,7 @@ const autosuggestTheme = {
       position: 'absolute',
       width: '100%',
       maxHeight: '240px',
-      background: 'white',
+      background: 'rgba(255,255,255,0.8)',
       boxShadow: '0px 0px 3px gray',
       display: 'flex',
       flexFlow: 'column',
@@ -49,14 +49,14 @@ const autosuggestTheme = {
       cursor: 'pointer'
     },
     suggestionHighlighted: {
-      background: 'rgb(240,240,240)',
+      background: 'rgb(200,200,200,0.5)',
     },
   };
 
 const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, setSuggestions, cellEditorRef, attributes, onCellEditorKeyPress, commitActiveCellValue}) => {
 
     // This pattern matches every thing after and including any one of these symbols: = ( + - * /
-const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
+    const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
     
     // Teach Autosuggest how to calculate suggestions for any given input value.
     const mathSymbols = {"Plus": "+", "Minus": "-", "Multiply": "*", "Divide": "/"};
@@ -156,7 +156,7 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
         return (
         <div {...containerProps}>
             {children}
-            <div style={footer ? {backgroundColor: 'rgb(240, 240, 240)', borderTop: '1px solid rgb(204, 204, 204)', padding: '5px', flex: '0 1 auto'} : {}}>
+            <div style={footer ? {backgroundColor: 'rgb(240, 240, 240, 0.8)', borderTop: '1px solid rgb(204, 204, 204)', padding: '5px', flex: '0 1 auto'} : {}}>
             {footer}
             </div>
         </div>
@@ -178,6 +178,7 @@ const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/;
     };
 
     return <Autosuggest
+        alwaysRenderSuggestions={true}
         suggestions={suggestions}
         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
         onSuggestionsClearRequested={onSuggestionsClearRequested}
