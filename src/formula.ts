@@ -3,6 +3,7 @@
 import ohm from 'ohm-js/dist/ohm';
 import _ from "lodash";
 import { Attribute, Record } from './core/types';
+import stringHash from 'string-hash'
 
 // An object to store results of calling functions
 const functionCache = {}
@@ -219,19 +220,18 @@ class FnNode {
       // Then look it up in our in-memory cache. (the cache isn't persisted,
       // it's just there to make re-evals smoother within pageloads)
 
-      // Note 1:
-      // Technically this could go wrong in weird cases where the input
-      // contains this separator character, and we should do something better like
-      // hash a key-value object or something... but this seems good enough for now.
+      // Most input arguments are directly stringified into the cache key;
+      // but we need to treat DOM elements specially to compare them.
+      // We hash the HTML of the element as an equality check
+      const inputArguments = values.map(v => {
+        if(v instanceof HTMLElement) {
+          return stringHash(v.outerHTML)
+        } else {
+          return v
+        }
+      })
 
-      // Note 2:
-      // If any of the arguments is a DOM element, we don't cache.
-      // We don't have an easy way to test equality.
-      if(values.find(v => v instanceof HTMLElement)) {
-        return fn.apply(this, values)
-      }
-
-      const cacheKey = `${this.fnName}:${row.id}:${values.join("_:_")}`;
+      const cacheKey = `${this.fnName}:${row.id}:${inputArguments.join("_:_")}`;
 
       if(functionCache[cacheKey]) {
         return functionCache[cacheKey]
