@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import Autosuggest from 'react-autosuggest';
 import {functions} from '../formula'
 
@@ -54,6 +54,7 @@ const autosuggestTheme = {
   };
 
 const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, setSuggestions, cellEditorRef, attributes, onCellEditorKeyPress, commitActiveCellValue}) => {
+    const [prefix, setPrefix] = useState('')
 
     // This pattern matches every thing after and including any one of these symbols: = ( + - * /
     const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
@@ -64,21 +65,24 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
     const mathSuggestions = Object.keys(functions)
         .filter(functionName => Object.keys(mathSymbols).indexOf(functionName) !== -1)
         .reduce((obj, functionName) => {
-        const symbol = mathSymbols[functionName];
-        obj[symbol] = functions[functionName];
-        return obj; 
-        }, {});
+                const symbol = mathSymbols[functionName];
+                obj[symbol] = functions[functionName];
+                return obj; 
+            }, {});
     const allSuggestionNames = Object.keys(functions)
         .sort()
         .filter(functionName => Object.keys(mathSymbols).indexOf(functionName) === -1)
         .concat(attributeNames);
     const getSuggestions = value => {
         const inputValue = value.trim()
+        if (value !== prefix) {
+            setPrefix(value);
+        }
         const matchIndex = inputValue.search(regex);
         
         if (matchIndex === inputValue.length - 1) {
         // If at the start of a new expression, include all possible suggestions
-        return allSuggestionNames.map(suggestion => inputValue + suggestion);
+        return allSuggestionNames.map(suggestion => suggestion);
         }
         else if (matchIndex === -1) {
         return [];
@@ -95,62 +99,54 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         const isNumericAttribute = attributeIndex != -1 && attributes[attributeIndex].type === "numeric";
         const lastChar = matchValue[matchValue.length - 1];
         if (isNumericAttribute || lastChar === ")"){
-            suggestions = suggestions.concat(Object.keys(mathSuggestions).map(suggestion => inputValue + suggestion))
+            suggestions = suggestions.concat(Object.keys(mathSuggestions).map(suggestion => suggestion))
         }
         return suggestions;
         }
     };
+
+    const getSuggestionValue = function(suggestion) {
+        return prefix + suggestion;
+    }
     
     // Determine how individual suggestions are rendered into HTML.
-    const renderSuggestion = function(suggestion) {
-        const matchIndex = suggestion.search(regex);
-        const matchValue = suggestion.slice(matchIndex+1, suggestion.length);
-        const lastChar = suggestion[suggestion.length-1];
-        if (attributeNames.indexOf(matchValue) != -1) {
-        return (<div><b>{matchValue}</b></div>)
-        }
-        else if (lastChar in mathSuggestions) {
-        return (<div>{lastChar}</div>)
-        }
-        else {
-        return (<div>{matchValue}</div>)
-        }
-        
+    const renderSuggestion = function(suggestion, {query}) {
+        return(<div>{suggestion}</div>)        
     }
     // Render helper text for functions in the footer
-    const renderSuggestionsContainer = function({ containerProps, children }) {
+    const renderSuggestionsContainer = function({ containerProps, children, query }) {
         const inputValue = activeCellValue.toString().trim()
-        const matchIndex = inputValue.search(regex);
-        const matchValue = inputValue.slice(matchIndex+1, inputValue.length);
+        const matchIndex = inputValue.indexOf(query) + query.length;
+        const matchValue = inputValue.slice(matchIndex, inputValue.length);
         const attributeIndex = attributeNames.indexOf(matchValue);
         const lastChar = inputValue[inputValue.length-1];
         
         let footer = undefined;
         if (matchValue in functions) { // function
-        const params = functions[matchValue]["help"];
-        footer = (
-            <div>
-            {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
-            <div>{Object.keys(params).map(key => <div><b>{key}</b>: {params[key]}</div>)}</div>
-            </div>
-        )
+            const params = functions[matchValue]["help"];
+            footer = (
+                <div>
+                {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
+                <div>{Object.keys(params).map(key => <div><b>{key}</b>: {params[key]}</div>)}</div>
+                </div>
+            )
         }
         else if (lastChar in mathSuggestions) { // math symbol
-        const helpText = mathSuggestions[lastChar]["help"];
-        footer = (
-            <div>
-            numeric1 <b>{lastChar}</b> numeric2
-            <div>{helpText}</div>
-            </div>
-        )
+            const helpText = mathSuggestions[lastChar]["help"];
+            footer = (
+                <div>
+                numeric1 <b>{lastChar}</b> numeric2
+                <div>{helpText}</div>
+                </div>
+            )
         }
         else if (attributeIndex != -1) { // attribute name
-        const attribute = attributes[attributeIndex];
-        footer = (
-            <div>
-            <b>{attribute.name}</b> is a column with type <b>{attribute.type}</b>.
-            </div>
-        )
+            const attribute = attributes[attributeIndex];
+            footer = (
+                <div>
+                <b>{attribute.name}</b> is a column with type <b>{attribute.type}</b>.
+                </div>
+            )
         }
     
         return (
@@ -177,14 +173,25 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         setSuggestions([]);
     };
 
+    const renderSectionTitle = function(section) {
+        return <strong>{section.title}</strong>;
+    }
+
+    const getSectionSuggestions = function(section) {
+        return section.suggestions;
+      }
+
     return <Autosuggest
-        alwaysRenderSuggestions={true}
+        // alwaysRenderSuggestions={true}
         suggestions={suggestions}
         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
         onSuggestionsClearRequested={onSuggestionsClearRequested}
-        getSuggestionValue={(v) => v}
+        getSuggestionValue={getSuggestionValue}
         renderSuggestion={renderSuggestion}
         renderSuggestionsContainer={renderSuggestionsContainer}
+        // multiSection={true}
+        // renderSectionTitle={renderSectionTitle}
+        // getSectionSuggestions={getSectionSuggestions}
         inputProps={{
         ref: cellEditorRef,
         value: activeCellValue.toString(),
