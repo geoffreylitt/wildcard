@@ -146,12 +146,12 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   }
 
   const loadTable = () => {
-    console.time("LOADING TABLE")
+    //console.time("LOADING TABLE")
     scrapedRows = scrapePage();
     const table = { ...tableInExternalFormat(), attributes: config.attributes };
     // Notify all subscribers that we have new data
     for (const callback of subscribers) { callback(table); }
-    console.timeEnd("LOADING TABLE")
+    //console.timeEnd("LOADING TABLE")
     return table;
   }
 
@@ -316,11 +316,18 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
       const attribute = config.attributes[attributeIndex];
       if (attribute.formula !== formula) {
         attribute.formula = formula;
-        return true;
+        return {
+          updated: true,
+          column: attributeIndex - 1
+        };
       }
-      return false;
+      return {
+        updated: false
+      };
     }
-    return false;
+    return {
+      updated: true
+    };
   }
 
   const toggleVisibility = (colName) => {
@@ -399,18 +406,18 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     toggleVisibility,
     clear: () => {},
     setFormula: (attrName, formula) => {
-      const updated = updateAttribute({ attrName, formula });
+      const { updated, column } = updateAttribute({ attrName, formula });
       if (updated) {
-        updateFromSetFormula({ formula });
+        updateFromSetFormula({ formula, column });
       }
     },
     updateConfig: (_config) => {
       config.attributes = _config.attributes;
       config.scrapePage = _config.scrapePage;
       config.metadata = _config.metadata;
-      console.time("UPDATING CONFIG")
+      //console.time("UPDATING CONFIG")
       loadTable();
-      console.timeEnd("UPDATING CONFIG")
+      //console.timeEnd("UPDATING CONFIG")
     },
     getConfig: () => {
       return config;

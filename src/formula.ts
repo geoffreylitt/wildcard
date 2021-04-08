@@ -454,7 +454,7 @@ const parsedFormulaCache = {
 // turning them into data results.
 // Accepts a callback, which it calls with results as it goes through the table.
 export async function evalFormulas(records: Record[], attributes: Attribute[], callback: any){
-  console.time("PREP TABLE FOR FORMULA RESULTS")
+  // console.time("PREP TABLE FOR FORMULA RESULTS")
   const formulaAttributes = attributes.filter(attr => attr.formula)
 
   // parse formula text into AST, once per attribute
@@ -476,11 +476,11 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
       evalResults[record.id][attr] = null
     }
   }
-  console.timeEnd("PREP TABLE FOR FORMULA RESULTS");
-  console.time("SEND FORMULA PLACEHOLDER RESULTS")
+  // console.timeEnd("PREP TABLE FOR FORMULA RESULTS");
+  // console.time("SEND FORMULA PLACEHOLDER RESULTS")
   //callback(evalResults)
-  console.timeEnd("SEND FORMULA PLACEHOLDER RESULTS")
-  console.time("EVALUATING FORMULAS")
+  // console.timeEnd("SEND FORMULA PLACEHOLDER RESULTS")
+  // console.time("EVALUATING FORMULAS")
   // Loop through records and attributes, iteratively evaluating formulas
   for (const attr of sortedFormulaAttributes) {
     // Eval all cells in this column, in parallel
@@ -498,7 +498,7 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
     }
     callback(evalResults)
   }
-  console.timeEnd("EVALUATING FORMULAS")
+  // console.timeEnd("EVALUATING FORMULAS")
 }
 
 export {functions};

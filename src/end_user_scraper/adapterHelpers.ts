@@ -144,12 +144,12 @@ export function createInitialAdapterConfig() {
 export function updateAdapter(adapterKey, columnSelectors, rowSelector) {
     const activeAdapter = getCachedActiveAdapter();
     if (activeAdapter) {
-        console.time("UPDATING ADAPTER")
+        // console.time("UPDATING ADAPTER")
         const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
         const configCopy = {...config};
         compileAdapterJavascript(configCopy);
         activeAdapter.updateConfig(configCopy);
-        console.timeEnd("UPDATING ADAPTER")
+        // console.timeEnd("UPDATING ADAPTER")
 
     }   
 }
@@ -180,6 +180,7 @@ function createAdapterData(rowSelector, columnSelectors) {
 
 function _createAttributes({ rowSelector, columnSelectors }) {
     const attributes = [];
+    const domFormulas = ["=QuerySelector", "=GetParent"]
     if (rowSelector && columnSelectors && columnSelectors.length) {
         // add row element attribute
         attributes.push({
@@ -190,10 +191,22 @@ function _createAttributes({ rowSelector, columnSelectors }) {
         // add remaining attributes
         columnSelectors.forEach((columnSelectorList, index) => {
             const columnSelector = columnSelectorList[0];
+            let type = "element";
+            let formula;
+            if (columnSelector && columnSelector.startsWith("=")) {
+                formula = columnSelector;
+                if (!domFormulas.find(v => formula.startsWith(v))) {
+                    type = "text";
+                }
+            } else if (columnSelector) {
+                formula = `=QuerySelector(rowElement, "${columnSelector}")`;
+            } else {
+                formula = `=QuerySelector(rowElement)`;
+            }
             attributes.push({
                 name: indexToAlpha(index),
-                type: "element",
-                formula: columnSelector ? `=QuerySelector(rowElement, "${columnSelector}")` : `=QuerySelector(rowElement)`
+                type,
+                formula
             });
         });
     }

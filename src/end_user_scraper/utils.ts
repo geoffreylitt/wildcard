@@ -91,3 +91,7 @@ export function getSelectorFromQueryFormula({ formula }) {
     }
     return null;
 } 
+
+export function isFormula(value) {
+    return value.startsWith("=");
+}

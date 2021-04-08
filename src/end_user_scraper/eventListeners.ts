@@ -44,24 +44,26 @@ import {
     copyMap,
     newSelector,
     getColumnForSelector,
-    getSelectorFromQueryFormula
+    getSelectorFromQueryFormula,
+    isFormula
 } from './utils';
 
 import {
     updateAdapter
 } from './adapterHelpers';
 
-export function updateFromSetFormula({ formula }) {
+export function updateFromSetFormula({ formula, column }) {
     const tempColumnMap = getTempColumnMap();
     const eventMaps = getEventMaps()
     const rowElementSelector = getRowElementSelector();
-    const column = getColumn();
-    const columnSelectors = tempColumnMap.get(column);
     const columnSelector = getSelectorFromQueryFormula({ formula });
-    const nextColumn = column + 1;
+    const columnSelectors = [formula.startsWith("=QuerySelector") ? columnSelector : formula];
     const adapterKey = getAdapterKey();
-    columnSelectors.push(columnSelector);
-    tempColumnMap.set(nextColumn, []);
+    tempColumnMap.set(column, columnSelectors);
+    const nextColumn = column == tempColumnMap.size - 1 ? column + 1 : column;
+    if (!tempColumnMap.has(nextColumn)) {
+        tempColumnMap.set(nextColumn, []);
+    }
     setColumnMap(tempColumnMap);
     setColumn(nextColumn);
     renderColumnBoxes(tempColumnMap);
@@ -172,9 +174,9 @@ function scraperMouseMoveListener(event) {
     const column = getColumn();
     const multipleExamples = getMultipleExamples();
     if (exploring) {
-        console.time("FINDING ROW")
+        // console.time("FINDING ROW")
         const rowElementData = findRowElement([target], target);
-        console.timeEnd("FINDING ROW")
+        // console.timeEnd("FINDING ROW")
         if (rowElementData) {    
             rowElement = rowElementData.rowElement;
             rowElementSelector = rowElementData.rowElementSelector;
@@ -342,6 +344,7 @@ function styleColumnElementsOnHover(rowElementSelector, columnSelectors) {
     Array.from(rowElements)
     .forEach((rowElement) => {
         columnSelectors
+        .filter(value => !isFormula(value))
         .map(selector => rowElement.querySelector(selector) as HTMLElement)
         .filter(targetNode => targetNode)
         .forEach(targetNode => {
@@ -365,16 +368,18 @@ export function styleColumnElementsOnClick(rowElementSelector) {
         for (let j = 0; j < columns.length; j++) {
             const selectors = columns[j];
             for (let k = 0; k < selectors.length; k++) {
-                const selector = selectors[k]
-                const element = row.querySelector(selector) as HTMLElement;
-                if (element) {
-                    setStyleAndAddToMap({
-                        map: eventMaps.mouseClickColumnElement,
-                        node: element,
-                        styleProperty: getMouseClickColumnStyleProperty(),
-                        styleValue: getMouseClickColumnStyleValue()
-                    });
-                }
+                const selector = selectors[k];
+                if (!isFormula(selector)) {
+                    const element = row.querySelector(selector) as HTMLElement;
+                    if (element) {
+                        setStyleAndAddToMap({
+                            map: eventMaps.mouseClickColumnElement,
+                            node: element,
+                            styleProperty: getMouseClickColumnStyleProperty(),
+                            styleValue: getMouseClickColumnStyleValue()
+                        });
+                    }
+                }     
             }
         }
     }
