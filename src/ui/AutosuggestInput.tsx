@@ -11,7 +11,7 @@ const autosuggestTheme = {
         zIndex: '2500',
         color: 'black',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-        fontSize: '14px',
+        fontSize: '12px',
     },
     input: {
         padding: '5px',

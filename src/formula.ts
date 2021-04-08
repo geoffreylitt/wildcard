@@ -161,6 +161,19 @@ const functions = {
       "left": "The beginning string value.",
     },
   },
+  "Substring": {
+    "function": function(arg, indexStart, indexEnd = undefined) {
+      if (arg == undefined) {
+        return undefined;
+      }
+      return indexEnd ? promisify(arg.substring(indexStart, indexEnd)) : promisify(arg.substring(indexStart))
+    },
+    "help": {
+      "text": "The string value to take the substring of.",
+      "indexStart": "The index of the first character to include in the returned substring.",
+      "indexEnd": "(optional) The index of the first character to exclude from the returned substring.",
+    },
+  },
   "And": {
     "function": function(...args) {
       return promisify(args.reduce((accumulator, element) => accumulator && element))
@@ -238,7 +251,7 @@ const functions = {
   "GetAttribute": {
     "function": function(el, attrName) {
       // todo: error handling here?
-      return promisify(el.getAttribute(attrName))
+      return promisify(el ? el.getAttribute(attrName) : "")
     },
     "help": {
       "element": "The element column to get an attribute from.",
