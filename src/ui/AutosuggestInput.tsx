@@ -74,34 +74,35 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         .filter(functionName => Object.keys(mathSymbols).indexOf(functionName) === -1)
         .concat(attributeNames);
     const getSuggestions = value => {
-        const inputValue = value.trim()
-        if (value !== prefix) {
-            setPrefix(value);
-        }
+        const inputValue = value.trim() 
         const matchIndex = inputValue.search(regex);
+
+        // save the prefix of the input (everything up to the suggestion)
+        const curPrefix = inputValue.slice(0, matchIndex+1);
+        if (curPrefix !== prefix) {
+            setPrefix(curPrefix);
+        }
         
         if (matchIndex === inputValue.length - 1) {
-        // If at the start of a new expression, include all possible suggestions
-        return allSuggestionNames.map(suggestion => suggestion);
+            // If at the start of a new expression, include all possible suggestions
+            return allSuggestionNames;
         }
         else if (matchIndex === -1) {
-        return [];
+            return [];
         }
         else {
-        // Use everything after the regex match index (matchValue) as the prefix to determine suggestions
-        const matchValue = inputValue.slice(matchIndex+1, inputValue.length).toLowerCase();
-        let suggestions = allSuggestionNames
-            .filter(suggestion => suggestion.toLowerCase().slice(0, matchValue.length) === matchValue)
-            .map(suggestion => inputValue.slice(0, matchIndex+1) + suggestion);
-        
-        // Math operations are suggested after a numeric attribute name or after ")"
-        const attributeIndex = attributeNames.indexOf(matchValue);
-        const isNumericAttribute = attributeIndex != -1 && attributes[attributeIndex].type === "numeric";
-        const lastChar = matchValue[matchValue.length - 1];
-        if (isNumericAttribute || lastChar === ")"){
-            suggestions = suggestions.concat(Object.keys(mathSuggestions).map(suggestion => suggestion))
-        }
-        return suggestions;
+            // Use everything after the regex match index (matchValue) as the prefix to determine suggestions
+            const matchValue = inputValue.slice(matchIndex+1, inputValue.length).toLowerCase();
+            let suggestions = allSuggestionNames
+                .filter(suggestion => suggestion.toLowerCase().slice(0, matchValue.length) === matchValue)
+            // Math operations are suggested after a numeric attribute name or after ")"
+            const attributeIndex = attributeNames.indexOf(matchValue);
+            const isNumericAttribute = attributeIndex != -1 && attributes[attributeIndex].type === "numeric";
+            const lastChar = matchValue[matchValue.length - 1];
+            if (isNumericAttribute || lastChar === ")"){
+                suggestions = suggestions.concat(Object.keys(mathSuggestions))
+            }
+            return suggestions;
         }
     };
 
@@ -113,6 +114,7 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
     const renderSuggestion = function(suggestion, {query}) {
         return(<div>{suggestion}</div>)        
     }
+
     // Render helper text for functions in the footer
     const renderSuggestionsContainer = function({ containerProps, children, query }) {
         const inputValue = activeCellValue.toString().trim()
@@ -150,12 +152,12 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         }
     
         return (
-        <div {...containerProps}>
-            {children}
-            <div style={footer ? {backgroundColor: 'rgb(240, 240, 240, 0.8)', borderTop: '1px solid rgb(204, 204, 204)', padding: '5px', flex: '0 1 auto'} : {}}>
-            {footer}
+            <div {...containerProps}>
+                {children}
+                <div style={footer ? {backgroundColor: 'rgb(240, 240, 240, 0.8)', borderTop: '1px solid rgb(204, 204, 204)', padding: '5px', flex: '0 1 auto'} : {}}>
+                {footer}
+                </div>
             </div>
-        </div>
         )
     }
     
