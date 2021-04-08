@@ -91,7 +91,7 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         const matchIndex = inputValue.search(regex);
 
         // save the prefix of the input (everything up to the suggestion)
-        const curPrefix = inputValue.slice(0, matchIndex+1);
+        const curPrefix = value.slice(0, matchIndex+1);
         if (curPrefix !== prefix) {
             setPrefix(curPrefix);
         }
@@ -105,7 +105,7 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         }
         else {
             // Use everything after the regex match index (matchValue) as the prefix to determine suggestions
-            const matchValue = inputValue.slice(matchIndex+1, inputValue.length).toLowerCase();
+            const matchValue = inputValue.slice(matchIndex+1, inputValue.length).toLowerCase().trim();
             let filteredSuggestions = allSuggestions
                 .map(section => {
                     return {
@@ -126,7 +126,7 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
     };
 
     const getSuggestionValue = function(suggestion) {
-        return prefix + suggestion;
+        return prefix[prefix.length-1] === "," ? prefix + " " + suggestion : prefix + suggestion;
     }
     
     // Determine how individual suggestions are rendered into HTML.
@@ -144,7 +144,7 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         }
 
         const matchIndex = inputValue.search(regex);
-        const matchValue = inputValue.slice(matchIndex+1, inputValue.length);
+        const matchValue = inputValue.slice(matchIndex+1, inputValue.length).trim();
         const attributeIndex = attributeNames.indexOf(matchValue);
 
         let footer = undefined;
