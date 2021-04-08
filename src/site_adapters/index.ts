@@ -16,6 +16,7 @@ import HarvardBookWarehouse from './harvardbookwarehouse'
 import { adapterStore } from '../localStorageAdapter'
 import { TableAdapter } from '../core/types'
 import { createInitialAdapter } from '../end_user_scraper/adapterHelpers'
+import { getCreatingAdapter } from '../end_user_scraper/state'
 
 export const siteAdapters = [
   HNAdapter,
@@ -32,7 +33,8 @@ export const siteAdapters = [
   HarvardBookWarehouse
 ]
 
-export async function getActiveAdapter({ creatingAdapter }): Promise<undefined | TableAdapter> {
+export async function getActiveAdapter(): Promise<undefined | TableAdapter> {
+  const creatingAdapter = getCreatingAdapter();
   const localAdapters = await adapterStore.getLocalAdapters();
   const adaptersForPage = [
     ...localAdapters,

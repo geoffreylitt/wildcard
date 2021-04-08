@@ -24,7 +24,8 @@ import {
     getAdapterKey,
     getCachedActiveAdapter,
     initState,
-    resetScraperState
+    resetScraperState,
+    setCreatingAdapter
 } from './state';
 
 import { readFromChromeLocalStorage } from '../utils';
@@ -32,7 +33,8 @@ import { readFromChromeLocalStorage } from '../utils';
 export function startScrapingListener() {
     addScrapingListeners();
     initTutorial();
-    run({ creatingAdapter: true });
+    setCreatingAdapter(true);
+    run();
 }
 
 export function stopScrapingListener({ save }) {
@@ -42,7 +44,7 @@ export function stopScrapingListener({ save }) {
         deleteAdapter(adapterKey, () => {
             resetScraperState();
             removeTutorial();
-            run({ creatingAdapter: false });
+            run();
         });
     } else {
         const activeAdapter = getCachedActiveAdapter();
@@ -53,7 +55,7 @@ export function stopScrapingListener({ save }) {
         saveAdapter(adapterKey, adapterConfig, () => {
             resetScraperState();
             removeTutorial();
-            run({ creatingAdapter: false });
+            run();
         });
     }
 }
@@ -69,17 +71,25 @@ export function resetScrapingListener() {
 }
 
 export function editScraper() {
-    const adapterKey = createAdapterKey();
-    readFromChromeLocalStorage([adapterKey])
-        .then((results) => {
-            const adapterConfigString = results[adapterKey];
-            if (adapterConfigString) {
-                const adapterConfig = JSON.parse(adapterConfigString);
-                const adapterMetadata = adapterConfig.metadata;
-                initState(adapterMetadata);
-                addScrapingListeners();
-                initTutorial();
-                run({ creatingAdapter: true });
-            }
-        });
+    const cachedActiveAdapter = getCachedActiveAdapter();
+    if (cachedActiveAdapter) {
+        const adapterConfig = cachedActiveAdapter.getConfig();
+        const adapterMetadata = adapterConfig.metadata;
+        initState(adapterMetadata);
+        addScrapingListeners();
+        initTutorial();
+    }
+    // const adapterKey = createAdapterKey();
+    // readFromChromeLocalStorage([adapterKey])
+    //     .then((results) => {
+    //         const adapterConfigString = results[adapterKey];
+    //         if (adapterConfigString) {
+    //             const adapterConfig = JSON.parse(adapterConfigString);
+    //             const adapterMetadata = adapterConfig.metadata;
+    //             initState(adapterMetadata);
+    //             addScrapingListeners();
+    //             initTutorial();
+    //             run({ creatingAdapter: true });
+    //         }
+    //     });
 }

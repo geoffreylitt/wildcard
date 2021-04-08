@@ -34,7 +34,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "/" | "*"
+    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "/" | "*" | "!"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -113,6 +113,7 @@ const functions = {
   },
   "Includes": {
     "function": function(arg, searchValue) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       return arg ? promisify(arg.includes(searchValue)) : undefined
     },
     "help": {
@@ -122,6 +123,7 @@ const functions = {
   },
   "ExtractBetween": {
     "function": function(arg, left, right) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       if (arg == undefined) {
         return undefined;
       }
@@ -137,6 +139,7 @@ const functions = {
   },
   "ExtractStart": {
     "function": function(arg, right) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       if (arg == undefined) {
         return undefined;
       }
@@ -150,6 +153,7 @@ const functions = {
   },
   "ExtractEnd": {
     "function": function(arg, left) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       if (arg == undefined) {
         return undefined;
       }
@@ -200,6 +204,7 @@ const functions = {
   },
   "LessThan": {
     "function": function(arg, value) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       return promisify(arg < value)
     },
     "help": {
@@ -233,12 +238,6 @@ const functions = {
   },
   "GetParent": function(el) {
     return promisify(el.parentElement);
-  },
-  "QuerySelector": function(el, selector, index) {
-    if (!el && selector && typeof(index) === 'number') {
-      return promisify(document.querySelectorAll(selector)[index]);
-    }
-    return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) : " ")
   }
 }
 

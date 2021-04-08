@@ -1,4 +1,6 @@
 import {
+    copyMap,
+    mapToArrayOfValues,
     randomRGB
 } from './utils';
 
@@ -12,6 +14,7 @@ import {
     styleColumnElementsOnClick,
     styleRowElementsOnClick
 } from './eventListeners';
+import { updateAdapter } from './adapterHelpers';
 
 const _eventMaps = {
     mouseMoveRowElement: new Map(),
@@ -36,6 +39,7 @@ let _candidateColumnElementSelectors = [];
 let _activeAdapter;
 let _rowElementSelectorCandidates;
 let _columnElementSelectorCandidates = [];
+let _creatingAdapter = false;
 _columnMap.set(_column, []);
 
 export function initState({ rowSelector, columnSelectors, id }) {
@@ -49,8 +53,10 @@ export function initState({ rowSelector, columnSelectors, id }) {
     });
     _column = columnSelectors.length;
     _columnMap.set(_column, []);
+    _tempColumnMap = copyMap(_columnMap);
     styleColumnElementsOnClick(rowSelector);
     styleRowElementsOnClick();
+    updateAdapter(id, mapToArrayOfValues(_columnMap), rowSelector);
 }
 
 export function setStyleAndAddToMap({ map, node, styleProperty, styleValue }) {
@@ -175,6 +181,7 @@ export function resetScraperState() {
     _candidateColumnElementSelectors = [];
     _rowElementSelectorCandidates = [];
     _columnElementSelectorCandidates = [];
+    _creatingAdapter = false;
 }
 
 export function getMouseClickRowStyleData() {
@@ -276,4 +283,12 @@ export function getColumnElementSelectorCandidates() {
 
 export function setColumnElementSelectorCandidates(value) {
     _columnElementSelectorCandidates = value;
+}
+
+export function getCreatingAdapter() {
+    return _creatingAdapter;
+}
+
+export function setCreatingAdapter(value) {
+    _creatingAdapter = value;
 }

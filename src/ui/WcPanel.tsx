@@ -11,6 +11,7 @@ import Handsontable from "handsontable";
 import { FormulaEditor } from '../ui/cell_editors/formulaEditor';
 import mapValues from 'lodash/mapValues'
 import AutosuggestInput from './AutosuggestInput'
+import { getCreatingAdapter, setCreatingAdapter } from "../end_user_scraper/state";
 
 const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
@@ -98,7 +99,8 @@ const EditButton = styled(ToggleButton)`
 
 // Declare our functional React component
 
-const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter }) => {
+const WcPanel = ({ records, attributes, query, actions, adapter }) => {
+  const creatingAdapter = getCreatingAdapter();
   const hotRef = useRef(null);
   const cellEditorRef = useRef(null);
   const [hidden, setHidden] = useState(false);
@@ -388,8 +390,9 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
         <>
           <EditButton hidden={hidden} codeEditorHidden={codeEditorHidden}
             onClick={() => {
+              setCreatingAdapter(true);
               chrome.runtime.sendMessage({ command: 'editAdapter' });
-          }}> Edit Adapter
+          }}> Edit Table
           </EditButton>
           <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
           codeEditorHidden={codeEditorHidden}>

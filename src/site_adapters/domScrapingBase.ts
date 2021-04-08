@@ -6,6 +6,7 @@ import keyBy from 'lodash/keyBy'
 import { Attribute, SortConfig, TableAdapter, Table, RecordEdit } from '../core/types'
 import { htmlToElement } from '../utils'
 import { updateFromSetFormula } from '../end_user_scraper/eventListeners'
+import { getCachedActiveAdapter, getCreatingAdapter } from "../end_user_scraper/state";
 
 type DataValue = string | number | boolean
 declare var browser : any;
@@ -406,9 +407,11 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
     toggleVisibility,
     clear: () => {},
     setFormula: (attrName, formula) => {
-      const { updated, column } = updateAttribute({ attrName, formula });
-      if (updated) {
-        updateFromSetFormula({ formula, column });
+      if (getCreatingAdapter()) {
+        const { updated, column } = updateAttribute({ attrName, formula });
+        if (updated) {
+          updateFromSetFormula({ formula, column });
+        }
       }
     },
     updateConfig: (_config) => {
