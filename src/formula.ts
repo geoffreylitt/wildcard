@@ -107,46 +107,151 @@ const functions = {
       return promisify(args.join(" "))
     },
     "help": {
-      "column1": "The column to which following columns will be appended.",
-      "column2...": "The columns to append to column1."
+      "value1": "The value to which following columns will be appended.",
+      "value2...": "The value to append to column1."
     }
+  },
+  "Includes": {
+    "function": function(arg, searchValue) {
+      return arg ? promisify(arg.includes(searchValue)) : undefined
+    },
+    "help": {
+      "text": "The string value to search.",
+      "searchValue": "The value to find in 'text'. Returns a boolean." 
+    },
+  },
+  "ExtractBetween": {
+    "function": function(arg, left, right) {
+      if (arg == undefined) {
+        return undefined;
+      }
+      const leftIdx = arg.indexOf(left) + left.length
+      const rightIdx = arg.indexOf(right, leftIdx)
+      return arg ? promisify(arg.slice(leftIdx, rightIdx)) : undefined
+    },
+    "help": {
+      "text": "The string value to search (extracts between the first occurence of 'left' and 'right').",
+      "left": "The beginning string value",
+      "right": "The ending string value.",
+    },
+  },
+  "ExtractStart": {
+    "function": function(arg, right) {
+      if (arg == undefined) {
+        return undefined;
+      }
+      const rightIdx = arg.indexOf(right) + right.length
+      return arg ? promisify(arg.slice(0, rightIdx)) : undefined
+    },
+    "help": {
+      "text": "The string value to search (extracts between the start of 'text' and the first occurence of 'right').",
+      "right": "The ending string value.",
+    },
+  },
+  "ExtractEnd": {
+    "function": function(arg, left) {
+      if (arg == undefined) {
+        return undefined;
+      }
+      const leftIdx = arg.lastIndexOf(left) + left.length
+      return arg ? promisify(arg.slice(leftIdx, arg.length)) : undefined
+    },
+    "help": {
+      "text": "The string value to search (extracts between the last occurence of 'left' and the end of 'text').",
+      "left": "The beginning string value.",
+    },
+  },
+  "Substring": {
+    "function": function(arg, indexStart, indexEnd = undefined) {
+      if (arg == undefined) {
+        return undefined;
+      }
+      return indexEnd ? promisify(arg.substring(indexStart, indexEnd)) : promisify(arg.substring(indexStart))
+    },
+    "help": {
+      "text": "The string value to take the substring of.",
+      "indexStart": "The index of the first character to include in the returned substring.",
+      "indexEnd": "(optional) The index of the first character to exclude from the returned substring.",
+    },
+  },
+  "And": {
+    "function": function(...args) {
+      return promisify(args.reduce((accumulator, element) => accumulator && element))
+    },
+    "help": {
+      "values, ...": "The boolean values to perform AND across."
+    },
+  },
+  "Or": {
+    "function": function(...args) {
+      return promisify(args.reduce((accumulator, element) => accumulator || element))
+    },
+    "help": {
+      "values, ...": "The boolean values to perform OR across."
+    },
+  },
+  "Not": {
+    "function": function(arg) {
+      return promisify(! arg)
+    },
+    "help": {
+      "values, ...": "The boolean values to perform NOT across."
+    },
+  },
+  "LessThan": {
+    "function": function(arg, value) {
+      return promisify(arg < value)
+    },
+    "help": {
+      "arg": "The numeric value to compare to 'compareValue'",
+      "compareValue": "The value to check if it is greater than 'arg'"
+    },
+  },
+  "GreaterThan": {
+    "function": function(arg, value) {
+      return promisify(arg > value)
+    },
+    "help": {
+      "arg": "The numeric value to compare to 'compareValue'",
+      "compareValue": "The value to check if it is greater than 'arg'"
+    },
   },
   "Divide": {
     "function": function(x, y) {
       return promisify(x / y)
     },
-    "help": "Divides one numeric column by another."
+    "help": "Divides one numeric value by another."
   },
   "Multiply": {
     "function": function(x, y) {
       return promisify(x * y)
     },
-    "help": "Multiplies two numeric columns together."
+    "help": "Multiplies two numeric values together."
   },
   "Plus": {
     "function": function(x, y) {
-      return promisify(x + y)
+      return promisify(parseFloat(x) + parseFloat(y))
     },
-    "help": "Adds two numeric columns together."
+    "help": "Adds two numeric values together."
   },
   "Minus": {
     "function": function(x, y) {
       return promisify(x - y)
     },
-    "help": "Subtracts one numeric column from another."
+    "help": "Subtracts one numeric value from another."
   },
   "Round": {
     "function": function(x) {
       return promisify(Math.round(x))
     },
     "help": {
-      "numeric": "The numeric column to round to integer values."
+      "numeric": "The numeric value to round to integers."
     },
   },
   "GetAttribute": {
     "function": function(el, attrName) {
       // todo: error handling here?
-      return promisify(el.getAttribute(attrName))
+      return promisify(el ? el.getAttribute(attrName) : "")
     },
     "help": {
       "element": "The element column to get an attribute from.",
