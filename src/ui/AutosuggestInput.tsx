@@ -65,8 +65,8 @@ const autosuggestTheme = {
 const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, setSuggestions, cellEditorRef, attributes, onCellEditorKeyPress, commitActiveCellValue}) => {
     const [prefix, setPrefix] = useState('')
 
-    // This pattern matches every thing after and including any one of these symbols: = ( + - * /
-    const regex = /[=(\+\-\*\/][^=(\+\-\*\/]*$/; 
+    // This pattern matches every thing after and including any one of these symbols: = ( + - * / ,
+    const regex = /[=(\+\-\*\/,][^=(\+\-\*\/,]*$/; 
     
     // Teach Autosuggest how to calculate suggestions for any given input value.
     const attributeNames = attributes.map(attribute => attribute.name);
@@ -121,7 +121,6 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
             // if (isNumericAttribute || lastChar === ")"){
             //     suggestions = suggestions.concat(Object.keys(mathSuggestions))
             // }
-            console.log(filteredSuggestions)
             return filteredSuggestions;
         }
     };
@@ -136,17 +135,21 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
     }
 
     // Render helper text for functions in the footer
-    const renderSuggestionsContainer = function({ containerProps, children, query }) {
-        const inputValue = activeCellValue.toString().trim()
+    const renderSuggestionsContainer = function({ containerProps, children }) {
+        let inputValue = activeCellValue.toString().trim()
+        const lastChar = inputValue[inputValue.length-1]
+
+        if (lastChar === "(" || lastChar === ",") {
+            inputValue = inputValue.slice(0, inputValue.lastIndexOf("("))
+        }
+
         const matchIndex = inputValue.search(regex);
         const matchValue = inputValue.slice(matchIndex+1, inputValue.length);
         const attributeIndex = attributeNames.indexOf(matchValue);
-        const lastChar = inputValue[inputValue.length-1];
 
         let footer = undefined;
         if (matchValue in functions) { // function
             const params = functions[matchValue]["help"];
-            console.log(params)
             footer = (
                 <div>
                 {matchValue + "("} <b>{Object.keys(params).join(", ")}</b> {")"}
@@ -174,7 +177,7 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         return (
             <div {...containerProps}>
                 {children}
-                <div style={footer ? {backgroundColor: 'rgb(240, 240, 240, 0.8)', borderTop: '1px solid rgb(204, 204, 204)', padding: '5px', flex: '0 1 auto'} : {}}>
+                <div style={footer ? {backgroundColor: 'rgb(240, 240, 240, 0.8)', borderTop: '1px solid rgb(204, 204, 204)', padding: '5px', flex: '0 1 auto', fontSize: '12px'} : {}}>
                     {footer}
                 </div>
             </div>
@@ -204,7 +207,6 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
       }
 
     return <Autosuggest
-        alwaysRenderSuggestions={true}
         suggestions={suggestions}
         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
         onSuggestionsClearRequested={onSuggestionsClearRequested}
