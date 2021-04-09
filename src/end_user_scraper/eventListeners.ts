@@ -72,6 +72,8 @@ export function updateFromSetFormula({ formula, column }) {
     clearElementMap(eventMaps.mouseClickColumnElement, true);
     styleColumnElementsOnClick(rowElementSelector);
     styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+    styleRowElementsOnHover();
+    styleRowElementsOnClick();
     updateAdapter(adapterKey, mapToArrayOfValues(tempColumnMap), rowElementSelector);
 }
 
@@ -174,9 +176,7 @@ function scraperMouseMoveListener(event) {
     const column = getColumn();
     const multipleExamples = getMultipleExamples();
     if (exploring) {
-        // console.time("FINDING ROW")
         const rowElementData = findRowElement([target], target);
-        // console.timeEnd("FINDING ROW")
         if (rowElementData) {    
             rowElement = rowElementData.rowElement;
             rowElementSelector = rowElementData.rowElementSelector;
@@ -205,7 +205,7 @@ function scraperMouseMoveListener(event) {
                     renderColumnBoxes(columnMap);
                 }
             }     
-        } else {
+        } else if (getCurrentColumnSelector() !== null) {
             clearElementMap(eventMaps.mouseMoveRowElement);
             clearElementMap(eventMaps.mouseMoveColumnElement);
             clearElementMap(eventMaps.mouseClickColumnElement, true);
@@ -288,7 +288,7 @@ function scraperMouseMoveListener(event) {
                 renderColumnBoxes(columnMap, getColumnForSelector(columnMap, columnSelector))
             }
         }
-    } else {
+    } else if (getCurrentColumnSelector() !== null) {
         setCurrentColumnSelector(null);
         const allColumnSelectors = mapToArrayOfValues(getColumnMap());
         updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);

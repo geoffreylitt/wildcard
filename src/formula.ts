@@ -34,7 +34,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "/" | "*" | "!"
+    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "/" | "*" | "!" | "$"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -236,8 +236,17 @@ const functions = {
     },
     "help": "Multiplies two numeric values together."
   },
-  "GetParent": function(el) {
-    return promisify(el.parentElement);
+  "GetParent": {
+    "function": function(el) {
+      return promisify(el.parentElement);
+    },
+    "help": "Get parent of element"
+  },
+  "GetAttribute": {
+    "function": function(el, attribute) {
+      return promisify(el.getAttribute(attribute))
+    },
+    "help": "Get attribute of element"
   }
 }
 
@@ -311,7 +320,7 @@ class FnNode {
       const cacheKey = `${this.fnName}:${row.id}:${inputArguments.join("_:_")}`;
 
       if(functionCache[cacheKey]) {
-        //console.log("FROM CACHE:", this.fnName, row.id, values[0].tagName, values[1]);
+        // console.log("FROM CACHE:", this.fnName, row.id, values[0].tagName, values[1]);
         return functionCache[cacheKey]
       } else {
         const result =  fn.apply(this, values)
@@ -453,14 +462,16 @@ const parsedFormulaCache = {
 // turning them into data results.
 // Accepts a callback, which it calls with results as it goes through the table.
 export async function evalFormulas(records: Record[], attributes: Attribute[], callback: any){
-  // console.time("PREP TABLE FOR FORMULA RESULTS")
+  //console.time("PREP TABLE FOR FORMULA RESULTS")
   const formulaAttributes = attributes.filter(attr => attr.formula)
 
   // parse formula text into AST, once per attribute
   const parsedFormulas: {[key: string]: Formula} = {}
+  //console.time("PARSING FORMULAS")
   formulaAttributes.forEach(attr => {
     parsedFormulas[attr.name] = formulaParse(attr.formula)
   })
+  //console.timeEnd("PARSING FORMULAS")
 
   const sortedFormulaAttributes: string[] = sortAttributesByDependencies(parsedFormulas)
 
@@ -475,11 +486,11 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
       evalResults[record.id][attr] = null
     }
   }
-  // console.timeEnd("PREP TABLE FOR FORMULA RESULTS");
+  //console.timeEnd("PREP TABLE FOR FORMULA RESULTS");
   // console.time("SEND FORMULA PLACEHOLDER RESULTS")
   //callback(evalResults)
   // console.timeEnd("SEND FORMULA PLACEHOLDER RESULTS")
-  // console.time("EVALUATING FORMULAS")
+  console.time("EVALUATING FORMULAS")
   // Loop through records and attributes, iteratively evaluating formulas
   for (const attr of sortedFormulaAttributes) {
     // Eval all cells in this column, in parallel
@@ -495,9 +506,10 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
       // can use the evaluation result of this column
       record.values[attr] = result
     }
-    callback(evalResults)
+    //callback(evalResults)
   }
-  // console.timeEnd("EVALUATING FORMULAS")
+  console.timeEnd("EVALUATING FORMULAS")
+  callback(evalResults)
 }
 
 export {functions};

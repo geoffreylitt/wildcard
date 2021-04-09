@@ -148,7 +148,9 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
 
   const loadTable = () => {
     //console.time("LOADING TABLE")
-    scrapedRows = scrapePage();
+    if (!scrapedRows.length) {
+      scrapedRows = scrapePage();
+    }
     const table = { ...tableInExternalFormat(), attributes: config.attributes };
     // Notify all subscribers that we have new data
     for (const callback of subscribers) { callback(table); }

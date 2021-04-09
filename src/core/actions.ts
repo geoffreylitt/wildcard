@@ -28,7 +28,9 @@ export const initializeActions = (TableAdapters:{ [key: string]: TableAdapter })
 
         evalFormulas(finalRecords, finalAttributes, (values) => {
           //console.log("dispatching FORMULAS_EVALUATED", values)
+          console.time("UPDATING TABLE DATA")
           dispatch({ type: "FORMULAS_EVALUATED", values })
+          console.timeEnd("UPDATING TABLE DATA")
         })
       }
     },

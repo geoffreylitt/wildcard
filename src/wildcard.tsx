@@ -20,7 +20,7 @@ import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
 import { TableAdapterMiddleware } from './tableAdapterMiddleware'
 import { startScrapingListener, stopScrapingListener, resetScrapingListener, editScraper } from './end_user_scraper';
-import { getCreatingAdapter, setCachedActiveAdapter } from "./end_user_scraper/state";
+import { setCachedActiveAdapter } from "./end_user_scraper/state";
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
@@ -55,9 +55,9 @@ export const run = async function () {
 
   activeSiteAdapter.initialize();
 
-  userTableAdapter.initialize(activeSiteAdapter.name)
+  //userTableAdapter.initialize(activeSiteAdapter.name)
 
-  const tables = { app: activeSiteAdapter, user: userTableAdapter }
+  const tables = { app: activeSiteAdapter }
 
   // pass our TableAdapter objects into action creators,
   // so action creator functions can access them.
@@ -74,7 +74,7 @@ export const run = async function () {
   const store = createStore(reducer, composeWithDevTools(
     applyMiddleware(thunk),
     applyMiddleware(TableAdapterMiddleware(activeSiteAdapter)),
-    applyMiddleware(TableAdapterMiddleware(userTableAdapter)),
+    // applyMiddleware(TableAdapterMiddleware(userTableAdapter)),
     applyMiddleware(debugMiddleware),
   ));
 
@@ -83,9 +83,9 @@ export const run = async function () {
     store.dispatch(actions.tableReloaded(table))
   )
 
-  userTableAdapter.subscribe(table =>
-    store.dispatch(actions.tableReloaded(table))
-  )
+  // userTableAdapter.subscribe(table =>
+  //   store.dispatch(actions.tableReloaded(table))
+  // )
 
   // todo: wrap storage stuff in a module
 

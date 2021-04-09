@@ -10,7 +10,7 @@ function getAllClassCombinations(chars) {
     return result;
 }
 
-export function generateClassSeleector(node, rowElement, isRow) {
+export function generateClassSelector(node, isRow, rowElement?) {
     if (node.classList && node.classList.length) {
         let selectors = [];
         const nodeTagName = node.tagName.toLowerCase();
@@ -86,7 +86,7 @@ export function generateClassSelectorFrom(node, from, isRow) {
     let _node = node;
     if (isRow) {
         while (!_node.isSameNode(from)) {
-            const selector = generateClassSeleector(_node, from, isRow)[0] || _node.tagName.toLowerCase();
+            const selector = generateClassSelector(_node, isRow, from)[0] || _node.tagName.toLowerCase();
             selectors.unshift(selector);
             if (areAllSiblings(_node,  selectors.join(' '))) {
                 return selectors.join(' ');
@@ -95,7 +95,7 @@ export function generateClassSelectorFrom(node, from, isRow) {
         }
         return selectors.join(" ");
     }
-    return generateClassSeleector(_node, from, isRow)[0]  
+    return generateClassSelector(_node, isRow, from)[0]  
 }
 
 export function generateIndexSelectorFrom(node, from) {

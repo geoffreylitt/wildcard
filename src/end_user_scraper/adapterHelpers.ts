@@ -144,13 +144,10 @@ export function createInitialAdapterConfig() {
 export function updateAdapter(adapterKey, columnSelectors, rowSelector) {
     const activeAdapter = getCachedActiveAdapter();
     if (activeAdapter) {
-        // console.time("UPDATING ADAPTER")
         const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
         const configCopy = {...config};
         compileAdapterJavascript(configCopy);
         activeAdapter.updateConfig(configCopy);
-        // console.timeEnd("UPDATING ADAPTER")
-
     }   
 }
 
