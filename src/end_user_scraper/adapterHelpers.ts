@@ -147,7 +147,9 @@ export function updateAdapter(adapterKey, columnSelectors, rowSelector) {
         const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
         const configCopy = {...config};
         compileAdapterJavascript(configCopy);
-        activeAdapter.updateConfig(configCopy);
+        setTimeout(() => {
+            activeAdapter.updateConfig(configCopy);
+        }, 0);   
     }   
 }
 
@@ -198,7 +200,7 @@ function _createAttributes({ rowSelector, columnSelectors }) {
             } else if (columnSelector) {
                 formula = `=QuerySelector(rowElement, "${columnSelector}")`;
             } else {
-                formula = `=QuerySelector(rowElement)`;
+                formula = ``;
             }
             attributes.push({
                 name: indexToAlpha(index),

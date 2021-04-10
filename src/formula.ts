@@ -34,7 +34,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "/" | "*" | "!" | "$"
+    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "/" | "*" | "!" | "$" | "_"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -104,7 +104,7 @@ const functions = {
   },
   "Concat": {
     "function": function(...args) {
-      return promisify(args.join(" "))
+      return promisify(args.map(v => v instanceof HTMLElement ? v.textContent : v).join(" "))
     },
     "help": {
       "value1": "The value to which following columns will be appended.",
@@ -320,7 +320,7 @@ class FnNode {
       const cacheKey = `${this.fnName}:${row.id}:${inputArguments.join("_:_")}`;
 
       if(functionCache[cacheKey]) {
-        // console.log("FROM CACHE:", this.fnName, row.id, values[0].tagName, values[1]);
+        //console.log("FROM CACHE:", this.fnName, row.id, values[0].tagName, values[1]);
         return functionCache[cacheKey]
       } else {
         const result =  fn.apply(this, values)
@@ -462,16 +462,13 @@ const parsedFormulaCache = {
 // turning them into data results.
 // Accepts a callback, which it calls with results as it goes through the table.
 export async function evalFormulas(records: Record[], attributes: Attribute[], callback: any){
-  //console.time("PREP TABLE FOR FORMULA RESULTS")
   const formulaAttributes = attributes.filter(attr => attr.formula)
 
   // parse formula text into AST, once per attribute
   const parsedFormulas: {[key: string]: Formula} = {}
-  //console.time("PARSING FORMULAS")
   formulaAttributes.forEach(attr => {
     parsedFormulas[attr.name] = formulaParse(attr.formula)
   })
-  //console.timeEnd("PARSING FORMULAS")
 
   const sortedFormulaAttributes: string[] = sortAttributesByDependencies(parsedFormulas)
 
@@ -486,11 +483,7 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
       evalResults[record.id][attr] = null
     }
   }
-  //console.timeEnd("PREP TABLE FOR FORMULA RESULTS");
-  // console.time("SEND FORMULA PLACEHOLDER RESULTS")
   //callback(evalResults)
-  // console.timeEnd("SEND FORMULA PLACEHOLDER RESULTS")
-  console.time("EVALUATING FORMULAS")
   // Loop through records and attributes, iteratively evaluating formulas
   for (const attr of sortedFormulaAttributes) {
     // Eval all cells in this column, in parallel
@@ -508,7 +501,6 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
     }
     //callback(evalResults)
   }
-  console.timeEnd("EVALUATING FORMULAS")
   callback(evalResults)
 }
 

@@ -147,14 +147,10 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
   }
 
   const loadTable = () => {
-    //console.time("LOADING TABLE")
-    if (!scrapedRows.length) {
-      scrapedRows = scrapePage();
-    }
+    scrapedRows = scrapePage();
     const table = { ...tableInExternalFormat(), attributes: config.attributes };
     // Notify all subscribers that we have new data
     for (const callback of subscribers) { callback(table); }
-    //console.timeEnd("LOADING TABLE")
     return table;
   }
 
@@ -420,9 +416,7 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
       config.attributes = _config.attributes;
       config.scrapePage = _config.scrapePage;
       config.metadata = _config.metadata;
-      //console.time("UPDATING CONFIG")
       loadTable();
-      //console.timeEnd("UPDATING CONFIG")
     },
     getConfig: () => {
       return config;

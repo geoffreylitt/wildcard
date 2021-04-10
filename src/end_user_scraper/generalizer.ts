@@ -2,12 +2,10 @@ import {
     generateIndexSelectorFrom,
     generateIndexSelector,
     generateClassSelectorFrom,
-    generateClassSelector,
     getElementsBySelector
 } from './domHelpers';
 
 export function findRowElement(nodes, lca) {
-    console.time("GENERATE ROW SELECTOR");
     const candidates = [];
     let selectors = nodes.map(node => generateIndexSelectorFrom(node, lca)).filter(selector => selector);
     let candidate = lca;
@@ -46,18 +44,15 @@ export function findRowElement(nodes, lca) {
       candidates.sort((a, b) => b.score - a.score);
       const  { candidate } = candidates[0];
       const rowElementSelector = generateClassSelectorFrom(candidate, document.querySelector('body'), true);
-      console.timeEnd("GENERATE ROW SELECTOR");
       return {
           rowElement: candidate,
           rowElementSelector,
       };
     }
-    console.timeEnd("GENERATE ROW SELECTOR");
     return null
 }
 
 export function generateColumnSelectors(rowElementSelector, nodes) {
-    console.time("GENERATING COLUMN SELECTORS")
     const selectors = [];
     const rowElements = getElementsBySelector(rowElementSelector);
     for (let i = 0; i < nodes.length; i++) {
@@ -78,6 +73,5 @@ export function generateColumnSelectors(rowElementSelector, nodes) {
             }
         }
     }
-    console.timeEnd("GENERATING COLUMN SELECTORS")
     return selectors;
 }
