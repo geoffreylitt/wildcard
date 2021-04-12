@@ -167,6 +167,7 @@ const functions = {
   },
   "Substring": {
     "function": function(arg, indexStart, indexEnd = undefined) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       if (arg == undefined) {
         return undefined;
       }
@@ -212,12 +213,9 @@ const functions = {
       "compareValue": "The value to check if it is greater than 'arg'"
     },
   },
-  "QuerySelector": {
-    "function": function(el, selector, index) {
-      if (!el && selector && typeof(index) === 'number') {
-        return promisify(document.querySelectorAll(selector)[index]);
-      }
-      return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) || " " : " ")
+  "GreaterThan": {
+    "function": function(arg, value) {
+      return promisify(arg > value)
     },
     "help": {
       "arg": "The numeric value to compare to 'compareValue'",
@@ -236,18 +234,55 @@ const functions = {
     },
     "help": "Multiplies two numeric values together."
   },
+  "Plus": {
+    "function": function(x, y) {
+      return promisify(parseFloat(x) + parseFloat(y))
+    },
+    "help": "Adds two numeric values together."
+  },
+  "Minus": {
+    "function": function(x, y) {
+      return promisify(x - y)
+    },
+    "help": "Subtracts one numeric value from another."
+  },
+  "Round": {
+    "function": function(x) {
+      return promisify(Math.round(x))
+    },
+    "help": {
+      "numeric": "The numeric value to round to integers."
+    },
+  },
   "GetParent": {
     "function": function(el) {
       return promisify(el.parentElement);
     },
-    "help": "Get parent of element"
+    "help": {
+      "element": "The element column to get the parent element of.",
+    },
   },
   "GetAttribute": {
     "function": function(el, attribute) {
       return promisify(el.getAttribute(attribute))
     },
-    "help": "Get attribute of element"
-  }
+    "help": {
+      "element": "The element column to get an attribute from.",
+      "attributeName": "The HTML attribute to get the value of.",
+    },
+  },
+  "QuerySelector": {
+    "function": function(el, selector, index) {
+      if (!el && selector && typeof(index) === 'number') {
+        return promisify(document.querySelectorAll(selector)[index]);
+      }
+      return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) || " " : " ")
+    },
+    "help": {
+      "arg": "The numeric value to compare to 'compareValue'",
+      "compareValue": "The value to check if it is greater than 'arg'"
+    },
+  },
 }
 
 const formulaGrammar = ohm.grammar(GRAMMAR_SRC);
