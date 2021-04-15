@@ -176,51 +176,51 @@ const WcPanel = ({ records = [], attributes, query, actions, adapter }) => {
     hiddenColumns: {
       columns: attributes.map((attr, idx) => attr.hidden ? idx : null).filter(e => Number.isInteger(e))
     },
-    contextMenu: {
-      items: {
-        "insert_user_attribute": {
-          name: 'Insert User Column',
-          callback: function(key, selection, clickEvent) {
-            // TODO: For now, new columns always get added to the user table.
-            // Eventually, do we want to allow adding to the main site table?
-            // Perhaps that'd be a way of extending scrapers using formulas...
-            actions.addAttribute("user");
-          }
-        },
-        "rename_user_attribute": {
-          // todo: disable this on site columns
-          name: 'Rename column',
-          callback: function(key, selection, clickEvent) {
-            alert('not implemented yet');
-          }
-        },
-        "clear_user_table": {
-          name: 'Clear user columns',
-          callback: function(key, selection, clickEvent) {
-            // TODO: For now, new columns always get added to the user table.
-            // Eventually, do we want to allow adding to the main site table?
-            // Perhaps that'd be a way of extending scrapers using formulas...
-            actions.clear("user");
-          }
-        },
-        "toggle_column_visibility":{
-          name: 'Show/hide column in page',
-          disabled: () => {
-            // only allow toggling visibility on user table
-            const colIndex = getHotInstance().getSelectedLast()[1]
-            const attribute = attributes[colIndex]
+    // contextMenu: {
+    //   items: {
+    //     "insert_user_attribute": {
+    //       name: 'Insert User Column',
+    //       callback: function(key, selection, clickEvent) {
+    //         // TODO: For now, new columns always get added to the user table.
+    //         // Eventually, do we want to allow adding to the main site table?
+    //         // Perhaps that'd be a way of extending scrapers using formulas...
+    //         actions.addAttribute("user");
+    //       }
+    //     },
+    //     "rename_user_attribute": {
+    //       // todo: disable this on site columns
+    //       name: 'Rename column',
+    //       callback: function(key, selection, clickEvent) {
+    //         alert('not implemented yet');
+    //       }
+    //     },
+    //     "clear_user_table": {
+    //       name: 'Clear user columns',
+    //       callback: function(key, selection, clickEvent) {
+    //         // TODO: For now, new columns always get added to the user table.
+    //         // Eventually, do we want to allow adding to the main site table?
+    //         // Perhaps that'd be a way of extending scrapers using formulas...
+    //         actions.clear("user");
+    //       }
+    //     },
+    //     "toggle_column_visibility":{
+    //       name: 'Show/hide column in page',
+    //       disabled: () => {
+    //         // only allow toggling visibility on user table
+    //         const colIndex = getHotInstance().getSelectedLast()[1]
+    //         const attribute = attributes[colIndex]
 
-            return attribute.tableId !== "user"
-          },
-          callback: function(key, selection, clickEvent) {
-            const attribute = attributes[selection[0].start.col];
+    //         return attribute.tableId !== "user"
+    //       },
+    //       callback: function(key, selection, clickEvent) {
+    //         const attribute = attributes[selection[0].start.col];
 
-            // NOTE! idx assumes that id is hidden.
-            actions.toggleVisibility(attribute.tableId, attribute.name);
-          }
-        },
-      }
-    }
+    //         // NOTE! idx assumes that id is hidden.
+    //         actions.toggleVisibility(attribute.tableId, attribute.name);
+    //       }
+    //     },
+    //   }
+    // }
   }
 
   // Get a pointer to the current handsontable instance
