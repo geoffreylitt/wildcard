@@ -34,7 +34,7 @@ Formula {
     = ColRefChar+
 
   StringChar
-    = alnum | "."
+    = alnum | "." | ":" | ">" | "-" | "(" | ")" | "[" | "]" | "=" | "'" | "/" | "*" | "!" | "$" | "_"
 
   FunctionExp
     = letter+ "(" ListOf<Exp, ","> ")"
@@ -104,7 +104,7 @@ const functions = {
   },
   "Concat": {
     "function": function(...args) {
-      return promisify(args.join(" "))
+      return promisify(args.map(v => v instanceof HTMLElement ? v.textContent : v).join(" "))
     },
     "help": {
       "value1": "The value to which following columns will be appended.",
@@ -113,6 +113,7 @@ const functions = {
   },
   "Includes": {
     "function": function(arg, searchValue) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       return arg ? promisify(arg.includes(searchValue)) : undefined
     },
     "help": {
@@ -122,6 +123,7 @@ const functions = {
   },
   "ExtractBetween": {
     "function": function(arg, left, right) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       if (arg == undefined) {
         return undefined;
       }
@@ -137,6 +139,7 @@ const functions = {
   },
   "ExtractStart": {
     "function": function(arg, right) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       if (arg == undefined) {
         return undefined;
       }
@@ -150,6 +153,7 @@ const functions = {
   },
   "ExtractEnd": {
     "function": function(arg, left) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       if (arg == undefined) {
         return undefined;
       }
@@ -163,6 +167,7 @@ const functions = {
   },
   "Substring": {
     "function": function(arg, indexStart, indexEnd = undefined) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       if (arg == undefined) {
         return undefined;
       }
@@ -200,6 +205,7 @@ const functions = {
   },
   "LessThan": {
     "function": function(arg, value) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
       return promisify(arg < value)
     },
     "help": {
@@ -248,10 +254,17 @@ const functions = {
       "numeric": "The numeric value to round to integers."
     },
   },
+  "GetParent": {
+    "function": function(el) {
+      return promisify(el.parentElement);
+    },
+    "help": {
+      "element": "The element column to get the parent element of.",
+    },
+  },
   "GetAttribute": {
-    "function": function(el, attrName) {
-      // todo: error handling here?
-      return promisify(el ? el.getAttribute(attrName) : "")
+    "function": function(el, attribute) {
+      return promisify(el.getAttribute(attribute))
     },
     "help": {
       "element": "The element column to get an attribute from.",
@@ -259,14 +272,17 @@ const functions = {
     },
   },
   "QuerySelector": {
-    "function": function(el, selector) {
-      return promisify(el ? el.querySelector(selector) : "")
+    "function": function(el, selector, index) {
+      if (!el && selector && typeof(index) === 'number') {
+        return promisify(document.querySelectorAll(selector)[index]);
+      }
+      return promisify(el && selector && ! (typeof(selector) === 'number') ? el.querySelector(selector) || " " : " ")
     },
     "help": {
-      "element": "The element column to find a descendant of.",
-      "selector": "The selector(s) to match the descendant elements of 'element' against. The first element found that matches this group of selectors is returned.",
+      "arg": "The numeric value to compare to 'compareValue'",
+      "compareValue": "The value to check if it is greater than 'arg'"
     },
-  }
+  },
 }
 
 const formulaGrammar = ohm.grammar(GRAMMAR_SRC);
@@ -339,10 +355,12 @@ class FnNode {
       const cacheKey = `${this.fnName}:${row.id}:${inputArguments.join("_:_")}`;
 
       if(functionCache[cacheKey]) {
+        //console.log("FROM CACHE:", this.fnName, row.id, values[0].tagName, values[1]);
         return functionCache[cacheKey]
       } else {
         const result =  fn.apply(this, values)
         functionCache[cacheKey] = result
+        //console.log("COMPUTED:", this.fnName, row.id, values[0].tagName, values[1]);
         return result
       }
     })
@@ -471,6 +489,10 @@ export function formulaParse(s) {
   }
 }
 
+const parsedFormulaCache = {
+
+}
+
 // This function is responsible for actually evaluating formulas and
 // turning them into data results.
 // Accepts a callback, which it calls with results as it goes through the table.
@@ -485,7 +507,7 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
 
   const sortedFormulaAttributes: string[] = sortAttributesByDependencies(parsedFormulas)
 
-  console.log({sortedFormulaAttributes, parsedFormulas})
+  //console.log({sortedFormulaAttributes, parsedFormulas})
 
   // Start by initializing an empty results object of the right shape,
   // so that we can start incrementally sending back results to the table
@@ -496,9 +518,7 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
       evalResults[record.id][attr] = null
     }
   }
-
-  callback(evalResults)
-
+  //callback(evalResults)
   // Loop through records and attributes, iteratively evaluating formulas
   for (const attr of sortedFormulaAttributes) {
     // Eval all cells in this column, in parallel
@@ -514,8 +534,9 @@ export async function evalFormulas(records: Record[], attributes: Attribute[], c
       // can use the evaluation result of this column
       record.values[attr] = result
     }
-    callback(evalResults)
+    //callback(evalResults)
   }
+  callback(evalResults)
 }
 
 export {functions};

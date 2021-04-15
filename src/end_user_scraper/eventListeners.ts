@@ -1,8 +1,4 @@
 import {
-    run
-} from '../wildcard';
-
-import {
     getTutorialElement,
     renderColumnBoxes
 } from './tutorial';
@@ -35,7 +31,7 @@ import {
     getCurrentColumnSelector,
     setCurrentColumnSelector,
     getMultipleExamples,
-    setColumnMap,
+    setColumnMap
 } from './state';
 
 import {
@@ -46,15 +42,40 @@ import {
 import {
     mapToArrayOfValues,
     copyMap,
-    applyToColumnMap,
     newSelector,
-    getColumnForSelector
+    getColumnForSelector,
+    getSelectorFromQueryFormula,
+    isFormula
 } from './utils';
 
 import {
-    createAdapterAndSave,
-    deleteAdapter,
+    updateAdapter
 } from './adapterHelpers';
+
+export function updateFromSetFormula({ formula, column }) {
+    const tempColumnMap = getTempColumnMap();
+    const eventMaps = getEventMaps()
+    const rowElementSelector = getRowElementSelector();
+    const columnSelector = getSelectorFromQueryFormula({ formula });
+    const columnSelectors = [formula.startsWith("=QuerySelector") ? columnSelector : formula];
+    const adapterKey = getAdapterKey();
+    tempColumnMap.set(column, columnSelectors);
+    const nextColumn = column == tempColumnMap.size - 1 ? column + 1 : column;
+    if (!tempColumnMap.has(nextColumn)) {
+        tempColumnMap.set(nextColumn, []);
+    }
+    setColumnMap(tempColumnMap);
+    setColumn(nextColumn);
+    renderColumnBoxes(tempColumnMap);
+    clearElementMap(eventMaps.mouseMoveRowElement);
+    clearElementMap(eventMaps.mouseMoveColumnElement);
+    clearElementMap(eventMaps.mouseClickColumnElement, true);
+    styleColumnElementsOnClick(rowElementSelector);
+    styleColumnElementsOnHover(rowElementSelector, columnSelectors);
+    styleRowElementsOnHover();
+    styleRowElementsOnClick();
+    updateAdapter(adapterKey, mapToArrayOfValues(tempColumnMap), rowElementSelector);
+}
 
 function ignoreEvent(event) {
     const target = event.target;
@@ -104,6 +125,7 @@ function scraperClickListener(event) {
         setColumn(nextColumn);
         renderColumnBoxes(tempColumnMap);
         exploring && setExploring(false);
+        updateAdapter(adapterKey, mapToArrayOfValues(tempColumnMap), rowElementSelector);
     } else if (
         !newSelector(currentColumnSelector, columnMap) &&
         rowElement.contains(target)
@@ -117,11 +139,12 @@ function scraperClickListener(event) {
         setColumn(nextColumn);
         setColumnMap(columnMap);
         setCurrentColumnSelector(null);
-        createAdapterAndSave(adapterKey, mapToArrayOfValues(columnMap), rowElementSelector); 
         clearElementMap(eventMaps.mouseClickColumnElement, true);
         clearElementMap(eventMaps.mouseMoveColumnElement);
         styleColumnElementsOnClick(rowElementSelector);
         renderColumnBoxes(columnMap);
+        updateAdapter(adapterKey, mapToArrayOfValues(columnMap), rowElementSelector); 
+        
     } else if (
         multipleExamples &&
         !newSelector(currentColumnSelector, columnMap) &&
@@ -173,7 +196,6 @@ function scraperMouseMoveListener(event) {
                     setRowElementSelector(rowElementSelector);
                     setRowElement(rowElement);
                     const allColumnSelectors = mapToArrayOfValues(columnMap);
-                    createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector); 
                     clearElementMap(eventMaps.mouseMoveRowElement);
                     clearElementMap(eventMaps.mouseMoveColumnElement);
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
@@ -181,17 +203,16 @@ function scraperMouseMoveListener(event) {
                     styleColumnElementsOnHover(rowElementSelector, columnSelectors);
                     styleRowElementsOnHover();
                     renderColumnBoxes(columnMap);
+                    updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
                 }
             }     
-        } else {
+        } else if (getCurrentColumnSelector() !== null) {
             clearElementMap(eventMaps.mouseMoveRowElement);
             clearElementMap(eventMaps.mouseMoveColumnElement);
             clearElementMap(eventMaps.mouseClickColumnElement, true);
             renderColumnBoxes(columnMap)
             setCurrentColumnSelector(null);
-            deleteAdapter(adapterKey, () => {
-                run({ creatingAdapter: true });
-            });
+            updateAdapter(adapterKey, [], '');
         }
     } else if (rowElement.contains(target) && target.textContent && !target.childElementCount) {
         const columnSelector = generateColumnSelectors(rowElementSelector, [target]).shift();
@@ -206,7 +227,6 @@ function scraperMouseMoveListener(event) {
                     setCurrentColumnSelector(columnSelector);
                     setTempColumnMap(columnMap);
                     const allColumnSelectors = mapToArrayOfValues(columnMap);
-                    createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
                     clearElementMap(eventMaps.mouseMoveRowElement);
                     clearElementMap(eventMaps.mouseMoveColumnElement);
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
@@ -214,6 +234,7 @@ function scraperMouseMoveListener(event) {
                     styleColumnElementsOnHover(rowElementSelector, columnSelectors);
                     styleRowElementsOnHover();
                     renderColumnBoxes(columnMap);
+                    updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
                 }  
             } else {
                 const columnMap = getColumnMap();
@@ -221,11 +242,12 @@ function scraperMouseMoveListener(event) {
                 const columnSelectors = columnMap.get(column);
                 const allColumnSelectors = mapToArrayOfValues(getColumnMap());
                 setCurrentColumnSelector(columnSelector);
-                createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
                 clearElementMap(eventMaps.mouseMoveColumnElement);
                 styleColumnElementsOnClick(rowElementSelector);
                 styleColumnElementsOnHover(rowElementSelector, columnSelectors);
                 renderColumnBoxes(columnMap, column)
+                updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
+                
             }
         }
     } else if (
@@ -246,7 +268,6 @@ function scraperMouseMoveListener(event) {
                     setCurrentColumnSelector(columnSelector);
                     setTempColumnMap(columnMap);
                     const allColumnSelectors = mapToArrayOfValues(columnMap);
-                    createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
                     clearElementMap(eventMaps.mouseMoveRowElement);
                     clearElementMap(eventMaps.mouseMoveColumnElement);
                     clearElementMap(eventMaps.mouseClickColumnElement, true);
@@ -254,6 +275,7 @@ function scraperMouseMoveListener(event) {
                     styleColumnElementsOnHover(rowElementSelector, columnSelectors);
                     styleRowElementsOnHover();
                     renderColumnBoxes(columnMap);
+                    updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);        
                 }  
             } else {
                 const columnMap = getColumnMap();
@@ -261,19 +283,20 @@ function scraperMouseMoveListener(event) {
                 const columnSelectors = columnMap.get(column);
                 const allColumnSelectors = mapToArrayOfValues(getColumnMap());
                 setCurrentColumnSelector(columnSelector);
-                createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
                 clearElementMap(eventMaps.mouseMoveColumnElement);
                 styleColumnElementsOnClick(rowElementSelector);
                 styleColumnElementsOnHover(rowElementSelector, columnSelectors);
                 renderColumnBoxes(columnMap, getColumnForSelector(columnMap, columnSelector))
+                updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
             }
         }
-    } else {
+    } else if (getCurrentColumnSelector() !== null) {
         setCurrentColumnSelector(null);
         const allColumnSelectors = mapToArrayOfValues(getColumnMap());
-        createAdapterAndSave(adapterKey, allColumnSelectors, rowElementSelector);
         clearElementMap(eventMaps.mouseMoveColumnElement); 
         renderColumnBoxes(columnMap);
+        updateAdapter(adapterKey, allColumnSelectors, rowElementSelector);
+        
     }
 }
 
@@ -324,6 +347,7 @@ function styleColumnElementsOnHover(rowElementSelector, columnSelectors) {
     Array.from(rowElements)
     .forEach((rowElement) => {
         columnSelectors
+        .filter(value => !isFormula(value))
         .map(selector => rowElement.querySelector(selector) as HTMLElement)
         .filter(targetNode => targetNode)
         .forEach(targetNode => {
@@ -347,16 +371,18 @@ export function styleColumnElementsOnClick(rowElementSelector) {
         for (let j = 0; j < columns.length; j++) {
             const selectors = columns[j];
             for (let k = 0; k < selectors.length; k++) {
-                const selector = selectors[k]
-                const element = row.querySelector(selector) as HTMLElement;
-                if (element) {
-                    setStyleAndAddToMap({
-                        map: eventMaps.mouseClickColumnElement,
-                        node: element,
-                        styleProperty: getMouseClickColumnStyleProperty(),
-                        styleValue: getMouseClickColumnStyleValue()
-                    });
-                }
+                const selector = selectors[k];
+                if (!isFormula(selector)) {
+                    const element = row.querySelector(selector) as HTMLElement;
+                    if (element) {
+                        setStyleAndAddToMap({
+                            map: eventMaps.mouseClickColumnElement,
+                            node: element,
+                            styleProperty: getMouseClickColumnStyleProperty(),
+                            styleValue: getMouseClickColumnStyleValue()
+                        });
+                    }
+                }     
             }
         }
     }

@@ -1,4 +1,5 @@
 import {
+    copyMap,
     mapToArrayOfValues,
     randomRGB
 } from './utils';
@@ -13,7 +14,7 @@ import {
     styleColumnElementsOnClick,
     styleRowElementsOnClick
 } from './eventListeners';
-import { createAdapterAndSave } from './adapterHelpers';
+import { updateAdapter } from './adapterHelpers';
 
 const _eventMaps = {
     mouseMoveRowElement: new Map(),
@@ -33,6 +34,12 @@ let _currentColumnSelector;
 let _multipleExamples = false;
 let _columnMap = new Map<number, string[]>();
 let _editing = false;
+let _candidateRowElementSelectors = [];
+let _candidateColumnElementSelectors = [];
+let _activeAdapter;
+let _rowElementSelectorCandidates;
+let _columnElementSelectorCandidates = [];
+let _creatingAdapter = false;
 _columnMap.set(_column, []);
 
 export function initState({ rowSelector, columnSelectors, id }) {
@@ -41,22 +48,15 @@ export function initState({ rowSelector, columnSelectors, id }) {
     _rowElementSelector = rowSelector;
     _rowElement = document.querySelector(rowSelector);
     _adapterKey = id;
-    let addedPlaceholderColumn = false;
     columnSelectors.forEach((selectors, index) => {
         _columnMap.set(index, selectors);
     });
-    if (!columnSelectors[columnSelectors.length - 1].length) {
-        _column = columnSelectors.length - 1;
-    } else {
-        _column = columnSelectors.length;
-        _columnMap.set(_column, []);
-        addedPlaceholderColumn = true;
-    }
+    _column = columnSelectors.length;
+    _columnMap.set(_column, []);
+    _tempColumnMap = copyMap(_columnMap);
     styleColumnElementsOnClick(rowSelector);
     styleRowElementsOnClick();
-    if (addedPlaceholderColumn) {
-        createAdapterAndSave(id, mapToArrayOfValues(_columnMap), rowSelector);
-    }
+    updateAdapter(id, mapToArrayOfValues(_columnMap), rowSelector);
 }
 
 export function setStyleAndAddToMap({ map, node, styleProperty, styleValue }) {
@@ -166,6 +166,7 @@ export function getEventMaps() {
 export function resetScraperState() {
     _editing = false;
     _adapterKey = null;
+    _rowElement = null;
     _rowElementSelector = null;
     _column = 0;
     _columnMap.clear();
@@ -176,6 +177,11 @@ export function resetScraperState() {
     _currentColumnSelector = null;
     _tempColumnMap = null;
     _multipleExamples = false;
+    _candidateRowElementSelectors = [];
+    _candidateColumnElementSelectors = [];
+    _rowElementSelectorCandidates = [];
+    _columnElementSelectorCandidates = [];
+    _creatingAdapter = false;
 }
 
 export function getMouseClickRowStyleData() {
@@ -237,4 +243,52 @@ export function getEditing() {
 
 export function setEditing(value) {
     _editing = value;
+}
+
+export function getCandidateRowElementSelectors() {
+    return _candidateRowElementSelectors;
+}
+
+export function setCandidateRowElementSelectors(value) {
+    _candidateRowElementSelectors = value;
+}
+
+export function getCandidateColumnElementSelectors() {
+    return _candidateColumnElementSelectors;
+}
+
+export function setCandidateColumnElementSelectors(value) {
+    _candidateColumnElementSelectors = value;
+}
+
+export function getCachedActiveAdapter() {
+    return _activeAdapter;
+}
+
+export function setCachedActiveAdapter(value) {
+    _activeAdapter = value;
+}
+
+export function getRowElementSelectorCandidates() {
+    return _rowElementSelectorCandidates;
+}
+
+export function setRowElementSelectorCandidates(value) {
+    _rowElementSelectorCandidates = value;
+}
+
+export function getColumnElementSelectorCandidates() {
+    return _columnElementSelectorCandidates;
+}
+
+export function setColumnElementSelectorCandidates(value) {
+    _columnElementSelectorCandidates = value;
+}
+
+export function getCreatingAdapter() {
+    return _creatingAdapter;
+}
+
+export function setCreatingAdapter(value) {
+    _creatingAdapter = value;
 }

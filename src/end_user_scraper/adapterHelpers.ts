@@ -5,7 +5,6 @@ import {
 } from '../utils';
 
 import {
-    MIN_COLUMNS,
     ADAPTERS_BASE_KEY
 } from './constants';
 import {
@@ -13,27 +12,15 @@ import {
 } from './utils';
 
 import {
-    run
-} from '../wildcard';
-
-import {
+    getCachedActiveAdapter,
     setAdapterKey
 } from './state';
 
-function createTableColumns(n) {
-    const columns = [];
-    for (let i = 0; i < n; i++) {
-        columns.push({
-            name: indexToAlpha(i),
-            type: "text"
-        })
-    }
-    return columns;
-}
+import {
+    createDomScrapingAdapter
+} from '../site_adapters/domScrapingBase';
 
-function _createAdapterId() {
-    return document.title;
-}
+import { compileAdapterJavascript, userStore } from '../localStorageAdapter';
 
 export function createAdapterKey() {
     return `${ADAPTERS_BASE_KEY}:${_createAdapterId()}`
@@ -55,12 +42,16 @@ function _saveAdapter(adapterKey, config, callback?) {
                     [ADAPTERS_BASE_KEY]: adapters,
                     [adapterKey]: _config
                 }).then(() => {
-                    callback();
+                    if (callback) {
+                        callback();
+                    }
                 })
             } else {
                 saveToChromeLocalStorage({ [adapterKey]: _config })
                 .then(() => {
-                    callback();
+                    if (callback) {
+                        callback();
+                    }
                 });
             }
         });
@@ -70,16 +61,13 @@ function _saveAdapter(adapterKey, config, callback?) {
 export function saveAdapter(adapterKey, config, callback?) {
     readFromChromeLocalStorage([adapterKey])
         .then((results) => {
-            const _callback = () => {
-                run({ creatingAdapter: true });
-            };
             if (results[adapterKey]) {
                 const currentConfig = JSON.parse(results[adapterKey]);
-                if (currentConfig.scrapePage !== config.scrapePage) {
+                if (!adaptersAreIdentical(currentConfig, config)) {
                     _saveAdapter(
                         adapterKey,
                         config,
-                        callback || _callback
+                        callback
                     );
                 } else if (callback) {
                     callback();
@@ -88,7 +76,7 @@ export function saveAdapter(adapterKey, config, callback?) {
                 _saveAdapter(
                     adapterKey,
                     config,
-                    callback || _callback
+                    callback
                 );
             }
         })
@@ -100,67 +88,146 @@ export function deleteAdapter(adapterKey, callback) {
         readFromChromeLocalStorage([ADAPTERS_BASE_KEY])
         .then(results => {
             const adapters = results[ADAPTERS_BASE_KEY] as Array<string>;
-            const adapterIndex = adapters.indexOf(adapterName);
-            if (adapterIndex !== -1) {
-                adapters.splice(adapterIndex, 1);
-                saveToChromeLocalStorage({ [ADAPTERS_BASE_KEY]: adapters })
-                .then(() => {
-                    removeFromChromeLocalStorage([adapterKey, `query:${adapterName}`])
+            if (Array.isArray(adapters)) {
+                const adapterIndex = adapters.indexOf(adapterName);
+                if (adapterIndex !== -1) {
+                    adapters.splice(adapterIndex, 1);
+                    saveToChromeLocalStorage({ [ADAPTERS_BASE_KEY]: adapters })
                     .then(() => {
-                        callback();
+                        removeFromChromeLocalStorage([adapterKey, `query:${adapterName}`])
+                        .then(() => {
+                            userStore.clear();
+                            callback();
+                        });
                     });
-                });
-            }
+                } else {
+                    callback();
+                }
+            } else {
+                callback();
+            }  
         });
-    } {
+    } else  {
         callback();
     }
 }
 
 export function generateAdapter(columnSelectors, rowSelector, adapterKey) {
+    const { attributes, scrapePage } = createAdapterData(rowSelector, columnSelectors);
     return {
         name: document.title,
         urls: [window.location.href],
         matches: [`${window.location.origin}${window.location.pathname}`],
-        attributes: createTableColumns(Math.max(columnSelectors.length, MIN_COLUMNS)),
+        attributes,
         metadata: {
             id: adapterKey,
             columnSelectors,
             rowSelector
         },
-        scrapePage: `() => {
-            const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
-            return Array.from(rowElements).map((element, rowIndex) => {
-                const dataValues = {};
-                const columnSelectors = ${JSON.stringify(columnSelectors)};
-                for (let columnIndex = 0; columnIndex < columnSelectors.length; columnIndex++) {
-                    const selectors = columnSelectors[columnIndex];
-                    for (let selectorIndex = 0; selectorIndex < selectors.length; selectorIndex++) {
-                        const selector = selectors[selectorIndex];
-                        const selected = element.querySelector(selector);
-                        if (selected && selected.textContent) {
-                            dataValues[String.fromCharCode(97 + columnIndex).toUpperCase()] = selected.textContent.trim();
-                            break;
-                        }
-                    }
-                }
-                return {
-                    id: String(rowIndex),
-                    dataValues,
-                    rowElements: [element]
-                }
-            });
-        }`
+        scrapePage
     };
 }
 
-export function createAdapterAndSave(adapterKey, columnSelectors, rowSelector, callback?) {
-    const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
-    saveAdapter(adapterKey, config, callback);
+export function createInitialAdapter() {
+    const config = createInitialAdapterConfig();
+    return createDomScrapingAdapter(config as any);
 }
 
-export function createInitialAdapter() {
+export function createInitialAdapterConfig() {
     const adapterKey = createAdapterKey();
     setAdapterKey(adapterKey);
-    createAdapterAndSave(adapterKey, [], '');
+    const config = generateAdapter([], '', adapterKey);
+    compileAdapterJavascript(config);
+    return config;
+}
+
+export function updateAdapter(adapterKey, columnSelectors, rowSelector) {
+    const activeAdapter = getCachedActiveAdapter();
+    if (activeAdapter) {
+        const config = generateAdapter(columnSelectors, rowSelector, adapterKey);
+        const configCopy = {...config};
+        compileAdapterJavascript(configCopy);
+        setTimeout(() => {
+            activeAdapter.updateConfig(configCopy);
+        }, 0);   
+    }   
+}
+
+function adaptersAreIdentical(adapter1, adapter2) {
+    if (adapter1.attributes.length !== adapter2.attributes.length) {
+        return false;
+    }
+    if (adapter1.scrapePage !== adapter2.scrapePage) {
+        return false;
+    }
+    for (let i = 0; i < adapter1.attributes.length; i++) {
+        const adapter1Attribute = adapter1.attributes[i];
+        const adapter2Attribute = adapter2.attributes[i];
+        if (adapter1Attribute.formula !== adapter2Attribute.formula) {
+            return false;
+        }
+    } 
+    return true;
+}
+
+function createAdapterData(rowSelector, columnSelectors) {    
+    return {
+        attributes: _createAttributes({ rowSelector, columnSelectors }),
+        scrapePage: _createScrapPage({ rowSelector })
+    }
+}
+
+function _createAttributes({ rowSelector, columnSelectors }) {
+    const attributes = [];
+    const domFormulas = ["=QuerySelector", "=GetParent"]
+    if (rowSelector && columnSelectors && columnSelectors.length) {
+        // add row element attribute
+        attributes.push({
+            name: "rowElement",
+            type: "element",
+            hidden: true
+        });
+        // add remaining attributes
+        columnSelectors.forEach((columnSelectorList, index) => {
+            const columnSelector = columnSelectorList[0];
+            let type = "element";
+            let formula;
+            if (columnSelector && columnSelector.startsWith("=")) {
+                formula = columnSelector;
+                if (!domFormulas.find(v => formula.startsWith(v))) {
+                    type = "text";
+                }
+            } else if (columnSelector) {
+                formula = `=QuerySelector(rowElement, "${columnSelector}")`;
+            } else {
+                formula = ``;
+            }
+            attributes.push({
+                name: indexToAlpha(index),
+                type,
+                formula
+            });
+        });
+    }
+    return attributes;
+}
+
+function _createScrapPage({ rowSelector }) {
+    return `() => {
+        const rowElements = ${!!rowSelector} ? document.querySelectorAll("${rowSelector}") : [];
+        return Array.from(rowElements).map((element, rowIndex) => {
+            return {
+                id: String(rowIndex),
+                index: rowIndex,
+                dataValues: {
+                    rowElement: element
+                },
+                rowElements: [element]
+            }
+        });
+    }`;
+}
+
+function _createAdapterId() {
+    return document.title;
 }

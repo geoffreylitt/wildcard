@@ -8,10 +8,10 @@ import {
 } from './eventListeners';
 
 import {
-    createAdapterAndSave,
-    createInitialAdapter,
     deleteAdapter,
-    createAdapterKey
+    createAdapterKey,
+    saveAdapter,
+    createInitialAdapterConfig
 } from './adapterHelpers';
 
 import {
@@ -22,25 +22,19 @@ import {
 
 import {
     getAdapterKey,
-    getColumnMap,
-    getRowElementSelector,
+    getCachedActiveAdapter,
     initState,
-    resetScraperState
+    resetScraperState,
+    setCreatingAdapter
 } from './state';
 
-import {
-    mapToArrayOfValues
-} from './utils';
-
-import {
-    MIN_COLUMNS
-} from './constants';
 import { readFromChromeLocalStorage } from '../utils';
 
 export function startScrapingListener() {
-    createInitialAdapter();
     addScrapingListeners();
     initTutorial();
+    setCreatingAdapter(true);
+    run();
 }
 
 export function stopScrapingListener({ save }) {
@@ -50,48 +44,52 @@ export function stopScrapingListener({ save }) {
         deleteAdapter(adapterKey, () => {
             resetScraperState();
             removeTutorial();
-            run({ creatingAdapter: false });
-        })
+            run();
+        });
     } else {
-        const columnMap = getColumnMap();
-        if (columnMap.size > MIN_COLUMNS) {
-            // delete placeholder column
-            const lastColumn = columnMap.size - 1;
-            columnMap.delete(lastColumn);
-        } 
-        createAdapterAndSave(
-            adapterKey,
-            mapToArrayOfValues(columnMap),
-            getRowElementSelector(),
-            () => {
-                run({ creatingAdapter: false });
-                resetScraperState();
-                removeTutorial();  
-            }
-        );
+        const activeAdapter = getCachedActiveAdapter();
+        const adapterConfig = activeAdapter.getConfig();
+        adapterConfig.attributes.pop();
+        adapterConfig.metadata.columnSelectors.pop();
+        adapterConfig.scrapePage = adapterConfig.scrapePage.toString();
+        saveAdapter(adapterKey, adapterConfig, () => {
+            resetScraperState();
+            removeTutorial();
+            run();
+        });
     }
 }
 
 export function resetScrapingListener() {
-    const adapterKey = getAdapterKey();
-    deleteAdapter(adapterKey, () => {
-        resetScraperState();
-        resetTutorial();
-        createInitialAdapter();
-    });
+    resetScraperState();
+    resetTutorial();
+    const activeAdapter = getCachedActiveAdapter();
+    if (activeAdapter) {
+        const config = createInitialAdapterConfig()
+        activeAdapter.updateConfig(config);
+    }
 }
 
 export function editScraper() {
-    const adapterKey = createAdapterKey();
-    readFromChromeLocalStorage([adapterKey])
-        .then((results) => {
-            const adapterConfigString = results[adapterKey];
-            if (adapterConfigString) {
-                const adapterConfig = JSON.parse(adapterConfigString);
-                const adapterMetadata = adapterConfig.metadata;
-                initState(adapterMetadata);
-                addScrapingListeners();
-                initTutorial();
-            }
-        })
+    const cachedActiveAdapter = getCachedActiveAdapter();
+    if (cachedActiveAdapter) {
+        const adapterConfig = cachedActiveAdapter.getConfig();
+        const adapterMetadata = adapterConfig.metadata;
+        initState(adapterMetadata);
+        addScrapingListeners();
+        initTutorial();
+    }
+    // const adapterKey = createAdapterKey();
+    // readFromChromeLocalStorage([adapterKey])
+    //     .then((results) => {
+    //         const adapterConfigString = results[adapterKey];
+    //         if (adapterConfigString) {
+    //             const adapterConfig = JSON.parse(adapterConfigString);
+    //             const adapterMetadata = adapterConfig.metadata;
+    //             initState(adapterMetadata);
+    //             addScrapingListeners();
+    //             initTutorial();
+    //             run({ creatingAdapter: true });
+    //         }
+    //     });
 }

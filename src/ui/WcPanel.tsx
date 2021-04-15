@@ -1,9 +1,6 @@
 import React, { useRef, useState } from "react";
 import { HotTable } from '@handsontable/react';
 import "handsontable/dist/handsontable.full.css";
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/mode-typescript";
-import "ace-builds/src-noconflict/theme-monokai";
 import "./overrides.css";
 import styled from 'styled-components'
 import { Record, Attribute } from '../core/types'
@@ -11,6 +8,7 @@ import Handsontable from "handsontable";
 import { FormulaEditor } from '../ui/cell_editors/formulaEditor';
 import mapValues from 'lodash/mapValues'
 import AutosuggestInput from './AutosuggestInput'
+import { getCreatingAdapter, setCreatingAdapter } from "../end_user_scraper/state";
 
 const marketplaceUrl = "https://wildcard-marketplace.herokuapp.com";
 
@@ -71,13 +69,6 @@ const ControlBar = styled.div`
   padding: 5px 10px;
 `
 
-const CodeEditor = styled(AceEditor)`
-  display: ${props => props.codeEditorHidden ? 'none' : 'block'};
-  position: fixed;
-  bottom: 0px;
-  right: 0px;
-  z-index: 2500;
-`
 const EditorButton = styled(ToggleButton)`
   display: ${props => props.codeEditorHidden ? 'none' : 'block'};
   bottom: 20px;
@@ -98,7 +89,8 @@ const EditButton = styled(ToggleButton)`
 
 // Declare our functional React component
 
-const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter }) => {
+const WcPanel = ({ records = [], attributes, query, actions, adapter }) => {
+  const creatingAdapter = getCreatingAdapter();
   const hotRef = useRef(null);
   const cellEditorRef = useRef(null);
   const [hidden, setHidden] = useState(false);
@@ -184,51 +176,51 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     hiddenColumns: {
       columns: attributes.map((attr, idx) => attr.hidden ? idx : null).filter(e => Number.isInteger(e))
     },
-    contextMenu: {
-      items: {
-        "insert_user_attribute": {
-          name: 'Insert User Column',
-          callback: function(key, selection, clickEvent) {
-            // TODO: For now, new columns always get added to the user table.
-            // Eventually, do we want to allow adding to the main site table?
-            // Perhaps that'd be a way of extending scrapers using formulas...
-            actions.addAttribute("user");
-          }
-        },
-        "rename_user_attribute": {
-          // todo: disable this on site columns
-          name: 'Rename column',
-          callback: function(key, selection, clickEvent) {
-            alert('not implemented yet');
-          }
-        },
-        "clear_user_table": {
-          name: 'Clear user columns',
-          callback: function(key, selection, clickEvent) {
-            // TODO: For now, new columns always get added to the user table.
-            // Eventually, do we want to allow adding to the main site table?
-            // Perhaps that'd be a way of extending scrapers using formulas...
-            actions.clear("user");
-          }
-        },
-        "toggle_column_visibility":{
-          name: 'Show/hide column in page',
-          disabled: () => {
-            // only allow toggling visibility on user table
-            const colIndex = getHotInstance().getSelectedLast()[1]
-            const attribute = attributes[colIndex]
+    // contextMenu: {
+    //   items: {
+    //     "insert_user_attribute": {
+    //       name: 'Insert User Column',
+    //       callback: function(key, selection, clickEvent) {
+    //         // TODO: For now, new columns always get added to the user table.
+    //         // Eventually, do we want to allow adding to the main site table?
+    //         // Perhaps that'd be a way of extending scrapers using formulas...
+    //         actions.addAttribute("user");
+    //       }
+    //     },
+    //     "rename_user_attribute": {
+    //       // todo: disable this on site columns
+    //       name: 'Rename column',
+    //       callback: function(key, selection, clickEvent) {
+    //         alert('not implemented yet');
+    //       }
+    //     },
+    //     "clear_user_table": {
+    //       name: 'Clear user columns',
+    //       callback: function(key, selection, clickEvent) {
+    //         // TODO: For now, new columns always get added to the user table.
+    //         // Eventually, do we want to allow adding to the main site table?
+    //         // Perhaps that'd be a way of extending scrapers using formulas...
+    //         actions.clear("user");
+    //       }
+    //     },
+    //     "toggle_column_visibility":{
+    //       name: 'Show/hide column in page',
+    //       disabled: () => {
+    //         // only allow toggling visibility on user table
+    //         const colIndex = getHotInstance().getSelectedLast()[1]
+    //         const attribute = attributes[colIndex]
 
-            return attribute.tableId !== "user"
-          },
-          callback: function(key, selection, clickEvent) {
-            const attribute = attributes[selection[0].start.col];
+    //         return attribute.tableId !== "user"
+    //       },
+    //       callback: function(key, selection, clickEvent) {
+    //         const attribute = attributes[selection[0].start.col];
 
-            // NOTE! idx assumes that id is hidden.
-            actions.toggleVisibility(attribute.tableId, attribute.name);
-          }
-        },
-      }
-    }
+    //         // NOTE! idx assumes that id is hidden.
+    //         actions.toggleVisibility(attribute.tableId, attribute.name);
+    //       }
+    //     },
+    //   }
+    // }
   }
 
   // Get a pointer to the current handsontable instance
@@ -381,62 +373,51 @@ const WcPanel = ({ records, attributes, query, actions, adapter, creatingAdapter
     console.log("saved changes");
     });
   }
-
-  if (records && records.length > 0) {
-    return <>
-      {!creatingAdapter && (
-        <>
-          <EditButton hidden={hidden} codeEditorHidden={codeEditorHidden}
-            onClick={() => {
-              chrome.runtime.sendMessage({ command: 'editAdapter' });
-          }}> Edit Adapter
-          </EditButton>
-          <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
-          codeEditorHidden={codeEditorHidden}>
-            { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
-          </ToggleButton>
-        </>
-      )}
-      <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
-        <ControlBar>
-          <strong>Wildcard v0.2</strong>
-        <AutosuggestInput
-          activeCellValue={activeCellValue}
-          setActiveCellValue={setActiveCellValue}
-          suggestions={suggestions}
-          setSuggestions={setSuggestions}
-          cellEditorRef={cellEditorRef}
-          attributes={attributes}
-          onCellEditorKeyPress={onCellEditorKeyPress}
-          commitActiveCellValue={commitActiveCellValue}
-        />
-        </ControlBar>
-        <HotTable
-          licenseKey='non-commercial-and-evaluation'
-          beforeColumnSort={onBeforeColumnSort}
-          beforeChange={onBeforeChange}
-          afterSelectionByProp={onAfterSelection}
-          afterRender={updateHotSortConfig}
-          settings = {hotSettings}
-          ref={hotRef} />
-      </Panel>
-      <CodeEditor mode="typescript" theme="monokai" value={adapterCode}
-         codeEditorHidden={codeEditorHidden}
-         onLoad ={loadAdapterCode}
-         onBlur={(e, code) => setAdapterCode(code.getValue())}
-        //  onBlur={onBlurCodeEditor}
-         width="30vw" height="100vh"
+  return <>
+    {!creatingAdapter && (
+      <>
+        <EditButton hidden={hidden} codeEditorHidden={codeEditorHidden}
+          onClick={() => {
+            setCreatingAdapter(true);
+            chrome.runtime.sendMessage({ command: 'editAdapter' });
+        }}> Edit Wildcard Table
+        </EditButton>
+        <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
+        codeEditorHidden={codeEditorHidden}>
+          { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
+        </ToggleButton>
+      </>
+    )}
+    <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
+      <ControlBar>
+        <strong>Wildcard v0.2</strong>
+      <AutosuggestInput
+        activeCellValue={activeCellValue}
+        setActiveCellValue={setActiveCellValue}
+        suggestions={suggestions}
+        setSuggestions={setSuggestions}
+        cellEditorRef={cellEditorRef}
+        attributes={attributes}
+        onCellEditorKeyPress={onCellEditorKeyPress}
+        commitActiveCellValue={commitActiveCellValue}
       />
-      <EditorButton codeEditorHidden={codeEditorHidden} right="70px"
-        onClick={() => {saveAdapterCode();}}> Save
-      </EditorButton>
-      <EditorButton codeEditorHidden={codeEditorHidden} right="10px"
-        onClick={() => setCodeEditorHidden(true)}> Close
-      </EditorButton>
-    </>;
-  } else {
-    return null;
-  }
+      </ControlBar>
+      <HotTable
+        licenseKey='non-commercial-and-evaluation'
+        beforeColumnSort={onBeforeColumnSort}
+        beforeChange={onBeforeChange}
+        afterSelectionByProp={onAfterSelection}
+        afterRender={updateHotSortConfig}
+        settings = {hotSettings}
+        ref={hotRef} />
+    </Panel>
+    <EditorButton codeEditorHidden={codeEditorHidden} right="70px"
+      onClick={() => {saveAdapterCode();}}> Save
+    </EditorButton>
+    <EditorButton codeEditorHidden={codeEditorHidden} right="10px"
+      onClick={() => setCodeEditorHidden(true)}> Close
+    </EditorButton>
+  </>;
 }
 
 export default WcPanel;

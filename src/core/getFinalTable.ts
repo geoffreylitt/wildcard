@@ -37,24 +37,26 @@ export const getFinalAttributes = createSelector(
     const attributes = appAttributes.concat(userAttributes)
 
     // set column type for formulas based on first row
-    attributes.forEach(attr => {
-      if(attr.formula && Object.keys(formulaResults).length > 0) {
-        const sampleValue = formulaResults[Object.keys(formulaResults)[0]][attr.name]
-        if(typeof sampleValue === 'number') {
-          attr.type = "numeric"
-        } else if (typeof sampleValue === 'boolean') {
-          attr.type = "checkbox"
-        } else if (typeof sampleValue === 'object') {
-          // hmm.. is this sensible...
-          attr.type = "element"
+    const formulaResultsKeys = Object.keys(formulaResults);
+    if (formulaResultsKeys.length > 0) {
+      attributes.forEach(attr => {
+        if(attr.formula) {
+          const sampleValue = formulaResults[formulaResultsKeys[0]][attr.name]
+          if(typeof sampleValue === 'number') {
+            attr.type = "numeric"
+          } else if (typeof sampleValue === 'boolean') {
+            attr.type = "checkbox"
+          } else if (sampleValue instanceof HTMLElement) {
+            // hmm.. is this sensible...
+            attr.type = "element"
+          } else {
+            attr.type = "text"
+          }
         } else {
           attr.type = "text"
         }
-      } else {
-        attr.type = "text"
-      }
-    })
-
+      })
+    }
     return attributes
   }
 )

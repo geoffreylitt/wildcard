@@ -20,6 +20,7 @@ import { initializeActions } from './core/actions'
 import { getFinalRecords, getFinalAttributes } from './core/getFinalTable'
 import { TableAdapterMiddleware } from './tableAdapterMiddleware'
 import { startScrapingListener, stopScrapingListener, resetScrapingListener, editScraper } from './end_user_scraper';
+import { setCachedActiveAdapter } from "./end_user_scraper/state";
 
 // todo: move this out of this file
 const connectRedux = (component, actions) => {
@@ -43,7 +44,8 @@ const connectRedux = (component, actions) => {
   )(component)
 }
 
-export const run = async function ({ creatingAdapter }) {
+export const run = async function () {
+  //console.log("Re-running adapter")
   const wcRoot = document.getElementById('wc--root');
   if (wcRoot) {
     wcRoot.remove();
@@ -53,13 +55,16 @@ export const run = async function ({ creatingAdapter }) {
 
   activeSiteAdapter.initialize();
 
-  userTableAdapter.initialize(activeSiteAdapter.name)
+  //userTableAdapter.initialize(activeSiteAdapter.name)
 
-  const tables = { app: activeSiteAdapter, user: userTableAdapter }
+  const tables = { app: activeSiteAdapter }
 
   // pass our TableAdapter objects into action creators,
   // so action creator functions can access them.
   const actions = initializeActions(tables)
+
+  // stash active adapter if we are in creation mode
+  setCachedActiveAdapter(activeSiteAdapter);
 
   // Add extra space to the bottom of the page for the wildcard panel
   // todo: move this elsewhere?
@@ -69,7 +74,7 @@ export const run = async function ({ creatingAdapter }) {
   const store = createStore(reducer, composeWithDevTools(
     applyMiddleware(thunk),
     applyMiddleware(TableAdapterMiddleware(activeSiteAdapter)),
-    applyMiddleware(TableAdapterMiddleware(userTableAdapter)),
+    // applyMiddleware(TableAdapterMiddleware(userTableAdapter)),
     applyMiddleware(debugMiddleware),
   ));
 
@@ -78,9 +83,9 @@ export const run = async function ({ creatingAdapter }) {
     store.dispatch(actions.tableReloaded(table))
   )
 
-  userTableAdapter.subscribe(table =>
-    store.dispatch(actions.tableReloaded(table))
-  )
+  // userTableAdapter.subscribe(table =>
+  //   store.dispatch(actions.tableReloaded(table))
+  // )
 
   // todo: wrap storage stuff in a module
 
@@ -111,7 +116,7 @@ export const run = async function ({ creatingAdapter }) {
 
   render(
     <Provider store={store}>
-     <TableEditor adapter={activeSiteAdapter} creatingAdapter={creatingAdapter} />
+     <TableEditor adapter={activeSiteAdapter} />
     </Provider>,
     document.getElementById("wc--root")
   );
@@ -140,4 +145,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-run({ creatingAdapter: false });
+run();
