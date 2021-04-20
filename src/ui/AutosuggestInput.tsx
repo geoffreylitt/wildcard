@@ -5,7 +5,7 @@ import {functions} from '../formula'
 const autosuggestTheme = {
     container: {
         display: 'inline-block',
-        position: 'absolute',
+        position: 'relative',
         minWidth: '50%',
         marginLeft: '10px',
         zIndex: '2500',
@@ -28,20 +28,21 @@ const autosuggestTheme = {
         display: 'none',
     },
     suggestionsContainerOpen: {
-        display: 'flex',
-        flexFlow: 'column',
+        display: 'block',
         position: 'absolute',
         width: '100%',
+        minHeight: '80px',
         maxHeight: '240px',
         background: 'rgba(255,255,255,0.8)',
         boxShadow: '0px 0px 3px gray',
+        overflowY: 'auto',
     },
     suggestionsList: {
         padding: '0px',
         margin: '0px',
+        listStyleType: 'none',
     },
     suggestion: {
-        listStyleType: 'none',
         margin: '0',
         padding: '0px 5px',
         cursor: 'pointer'
@@ -50,8 +51,6 @@ const autosuggestTheme = {
         background: 'rgb(200,200,200,0.4)',
     },
     sectionContainer: {
-        overflow: 'auto',
-        flex: '1 1 auto',
         padding: '0px 5px',
         borderTop: '1px solid #ccc'
     },
@@ -177,8 +176,11 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
         return (
             <div {...containerProps}>
                 {children}
-                <div style={footer ? {backgroundColor: 'rgb(240, 240, 240, 0.8)', borderTop: '1px solid rgb(204, 204, 204)', padding: '5px', flex: '0 1 auto', fontSize: '12px'} : {}}>
-                    {footer}
+                <div style={footer ? {position: 'absolute', top: '0', right: '0', bottom: '0', width: '70%', height: '150%', borderTop: '1px solid rgb(204, 204, 204)', fontSize: '12px'} : {display: 'none'}}>
+                    <div style={{position: 'sticky', top: '0', padding: '5px', border: '1px solid rgb(204, 204, 204)'}}>
+                        <div style={{fontVariantCaps: 'all-small-caps', fontSize: '10px', color: 'gray'}} >Documentation</div>
+                        {footer}
+                    </div>
                 </div>
             </div>
         )
@@ -205,7 +207,7 @@ const AutosuggestInput = ({activeCellValue, setActiveCellValue, suggestions, set
     const getSectionSuggestions = function(section) {
         return section.suggestions;
       }
-
+    
     return <Autosuggest
         suggestions={suggestions}
         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
