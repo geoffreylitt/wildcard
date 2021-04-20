@@ -256,7 +256,7 @@ const functions = {
   },
   "GetParent": {
     "function": function(el) {
-      return promisify(el.parentElement);
+      return promisify(el instanceof HTMLElement ? el.parentElement : "");
     },
     "help": {
       "element": "The element column to get the parent element of.",
@@ -264,7 +264,7 @@ const functions = {
   },
   "GetAttribute": {
     "function": function(el, attribute) {
-      return promisify(el.getAttribute(attribute))
+      return promisify(el instanceof HTMLElement ? el.getAttribute(attribute) : "")
     },
     "help": {
       "element": "The element column to get an attribute from.",
