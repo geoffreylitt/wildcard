@@ -70,28 +70,47 @@ chrome.runtime.onMessage.addListener(
   });
 
 chrome.contextMenus.create({
-  title: "Wildcard",
-  id: "wildcard",
+  title: "Joker",
+  id: "joker",
   type: "normal",
-  contexts: ["page"]
-}, () => {
-  chrome.contextMenus.create({
-    title: "Create Adapter",
-    contexts: ["page"],
-    parentId: "wildcard",
-    onclick: function () {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs && tabs.length) {
-          // send message to active tab
-          chrome.tabs.sendMessage(tabs[0].id, { command: "createAdapter" }, (response) => {
-            if (response.error) {
-              alert(response.error);
-            }
-          });
-        }
-      });
-    }
-  });
+  contexts: ["page"],
+  onclick: function () {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs && tabs.length) {
+        // send message to active tab
+        chrome.tabs.sendMessage(tabs[0].id, { command: "createAdapter" }, (response) => {
+          if (response.error) {
+            alert(response.error);
+          }
+        });
+      }
+    });
+  }
+});
+
+// chrome.contextMenus.create({
+//   title: "Wildcard",
+//   id: "wildcard",
+//   type: "normal",
+//   contexts: ["page"]
+// }, () => {
+//   chrome.contextMenus.create({
+//     title: "Create Adapter",
+//     contexts: ["page"],
+//     parentId: "wildcard",
+//     onclick: function () {
+//       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+//         if (tabs && tabs.length) {
+//           // send message to active tab
+//           chrome.tabs.sendMessage(tabs[0].id, { command: "createAdapter" }, (response) => {
+//             if (response.error) {
+//               alert(response.error);
+//             }
+//           });
+//         }
+//       });
+//     }
+//   });
   // chrome.contextMenus.create({
   //   title: "Edit Adapter",
   //   contexts: ["page"],
@@ -117,4 +136,4 @@ chrome.contextMenus.create({
   //     chrome.runtime.openOptionsPage();
   //   }
   // });
-});
+//});

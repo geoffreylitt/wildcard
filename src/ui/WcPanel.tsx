@@ -380,17 +380,17 @@ const WcPanel = ({ records = [], attributes, query, actions, adapter }) => {
           onClick={() => {
             setCreatingAdapter(true);
             chrome.runtime.sendMessage({ command: 'editAdapter' });
-        }}> Edit Wildcard Table
+        }}> Edit Joker Table
         </EditButton>
         <ToggleButton hidden={hidden} onClick={ () => setHidden(!hidden)}
         codeEditorHidden={codeEditorHidden}>
-          { hidden ? "↑ Open Wildcard Table" : "↓ Close Wildcard Table" }
+          { hidden ? "↑ Open Joker Table" : "↓ Close Joker Table" }
         </ToggleButton>
       </>
     )}
     <Panel hidden={hidden} codeEditorHidden={codeEditorHidden}>
       <ControlBar>
-        <strong>Wildcard v0.2</strong>
+        <strong>Joker</strong>
       <AutosuggestInput
         activeCellValue={activeCellValue}
         setActiveCellValue={setActiveCellValue}

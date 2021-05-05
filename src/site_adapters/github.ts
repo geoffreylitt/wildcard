@@ -17,7 +17,7 @@ const GithubAdapter = createDomScrapingAdapter({
       let name_el = el.querySelector('a[itemprop="name codeRepository"]')
       let name = name_el.textContent.trim()
 
-      let stars_el = el.querySelector('*[href*="/stargazers"')
+      let stars_el = el.querySelector('*[href*="/stargazers"]')
       let stars = extractNumber(stars_el, 0)
 
       let forks_el = el.querySelector('*[href*="/network/members"]')

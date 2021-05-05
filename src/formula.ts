@@ -4,6 +4,7 @@ import ohm from 'ohm-js/dist/ohm';
 import _ from "lodash";
 import { Attribute, Record } from './core/types';
 import stringHash from 'string-hash'
+import { extractNumber } from './utils';
 
 // An object to store results of calling functions
 const functionCache = {}
@@ -164,6 +165,15 @@ const functions = {
       "text": "The string value to search (extracts between the last occurence of 'left' and the end of 'text').",
       "left": "The beginning string value.",
     },
+  },
+  "ExtractNumber": {
+    "function": function(arg) {
+      arg = arg instanceof HTMLElement ? arg.textContent : arg;
+      return promisify(extractNumber(arg))
+    },
+    "help": {
+      "text": "The string value to extract the number from."
+    }
   },
   "Substring": {
     "function": function(arg, indexStart, indexEnd = undefined) {
