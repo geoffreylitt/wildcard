@@ -283,7 +283,9 @@ export function createDomScrapingAdapter(config:ScrapingAdapterConfig):TableAdap
           extractedValue = value.value;
         }
         else if (value instanceof HTMLElement) {
-          extractedValue = value.textContent;
+          // Return DOM Elements as-is to the table;
+          // we'll extract text contents at display time.
+          extractedValue = value;
         } else {
           extractedValue = value;
         }

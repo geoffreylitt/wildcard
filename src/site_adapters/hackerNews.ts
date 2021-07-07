@@ -16,7 +16,7 @@ const HNAdapter = createDomScrapingAdapter({
   attributes: [
     { name: "id", type: "text", hidden: true },
     { name: "rank", type: "numeric" },
-    { name: "title", type: "text" },
+    { name: "title", type: "element", editable: true },
     { name: "link", type: "text" },
     { name: "points", type: "numeric" },
     { name: "user", type: "text" },

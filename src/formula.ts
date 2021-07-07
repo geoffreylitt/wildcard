@@ -105,6 +105,10 @@ const functions = {
   },
   "Round": function(x) {
     return promisify(Math.round(x))
+  },
+  "GetAttribute": function(el, attrName) {
+    // todo: error handling here?
+    return promisify(el.getAttribute(attrName))
   }
 }
 
