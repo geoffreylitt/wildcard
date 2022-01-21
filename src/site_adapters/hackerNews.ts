@@ -18,7 +18,7 @@ const HNAdapter = createDomScrapingAdapter({
     { name: "mainRow", type: "element" },
     { name: "detailsRow", type: "element" },
     { name: "rank", type: "numeric" },
-    { name: "title", type: "element", formula: `=QuerySelector(mainRow, "a.storylink")` },
+    { name: "title", type: "element", formula: `=QuerySelector(mainRow, "a.titlelink")` },
     { name: "link", type: "text", formula: `=GetAttribute(title, "href")` },
     { name: "points", type: "numeric", formula: `=QuerySelector(detailsRow, "span.score")` },
     { name: "user", type: "text" },
@@ -39,8 +39,8 @@ const HNAdapter = createDomScrapingAdapter({
           mainRow: el,
           detailsRow: detailsRow,
           rank: el.querySelector("span.rank"),
-          title: el.querySelector("a.storylink"),
-          link: el.querySelector("a.storylink").getAttribute("href"),
+          title: el.querySelector("a.titlelink"),
+          link: el.querySelector("a.titlelink").getAttribute("href"),
           // These elements contain text like "162 points";
           // Wildcard takes care of extracting a number automatically.
           points: detailsRow.querySelector("span.score"),
