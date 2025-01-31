@@ -20,7 +20,7 @@
     "docsify-cli": "^4.4.0",
     "handsontable": "^7.2.2",
     "lodash": "^4.17.15",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "ohm-js": "^0.14.0",
     "palettify": "^1.0.3",
     "pikaday": "^1.8.0",
